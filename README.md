@@ -19,3 +19,12 @@ The prologue:
   * A cron-able mechanism to run Babushka tasks
   * A method of describing multiple Babushka configured servers in one point
 
+Aspirational Feature List:
+--------------------------
+
+* Secure, but not inconvenient
+* Version control your environment(s) description
+  * VCS is the source of truth, 
+  * The dashboard is just a view and/or tool to manipulate the version-controlled truth
+* Be agnostic of whether you are using pre-allocated hosts or on-demand provisioned ones (either Cloud or VMs etc.)
+* Dependencies between hosts/roles - i.e. You may need your master node up before your slave boot.
