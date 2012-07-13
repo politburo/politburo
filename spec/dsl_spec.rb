@@ -9,7 +9,7 @@ describe "DSL" do
     @dsl.should be_true
   end
 
-  describe "#{}environment" do
+  describe "#environment" do
     it "should be able to describe an environment" do
       environment = @dsl.instance_eval do
         environment(:name => 'development') do
