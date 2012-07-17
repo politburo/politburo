@@ -1,5 +1,7 @@
-Politburo - The Babushka controlling DevOps orchestrator
+Politburo - The Babushka wielding DevOps orchestrator
 ========================================================
+
+Politburo is a tool to orchestrate launching entire environments described in a simple DSL, using Babushka recipes.
 
 The prologue:
 -------------
@@ -33,3 +35,18 @@ Aspirational Feature List:
   * Classic situation: NFS master node must be available before you start your NFS clients
 * Blueprint environments + modifications:
   * You may want multiple staging environment, that are 99% simliar. You do not want to have to duplicate & maintain multiple descriptors.
+
+Politburo DSL Basics:
+---------------------
+
+* The DSL is designed to be executed by Babushka
+* The DSL describes a hierarchy of resources
+  * e.g. An example production environment is _composed of_ one load balancer, one database master, one database slaves and three web-nodes
+  * The production environment is a resource, and so are the load balancer, db master and each of the web nodes. 
+  * The environment resource contains the other resources.
+* A hierachical relationship is simply syntactic sugar to imply dependency.
+  * e.g. To mark the production environment as ready, all the composite parts of the production environment such as the load balancer and the database master must be ready. Therefore the production environment is _dependent_ on all its sub-resources
+* Naturally, you can still have dependency across the tree, other than on your sub-resources
+  * e.g. The webnodes for a standard LAMP stack are dependent on the master db node being ready, even though they don't hierarchically 'own' the dbnode. 
+* Resources lifecycle
+  * All resources share a minimum of these life-cycle states: "Defined", "In Progress", "Ready"

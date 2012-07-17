@@ -7,9 +7,9 @@ Gem::Specification.new do |s|
   s.version     = Politburo::VERSION
   s.authors     = ["Robert Postill", "Tal Rotbart"]
   s.email       = ["robert.postill@googlemail.com", "redbeard@gmail.com"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.homepage    = "https://github.com/redbeard/politburo#readme"
+  s.summary     = "Politburo - The Babushka wielding DevOps orchestrator"
+  s.description = "Politburo is a tool to orchestrate launching entire environments described in a simple DSL, using Babushka recipes."
 
   s.rubyforge_project = "politburo"
 
