@@ -8,7 +8,7 @@ describe "Integration" do
 		Politburo::DSL.define do
 
 			environment(:name => "Simple CI Environment", :environment_flavour => :amazon_web_services) do
-				node(name: "Jenkins", node_flavour: "m1.large")
+				node(name: "Jenkins", node_flavour: "m1.large") {}
 			end
 
 		end
