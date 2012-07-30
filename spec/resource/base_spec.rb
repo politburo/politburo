@@ -102,6 +102,18 @@ describe Politburo::Resource::Base do
 		end
 	end
 
+	context "#generate_babushka_deps" do
+
+		let(:io) { StringIO.new() }
+
+		it "should generate the deps for each state" do
+			resource.states.each { | state | state.should_receive(:generate_babushka_deps).with(io).exactly(1).times }
+
+			resource.generate_babushka_deps(io)
+		end
+
+	end
+
 	context "#root" do
 
 		it "should return the root resource" do

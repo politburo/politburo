@@ -52,6 +52,14 @@ describe Politburo::Resource::State do
 		end
 	end
 
+	context "#generate_babushka_deps" do
+
+		it "should generate the babushka dep for the state with the correct dependencies" do
+			fail("todo")
+		end
+
+	end
+
 	context "#dependent_on?" do
 		before :each do
 			state.dependencies << another_state

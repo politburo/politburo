@@ -39,6 +39,12 @@ module Politburo
 				state(:ready).add_dependency_on(target)
 			end
 
+			def generate_babushka_deps(io)
+				states.each { | s | s.generate_babushka_deps(io) }
+
+				io
+			end
+
 			attr_writer :parent_resource
 		end
 	end
