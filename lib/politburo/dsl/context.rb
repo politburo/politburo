@@ -3,65 +3,69 @@ module Politburo
 	module DSL
 
 		class Context
-			attr_reader :resource
+			attr_reader :receiver
 
-			def initialize(resource)
-				@resource = resource
+			def initialize(receiver)
+				@receiver = receiver
 			end
 
 			def define(&block)
 				instance_eval &block
 
-				resource
+				receiver
 			end
 
 			alias :evaluate :define
 
-			def environment(opts, &block)
-				define_or_lookup_resource(::Politburo::Resource::Environment, opts, &block)
+			def environment(attributes, &block)
+				define_or_lookup_receiver(::Politburo::Resource::Environment, attributes, &block)
 			end
 
-			def node(opts, &block)
-				define_or_lookup_resource(::Politburo::Resource::Node, opts, &block)
+			def node(attributes, &block)
+				define_or_lookup_receiver(::Politburo::Resource::Node, attributes, &block)
+			end
+
+			def state(state_name)
+				Context.new(receiver.state(state_name))
+			end
+
+			def depends_on(state)
+				receiver.add_dependency_on(state)
 			end
 
 			private
 
-			def define_or_lookup_resource(new_resource_class, opts, &block)
+			def define_or_lookup_receiver(new_receiver_class, attributes, &block)
 				if (block_given?)
 					# Definition
-					define_new_resource(new_resource_class, opts, &block)
+					define_new_receiver(new_receiver_class, attributes, &block)
 				else
 					# Lookup
-					resources = resource.root.find_all_by_attributes(opts.merge(:type => new_resource_class.to_s))
-					raise "Could not find resource by attributes: #{attributes.options}." if (resources.empty?) 
-					raise "Ambiguous resource for attributes: #{attributes.options}. Founds: #{resources.inspect}" if (resources.size > 1) 
-					resources.first
+					find_attrs = attributes.merge(:class => new_receiver_class)
+					lookup_existing_receiver(find_attrs)
 				end
 			end
 
-			def define_new_resource(new_resource_class, opts, &block)
-				new_resource = new_resource_class.new(resource)
-
-				assign_options(new_resource, opts)
-
-				Context.new(new_resource).define(&block)
-
-				new_resource
+			def lookup_existing_receiver(find_attrs)
+				receivers = receiver.root.find_all_by_attributes(find_attrs)
+				raise "Could not find receiver by attributes: #{find_attrs.inspect}." if (receivers.empty?) 
+				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Founds: #{receivers.inspect}" if (receivers.size > 1) 
+				receivers.first				
 			end
 
-			def assign_options(resource, opts)
-				opts.each_pair do | attr_name, attr_value |
-					resource.send("#{attr_name.to_s}=".to_sym, [ attr_value ])
-				end
+			def define_new_receiver(new_receiver_class, attributes, &block)
+				new_receiver = new_receiver_class.new(attributes.merge(parent_resource: receiver))
+				Context.new(new_receiver).define(&block)
+
+				receiver.add_dependency_on(new_receiver)
+
+				new_receiver
 			end
+
 		end
 
-
 		def self.define(&block)
-			root_resource = Politburo::Resource::Base.new()
-			root_resource.name = "All"
-
+			root_resource = Politburo::Resource::Base.new(name: "All")
 			root_context = Context.new(root_resource)
 			root_context.define(&block)
 		end

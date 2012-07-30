@@ -13,6 +13,10 @@ describe Politburo::Resource::Searchable do
 			@children = children
 		end
 
+		def contained_searchables
+			children
+		end
+
 	end	
 
 	let(:leaf_1) { SearchableTestObj.new(nil, { name: 'leaf 1', index: 1, type: 'leaf' }) }

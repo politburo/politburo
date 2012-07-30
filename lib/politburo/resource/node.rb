@@ -4,6 +4,7 @@ module Politburo
 			attr_accessor :node_flavour
 
 			requires :node_flavour
+			requires :parent_resource
 
 			def initialize(parent_resource)
 				super(parent_resource)

@@ -15,6 +15,12 @@ module Politburo
 				validation_errors.empty?
 			end
 
+			def update_attributes(attributes)
+				attributes.each_pair do | attr_name, attr_value |
+					self.send("#{attr_name.to_s}=".to_sym, attr_value )
+				end
+			end
+
 			module ClassMethods
 
 				def validations

@@ -4,11 +4,7 @@ module Politburo
 			attr_accessor :environment_flavour
 
 			requires :environment_flavour
-
-			def initialize(parent_resource)
-				super(parent_resource)
-			end
-
+			requires :parent_resource
 
 		end
 	end
