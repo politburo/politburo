@@ -6,10 +6,10 @@ describe Politburo::DSL::Context do
 			environment(:name => "child environment", :environment_flavour => :amazon_web_services) do
 				node(name: "node", node_flavour: "m1.large") {}
 				node(name: "another node", node_flavour: "m1.large") do
-					depends_on node(name: "node").state(:ready)
+					depends_on node(name: "node").state(:configured)
 				end
 				node(name: "yet another node", node_flavour: "m1.large") do
-					state('configured').depends_on node(name: "node").state(:ready)
+					state('configured').depends_on node(name: "node")
 				end
 			end
 
@@ -36,6 +36,7 @@ describe Politburo::DSL::Context do
 
 
 		it "should allow you to define state dependencies" do
+			another_node.state(:ready).should be_dependent_on node.state(:configured)
 			yet_another_node.state(:configured).should be_dependent_on node.state(:ready)
 		end
 	end
