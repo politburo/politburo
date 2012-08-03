@@ -33,6 +33,15 @@ module Politburo
 				receiver.add_dependency_on(state)
 			end
 
+			def lookup(find_attrs)
+				receivers = receiver.find_all_by_attributes(find_attrs)
+				receivers.merge(receiver.parent_resource.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
+				receivers.merge(receiver.root.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
+				raise "Could not find receiver by attributes: #{find_attrs.inspect}." if (receivers.empty?) 
+				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Founds: #{receivers.inspect}" if (receivers.size > 1) 
+				receivers.first				
+			end
+
 			private
 
 			def define_or_lookup_receiver(new_receiver_class, attributes, &block)
@@ -42,15 +51,8 @@ module Politburo
 				else
 					# Lookup
 					find_attrs = attributes.merge(:class => new_receiver_class)
-					lookup_existing_receiver(find_attrs)
+					lookup(find_attrs)
 				end
-			end
-
-			def lookup_existing_receiver(find_attrs)
-				receivers = receiver.root.find_all_by_attributes(find_attrs)
-				raise "Could not find receiver by attributes: #{find_attrs.inspect}." if (receivers.empty?) 
-				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Founds: #{receivers.inspect}" if (receivers.size > 1) 
-				receivers.first				
 			end
 
 			def define_new_receiver(new_receiver_class, attributes, &block)

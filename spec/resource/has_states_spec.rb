@@ -1,6 +1,6 @@
 describe Politburo::Resource::HasStates do
 
-	class StateObj
+	class StateObj 
 		include Politburo::DSL::DslDefined
 		include Politburo::Resource::HasStates
 
@@ -10,7 +10,7 @@ describe Politburo::Resource::HasStates do
 	end
 
 	let(:state_obj) do
-		StateObj.new(name: 'State Object')
+		StateObj.new()
 	end
 
 	let(:ready_state) do

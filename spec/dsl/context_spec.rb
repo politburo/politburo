@@ -41,4 +41,15 @@ describe Politburo::DSL::Context do
 		end
 	end
 
+	context "#lookup" do
+
+		let(:context_for_environment) { Politburo::DSL::Context.new(environment) }
+		let(:context_for_node) { Politburo::DSL::Context.new(node) }
+
+		it "should lookup first within a resource hierarchy" do
+			context_for_node.lookup(:class => Politburo::Resource::Node).should == node
+		end
+
+	end
+
 end

@@ -7,8 +7,14 @@ describe "Integration" do
 	let(:simple_environment_definition) do
 		Politburo::DSL.define do
 
-			environment(:name => "Simple CI Environment", :environment_flavour => :amazon_web_services) do
-				node(name: "Jenkins", node_flavour: "m1.large") {}
+			environment(:name => "child environment", :environment_flavour => :amazon_web_services) do
+				node(name: "node", node_flavour: "m1.large") {}
+				node(name: "another node", node_flavour: "m1.large") do
+					depends_on node(name: "node").state(:configured)
+				end
+				node(name: "yet another node", node_flavour: "m1.large") do
+					state('configured').depends_on node(name: "node")
+				end
 			end
 
 		end
