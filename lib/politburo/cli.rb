@@ -17,8 +17,10 @@ module Politburo
       end
 
       opts = Trollop::with_standard_exception_handling p do
-        p.parse arguments
+        opts = p.parse arguments
         raise Trollop::HelpNeeded if arguments.empty? # show help screen
+
+        opts
       end
 
       puts "Options: #{opts.inspect}"
