@@ -30,6 +30,12 @@ describe Politburo::Resource::Base do
 		resource.should be_a Politburo::Resource::Searchable
 	end
 
+	context "#full_name" do
+		it "should return a hierarchical name for the resource" do
+			sub_resource_2.full_name.should == "Parent resource/Child resource/Sub Resource 2"
+		end
+	end
+
 	context "#children" do
 
 		it "should maintain a list of children" do
@@ -70,6 +76,53 @@ describe Politburo::Resource::Base do
 
 	end
 
+	context "enumerable" do
+
+		it "#each should yield self first, then states, then sub-resources breadth first" do
+			sub_resource_1.should_not be_nil
+			sub_resource_2.should_not be_nil
+
+			each_a = parent_resource.to_a
+			each_a.should_not be_empty
+			each_a.first.should == parent_resource
+			each_a.last.should == sub_resource_2.state(:ready)
+
+			expected_order = <<EXPECTED_ORDER
+Parent resource
+Parent resource#defined
+Parent resource#starting
+Parent resource#started
+Parent resource#configuring
+Parent resource#configured
+Parent resource#ready
+Parent resource/Child resource
+Parent resource/Child resource#defined
+Parent resource/Child resource#starting
+Parent resource/Child resource#started
+Parent resource/Child resource#configuring
+Parent resource/Child resource#configured
+Parent resource/Child resource#ready
+Parent resource/Child resource/Sub Resource 1
+Parent resource/Child resource/Sub Resource 1#defined
+Parent resource/Child resource/Sub Resource 1#starting
+Parent resource/Child resource/Sub Resource 1#started
+Parent resource/Child resource/Sub Resource 1#configuring
+Parent resource/Child resource/Sub Resource 1#configured
+Parent resource/Child resource/Sub Resource 1#ready
+Parent resource/Child resource/Sub Resource 2
+Parent resource/Child resource/Sub Resource 2#defined
+Parent resource/Child resource/Sub Resource 2#starting
+Parent resource/Child resource/Sub Resource 2#started
+Parent resource/Child resource/Sub Resource 2#configuring
+Parent resource/Child resource/Sub Resource 2#configured
+Parent resource/Child resource/Sub Resource 2#ready			
+EXPECTED_ORDER
+
+			each_a.map(&:full_name).join("\n").strip.should == expected_order.strip
+		end
+
+	end
+
 	context "searchable" do
 
 		it "should be ::Searchable" do
@@ -102,14 +155,24 @@ describe Politburo::Resource::Base do
 		end
 	end
 
-	context "#generate_babushka_deps" do
+	context "#to_babushka_deps" do
 
-		let(:io) { StringIO.new() }
+		before :each do 
+			sub_resource_1.should_not be_nil
+			sub_resource_2.should_not be_nil
+			resource.should_not be_nil
+			parent_resource.should_not be_nil
 
-		it "should generate the deps for each state" do
-			resource.states.each { | state | state.should_receive(:generate_babushka_deps).with(io).exactly(1).times }
+			parent_resource.children.should_not be_empty
+		end
 
-			resource.generate_babushka_deps(io)
+		it "should call #to_babushka_deps for each resource and output it to string" do
+			result = parent_resource.to_babushka_deps
+
+			result.should_not be_nil
+			result.should_not be_empty
+
+			puts result
 		end
 
 	end

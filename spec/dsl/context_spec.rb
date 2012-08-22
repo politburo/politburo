@@ -1,3 +1,5 @@
+require 'politburo'
+
 describe Politburo::DSL::Context do
 
 	let(:root_definition) do

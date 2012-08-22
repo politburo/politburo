@@ -52,10 +52,32 @@ describe Politburo::Resource::State do
 		end
 	end
 
-	context "#generate_babushka_deps" do
+	context "#full_name" do
+
+		it "should be constructed of the resource full name and the state name" do
+			state.full_name.should == "Resource#state"
+		end
+
+	end
+
+	context "#to_babushka_dep" do
+
+		before :each do
+			state.add_dependency_on(another_state)
+		end
+
+		let(:babushka_dep_s) { state.to_babushka_dep }
+
+		it "should generate the dep name correctly" do
+			babushka_dep_s.should include "dep \"#{state.full_name}\" do"
+		end
+
+		it "should require the politburo support dep as first requirement" do
+			babushka_dep_s.should include "requires \"politburo-deps:'support'\""
+		end
 
 		it "should generate the babushka dep for the state with the correct dependencies" do
-			fail("todo")
+			state.dependencies.each { | required_state |  babushka_dep_s.should include "'#{required_state.full_name}'" }
 		end
 
 	end

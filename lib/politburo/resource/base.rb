@@ -1,6 +1,7 @@
 module Politburo
 	module Resource
 		class Base
+			include Enumerable
 			include Politburo::DSL::DslDefined
 			include Politburo::Resource::Searchable
 			include Politburo::Resource::HasStates
@@ -31,18 +32,27 @@ module Politburo
 				parent_resource.nil? ? self : parent_resource.root
 			end
 
+			def full_name
+				parent_resource.nil? ? name : "#{parent_resource.full_name}/#{name}"
+			end
+
 			def contained_searchables
 				Set.new().merge(children).merge(states)
+			end
+
+			def each(&block)
+				block.call(self)
+				states.each(&block)
+				children.each { | c | c.each(&block) } 
 			end
 
 			def add_dependency_on(target)
 				state(:ready).add_dependency_on(target)
 			end
 
-			def generate_babushka_deps(io)
-				states.each { | s | s.generate_babushka_deps(io) }
-
-				io
+			def to_babushka_deps()
+				puts "here for #{self.full_name}"
+				self.map() { | s | s.to_babushka_deps unless s == self }.join("\n")
 			end
 
 			attr_writer :parent_resource

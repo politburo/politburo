@@ -35,7 +35,23 @@ module Politburo
 				dependencies << state
 			end
 
-			private
+			def to_babushka_dep()
+				<<BABUSHKA_DEP
+dep "#{self.full_name}" do
+	requires #{[ "\"politburo-deps:'support'\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
+
+	meet {
+		log "State reached: '#{self.full_name}'."
+	}
+end
+BABUSHKA_DEP
+			end
+
+			alias :to_babushka_deps :to_babushka_dep
+
+			def full_name()
+				"#{resource.full_name}##{name}"
+			end
 
 			attr_writer :resource
 		end
