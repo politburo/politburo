@@ -44,7 +44,7 @@ module Politburo
         generate_to(generate_to_path.realpath)
       ensure
         generate_to_path.rmtree
-        log.debug("Removed path: '#{generate_to_path.realpath}'")
+        log.debug("Cleaned up target generation path: '#{generate_to_path.realdirpath}'")
       end
     end
 
@@ -73,7 +73,7 @@ module Politburo
         target_generation_path = babushka_sources_path + "politburo-run-#{Time.now.to_i.to_s}"
         target_generation_path.mkdir
         raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
-        log.debug("Created target generation path: '#{target_generation_path.realdirpath}' ")
+        log.debug("Created target generation path: '#{target_generation_path.realpath}' ")
         target_generation_path
       end
     end
