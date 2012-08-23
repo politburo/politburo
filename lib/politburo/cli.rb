@@ -38,8 +38,14 @@ module Politburo
     end
 
     def run()
-      #puts JSON.pretty_generate(root)
-      generate_to(target_generation_path.realpath)
+      generate_to_path = target_generation_path
+
+      begin
+        generate_to(generate_to_path.realpath)
+      ensure
+        generate_to_path.rmtree
+        log.debug("Removed path: '#{generate_to_path.realpath}'")
+      end
     end
 
     def generate_to(target_dir)

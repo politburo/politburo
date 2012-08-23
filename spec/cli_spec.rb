@@ -123,10 +123,23 @@ ENVFILE_CONTENTS
     context "#run" do
       let (:fake_target_path) { double("fake target path") }
 
+      before :each do
+        cli.stub(:target_generation_path).and_return(fake_target_path)
+        cli.stub(:generate_to).with(:fake_target_realpath)
+
+        fake_target_path.stub(:rmtree)
+        fake_target_path.stub(:realpath).and_return(:fake_target_realpath)
+      end
+
       it "should generate the babushka deps file to the target directory" do
         cli.should_receive(:target_generation_path).and_return(fake_target_path)
-        fake_target_path.should_receive(:realpath).and_return(:fake_target_realpath)
         cli.should_receive(:generate_to).with(:fake_target_realpath)
+
+        cli.run
+      end
+
+      it "should remove the generated target directory at the end of the run" do
+        fake_target_path.should_receive(:rmtree)
 
         cli.run
       end
