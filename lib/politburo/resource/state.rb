@@ -40,6 +40,10 @@ module Politburo
 dep "#{self.full_name}" do
 	requires #{[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
 
+	met? {
+		false
+	}
+
 	meet {
 		log_ok "State reached: '#{self.full_name}'."
 	}

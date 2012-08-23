@@ -129,6 +129,7 @@ ENVFILE_CONTENTS
 
         fake_target_path.stub(:rmtree)
         fake_target_path.stub(:realpath).and_return(:fake_target_realpath)
+        fake_target_path.stub(:realdirpath).and_return(:fake_target_realpath)
       end
 
       it "should generate the babushka deps file to the target directory" do
