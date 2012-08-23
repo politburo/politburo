@@ -169,10 +169,12 @@ EXPECTED_ORDER
 		it "should call #to_babushka_deps for each resource and output it to string" do
 			result = parent_resource.to_babushka_deps
 
+			parent_resource.each do | sub | 
+				result.should include sub.to_babushka_deps unless sub==parent_resource
+			end
+
 			result.should_not be_nil
 			result.should_not be_empty
-
-			puts result
 		end
 
 	end

@@ -51,7 +51,6 @@ module Politburo
 			end
 
 			def to_babushka_deps()
-				puts "here for #{self.full_name}"
 				self.map() { | s | s.to_babushka_deps unless s == self }.join("\n")
 			end
 
