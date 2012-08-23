@@ -13,6 +13,7 @@ module Politburo
                politburo [options] resource[#state] [resource2[#state]]+
         where [options] are:
         EOS
+        opt :envfile, "Use a different envfile", :short => 'e', :default => 'Envfile'
         opt :pretend, "Pretend to run, but don't actually execute any remote deps", :short => 'p'
       end
 
