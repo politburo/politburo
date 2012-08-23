@@ -73,7 +73,7 @@ describe Politburo::Resource::State do
 		end
 
 		it "should require the politburo support dep as first requirement" do
-			babushka_dep_s.should include "requires \"politburo-deps:'support'\""
+			babushka_dep_s.should include "requires \"politburo:support\""
 		end
 
 		it "should generate the babushka dep for the state with the correct dependencies" do

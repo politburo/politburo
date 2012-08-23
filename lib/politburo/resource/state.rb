@@ -38,7 +38,7 @@ module Politburo
 			def to_babushka_dep()
 				<<BABUSHKA_DEP
 dep "#{self.full_name}" do
-	requires #{[ "\"politburo-deps:'support'\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
+	requires #{[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
 
 	meet {
 		log "State reached: '#{self.full_name}'."
