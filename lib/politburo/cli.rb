@@ -73,7 +73,7 @@ module Politburo
         target_generation_path = babushka_sources_path + "politburo-run-#{Time.now.to_i.to_s}"
         target_generation_path.mkdir
         raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
-        log.debug("Created target generation path: '#{target_generation_path.realpath}' ")
+        log.debug("Created target generation path: '#{target_generation_path.realdirpath}' ")
         target_generation_path
       end
     end
