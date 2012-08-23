@@ -4,3 +4,4 @@ Gemfile.lock
 pkg/*
 *.sublime-workspace
 bin
+tmp/*

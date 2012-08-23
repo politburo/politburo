@@ -9,8 +9,9 @@ module Politburo
 				@receiver = receiver
 			end
 
-			def define(&block)
-				instance_eval &block
+			def define(definition = nil, &block)
+				instance_eval(definition) if definition
+				instance_eval(&block) if block_given?
 
 				receiver
 			end
@@ -66,10 +67,10 @@ module Politburo
 
 		end
 
-		def self.define(&block)
+		def self.define(definition = nil, &block)
 			root_resource = Politburo::Resource::Base.new(name: "All")
 			root_context = Context.new(root_resource)
-			root_context.define(&block)
+			root_context.define(definition, &block)
 		end
 	end
 

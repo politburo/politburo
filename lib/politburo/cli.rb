@@ -1,9 +1,11 @@
 require 'trollop'
 
 module Politburo
-  module CLI
+  class CLI
+    attr_reader :options
+    attr_reader :targets
 
-    def self.start(arguments)
+    def self.create(arguments)
       p = Trollop::Parser.new do
           version "politburo, version #{Politburo::VERSION}"
           banner <<-EOS
@@ -24,9 +26,27 @@ module Politburo
         opts
       end
 
-      puts "Options: #{opts.inspect}"
-      puts "Target resource(s)/state(s): #{arguments.inspect}"
+      cli = self.new(opts, arguments)
 
+      cli.run()
+
+      cli
+    end
+
+    def initialize(options, targets)
+      @options = options
+      @targets = targets
+    end
+
+    def run()
+    end
+
+    def root()
+      @root ||= Politburo::DSL.define(envfile_contents)
+    end
+
+    def envfile_contents()
+      @envfile_contents ||= File.open(options[:envfile], "r") { | f | f.read() }
     end
 
   end
