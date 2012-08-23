@@ -53,6 +53,17 @@ BABUSHKA_DEP
 				"#{resource.full_name}##{name}"
 			end
 
+			def to_json_hash()
+				{
+						name: name,
+						dependencies: dependencies.map(&:full_name),
+				}
+			end
+
+			def to_json(*args) 
+				to_json_hash.to_json(*args)
+			end
+
 			attr_writer :resource
 		end
 	end

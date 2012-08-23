@@ -55,6 +55,18 @@ module Politburo
 				self.map() { | s | s.to_babushka_deps unless s == self }.join("\n")
 			end
 
+			def to_json_hash()
+				{
+					name: name,
+					states: states.to_a,
+					children: children.to_a,
+				}
+			end
+
+			def to_json(*args) 
+				to_json_hash.to_json(*args)
+			end
+
 			attr_writer :parent_resource
 		end
 	end

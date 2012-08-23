@@ -1,4 +1,5 @@
 require 'trollop'
+require 'json'
 
 module Politburo
   class CLI
@@ -26,11 +27,7 @@ module Politburo
         opts
       end
 
-      cli = self.new(opts, arguments)
-
-      cli.run()
-
-      cli
+      self.new(opts, arguments)
     end
 
     def initialize(options, targets)
@@ -39,6 +36,7 @@ module Politburo
     end
 
     def run()
+      #puts JSON.pretty_generate(root)
     end
 
     def root()
