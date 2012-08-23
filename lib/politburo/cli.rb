@@ -1,6 +1,7 @@
 require 'trollop'
 require 'json'
 require 'pathname'
+require 'logger'
 
 module Politburo
   class CLI
@@ -42,7 +43,9 @@ module Politburo
     end
 
     def generate_to(target_dir)
-      File.open(File.join(target_dir, 'politburo_generated_deps.rb'), "w") { | f | f.write(root.to_babushka_deps) }
+      target_deps_file = File.join(target_dir, 'politburo_generated_deps.rb')
+      File.open(target_deps_file, "w") { | f | f.write(root.to_babushka_deps) }
+      log.debug("Generated deps to: '#{target_deps_file}'")
     end
 
     def root()
@@ -64,8 +67,13 @@ module Politburo
         target_generation_path = babushka_sources_path + "politburo-#{Time.now.to_i.to_s}"
         target_generation_path.mkdir
         raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
+        log.debug("Created target generation path: '#{target_generation_path.realpath}' ")
         target_generation_path
       end
+    end
+
+    def log()
+      @log ||= ::Logger.new(STDOUT)
     end
 
   end

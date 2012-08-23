@@ -29,6 +29,9 @@ ENVFILE_CONTENTS
 
     before(:each) do
       cli.stub(:envfile_contents).and_return(envfile_contents)
+      cli.log.stub(:debug)
+      cli.log.stub(:trace)
+      cli.log.stub(:info)
     end
 
     context "#root" do
@@ -79,6 +82,8 @@ ENVFILE_CONTENTS
 
         fake_babushka_sources_pathname.should_receive(:+).with('politburo-generated-timestamp').and_return(fake_target_path)
 
+        fake_target_path.stub(:realpath).and_return("fake real path")
+
         fake_target_path.should_receive(:mkdir)
         fake_target_path.stub(:directory?).and_return(true)
       end
@@ -90,7 +95,7 @@ ENVFILE_CONTENTS
       it "should raise an error if the directory wasn't created" do
         fake_target_path.should_receive(:directory?).and_return(false)
 
-        lambda { cli.target_generation_path }.should raise_error
+        lambda { cli.target_generation_path }.should raise_error "Could not create target generation path: 'fake real path'"
       end
 
       it "should be memoised so it returns the same target path the 2nd time around" do
