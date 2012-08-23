@@ -64,7 +64,7 @@ module Politburo
 
     def target_generation_path()
       @target_generation_path ||= begin 
-        target_generation_path = babushka_sources_path + "politburo-#{Time.now.to_i.to_s}"
+        target_generation_path = babushka_sources_path + "politburo-run-#{Time.now.to_i.to_s}"
         target_generation_path.mkdir
         raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
         log.debug("Created target generation path: '#{target_generation_path.realpath}' ")

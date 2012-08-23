@@ -41,7 +41,7 @@ dep "#{self.full_name}" do
 	requires #{[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
 
 	meet {
-		log "State reached: '#{self.full_name}'."
+		log_ok "State reached: '#{self.full_name}'."
 	}
 end
 BABUSHKA_DEP

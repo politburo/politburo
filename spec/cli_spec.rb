@@ -80,7 +80,7 @@ ENVFILE_CONTENTS
         fake_time.should_receive(:to_i).and_return(fake_time_as_i)
         fake_time_as_i.should_receive(:to_s).and_return('generated-timestamp')
 
-        fake_babushka_sources_pathname.should_receive(:+).with('politburo-generated-timestamp').and_return(fake_target_path)
+        fake_babushka_sources_pathname.should_receive(:+).with('politburo-run-generated-timestamp').and_return(fake_target_path)
 
         fake_target_path.stub(:realpath).and_return("fake real path")
 
