@@ -33,7 +33,7 @@ module Politburo
 			end
 
 			def full_name
-				parent_resource.nil? ? name : "#{parent_resource.full_name}/#{name}"
+				parent_resource.nil? ? name : "#{parent_resource.full_name}::#{name}"
 			end
 
 			def contained_searchables

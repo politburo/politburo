@@ -32,7 +32,7 @@ describe Politburo::Resource::Base do
 
 	context "#full_name" do
 		it "should return a hierarchical name for the resource" do
-			sub_resource_2.full_name.should == "Parent resource/Child resource/Sub Resource 2"
+			sub_resource_2.full_name.should == "Parent resource::Child resource::Sub Resource 2"
 		end
 	end
 
@@ -95,27 +95,27 @@ Parent resource#started
 Parent resource#configuring
 Parent resource#configured
 Parent resource#ready
-Parent resource/Child resource
-Parent resource/Child resource#defined
-Parent resource/Child resource#starting
-Parent resource/Child resource#started
-Parent resource/Child resource#configuring
-Parent resource/Child resource#configured
-Parent resource/Child resource#ready
-Parent resource/Child resource/Sub Resource 1
-Parent resource/Child resource/Sub Resource 1#defined
-Parent resource/Child resource/Sub Resource 1#starting
-Parent resource/Child resource/Sub Resource 1#started
-Parent resource/Child resource/Sub Resource 1#configuring
-Parent resource/Child resource/Sub Resource 1#configured
-Parent resource/Child resource/Sub Resource 1#ready
-Parent resource/Child resource/Sub Resource 2
-Parent resource/Child resource/Sub Resource 2#defined
-Parent resource/Child resource/Sub Resource 2#starting
-Parent resource/Child resource/Sub Resource 2#started
-Parent resource/Child resource/Sub Resource 2#configuring
-Parent resource/Child resource/Sub Resource 2#configured
-Parent resource/Child resource/Sub Resource 2#ready			
+Parent resource::Child resource
+Parent resource::Child resource#defined
+Parent resource::Child resource#starting
+Parent resource::Child resource#started
+Parent resource::Child resource#configuring
+Parent resource::Child resource#configured
+Parent resource::Child resource#ready
+Parent resource::Child resource::Sub Resource 1
+Parent resource::Child resource::Sub Resource 1#defined
+Parent resource::Child resource::Sub Resource 1#starting
+Parent resource::Child resource::Sub Resource 1#started
+Parent resource::Child resource::Sub Resource 1#configuring
+Parent resource::Child resource::Sub Resource 1#configured
+Parent resource::Child resource::Sub Resource 1#ready
+Parent resource::Child resource::Sub Resource 2
+Parent resource::Child resource::Sub Resource 2#defined
+Parent resource::Child resource::Sub Resource 2#starting
+Parent resource::Child resource::Sub Resource 2#started
+Parent resource::Child resource::Sub Resource 2#configuring
+Parent resource::Child resource::Sub Resource 2#configured
+Parent resource::Child resource::Sub Resource 2#ready			
 EXPECTED_ORDER
 
 			each_a.map(&:full_name).join("\n").strip.should == expected_order.strip
