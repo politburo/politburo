@@ -2,6 +2,7 @@ require 'trollop'
 require 'json'
 require 'pathname'
 require 'logger'
+require 'foreman/process'
 
 module Politburo
   class CLI
@@ -42,6 +43,7 @@ module Politburo
 
       begin
         generate_to(generate_to_path.realpath)
+        run_babushka
       ensure
         generate_to_path.rmtree
         log.debug("Cleaned up target generation path: '#{generate_to_path.realdirpath}'")
@@ -68,9 +70,13 @@ module Politburo
       result_path
     end
 
+    def target_generation_dirname
+      @target_generation_dirname ||= "politburo-run-#{Time.now.to_i.to_s}"
+    end
+
     def target_generation_path()
       @target_generation_path ||= begin 
-        target_generation_path = babushka_sources_path + "politburo-run-#{Time.now.to_i.to_s}"
+        target_generation_path = babushka_sources_path + target_generation_dirname
         target_generation_path.mkdir
         raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
         log.debug("Created target generation path: '#{target_generation_path.realpath}' ")
@@ -82,5 +88,14 @@ module Politburo
       @log ||= ::Logger.new(STDOUT)
     end
 
+    private
+
+    def run_babushka
+        command = "babushka #{target_generation_dirname}:All#ready"
+        log.debug("About to execute command: '#{command}'")
+        process = Foreman::Process.new(command)
+        process.run
+        log.info("Run complete.")
+    end
   end
 end

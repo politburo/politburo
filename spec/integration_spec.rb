@@ -61,7 +61,6 @@ describe "Integration" do
 	describe "end-to-end process" do
 
 		before :each do
-			simple_environment_definition.write_babushka_deps(target_dir_path)
 		end
 
 		it "should have generated the babushka deps into the target directory" do

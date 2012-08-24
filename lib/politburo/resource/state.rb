@@ -38,13 +38,14 @@ module Politburo
 			def to_babushka_dep()
 				<<BABUSHKA_DEP
 dep "#{self.full_name}" do
-	requires #{[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"}).join(", ")}
+	requires #{babushka_required_deps.join(", ")}
 
 	met? {
-		false
+		var(:'#{self.full_name}')
 	}
 
 	meet {
+		set(:'#{self.full_name}', true)
 		log_ok "State reached: '#{self.full_name}'."
 	}
 end
@@ -69,6 +70,14 @@ BABUSHKA_DEP
 			end
 
 			attr_writer :resource
+
+			private 
+
+			def babushka_required_deps
+				#[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"})
+				self.dependencies.map() { | s | "'#{s.full_name}'"}
+			end
+
 		end
 	end
 end

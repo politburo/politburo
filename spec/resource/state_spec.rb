@@ -72,10 +72,6 @@ describe Politburo::Resource::State do
 			babushka_dep_s.should include "dep \"#{state.full_name}\" do"
 		end
 
-		it "should require the politburo support dep as first requirement" do
-			babushka_dep_s.should include "requires \"politburo:support\""
-		end
-
 		it "should generate the babushka dep for the state with the correct dependencies" do
 			state.dependencies.each { | required_state |  babushka_dep_s.should include "'#{required_state.full_name}'" }
 		end

@@ -126,6 +126,7 @@ ENVFILE_CONTENTS
       before :each do
         cli.stub(:target_generation_path).and_return(fake_target_path)
         cli.stub(:generate_to).with(:fake_target_realpath)
+        cli.stub(:run_babushka)
 
         fake_target_path.stub(:rmtree)
         fake_target_path.stub(:realpath).and_return(:fake_target_realpath)
@@ -135,6 +136,12 @@ ENVFILE_CONTENTS
       it "should generate the babushka deps file to the target directory" do
         cli.should_receive(:target_generation_path).and_return(fake_target_path)
         cli.should_receive(:generate_to).with(:fake_target_realpath)
+
+        cli.run
+      end
+
+      it "should run babushka" do
+        cli.should_receive(:run_babushka)
 
         cli.run
       end
