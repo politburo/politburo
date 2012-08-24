@@ -95,6 +95,7 @@ module Politburo
         log.debug("About to execute command: '#{command}'")
         process = Foreman::Process.new(command)
         process.run
+        Process.waitall
         log.info("Run complete.")
     end
   end
