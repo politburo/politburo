@@ -41,11 +41,12 @@ dep "#{self.full_name}" do
 	requires #{babushka_required_deps.join(", ")}
 
 	met? {
-		var(:'#{self.full_name}')
+		@state ||= {}
+		@state[:'#{self.full_name}']
 	}
 
 	meet {
-		set(:'#{self.full_name}', true)
+		@state[:'#{self.full_name}'] = true
 		log_ok "State reached: '#{self.full_name}'."
 	}
 end

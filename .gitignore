@@ -5,3 +5,4 @@ pkg/*
 *.sublime-workspace
 bin
 tmp/*
+.DS_Store
