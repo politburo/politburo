@@ -6,7 +6,7 @@ module Politburo
       end
 
       def self.states
-        [ :unexecuted, :ready_to_meet, :failed, :satisfied ]
+        [ :unexecuted, :ready_to_meet, :executing, :failed, :satisfied ]
       end
 
       def unexecuted?
@@ -17,12 +17,20 @@ module Politburo
         state == :ready_to_meet
       end
 
+      def executing?
+        state == :executing
+      end
+
       def failed?
         state == :failed
       end
 
       def satisfied?
         state == :satisfied
+      end
+
+      def unsatisfied_and_idle?
+        !satisfied? && !executing?
       end
 
       def state
@@ -32,6 +40,16 @@ module Politburo
       def state=(value)
         raise "Unknown state: #{value.to_s}" unless Task::states.include? value
         @state = value
+      end
+
+      attr_reader :cause_of_failure
+
+      def unsatisfied_idle_prerequisites
+        (prerequisites || []).select { | prereq | prereq.unsatisfied_and_idle? }
+      end
+
+      def all_prerequisites_satisfied?
+        ((prerequisites || []).reject { | prereq | prereq.satisfied? } ).empty?
       end
 
       def fiber
@@ -45,6 +63,7 @@ module Politburo
               task.state = :ready_to_meet
             end
             Fiber.yield # Wait after checking if met, before execution
+            task.state = :executing
             task.meet
             if (task.met?)
               task.state = :satisfied
@@ -53,6 +72,7 @@ module Politburo
             end
             rescue => e
               task.state = :failed
+              @cause_of_failure = e
             end
           end
 
