@@ -39,7 +39,9 @@ describe Politburo::Dependencies::Runner do
     end
 
     it "should raise an error if there's a cyclical dependency" do
-      fail("todo")
+      sub_prerequisite_b.prerequisites << goal_a
+
+      lambda { runner.pick_next_task }.should raise_error "Cyclical dependency detected. Task 'goal_a' is prerequisite of itself. Cycle: goal_a -> goal_b -> prerequisite_b -> sub_prerequisite_b -> goal_a"
     end
     
     it "should detect when a task failed not provide additional tasks" do

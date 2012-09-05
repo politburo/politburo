@@ -1,6 +1,6 @@
 describe Politburo::Dependencies::Task do 
   
-  class TestTask < OpenStruct
+  class TestTask
     include Politburo::Dependencies::Task
   end
 
@@ -94,6 +94,7 @@ describe Politburo::Dependencies::Task do
 
     before :each do
       task.stub(:met?).and_return(false)
+      task.stub(:all_prerequisites_satisfied?).and_return(true)
       task.fiber.should_not be_nil
     end
 
@@ -102,6 +103,19 @@ describe Politburo::Dependencies::Task do
     end
 
     context "when checking if met" do
+
+      it "should verify the task doesn't have unsatisfied prerequisites at this point" do
+        task.should_receive(:all_prerequisites_satisfied?).and_return(true)
+        task.fiber.resume
+      end
+
+      it "should fail if reached this point when task has unsatisfied prerequisites" do
+        task.should_receive(:all_prerequisites_satisfied?).and_return(false)
+        task.fiber.resume
+
+        task.should be_failed
+        task.cause_of_failure.message.should eq "Can't check if task was met when it has unsatisfied prerequisites"
+      end
 
       it "should then check if it is met, if it isn't it should set state as ready to meet" do
         task.should_receive(:met?).and_return(false)
@@ -133,7 +147,20 @@ describe Politburo::Dependencies::Task do
         task.stub(:met?).and_return(true)
       end
 
-      it "should attempt to meet, and be in executing state while meeting" do
+      it "should verify the task doesn't have unsatisfied prerequisites at this point" do
+        task.should_receive(:all_prerequisites_satisfied?).and_return(true)
+        task.fiber.resume
+      end
+
+      it "should fail if reached this point when task has unsatisfied prerequisites" do
+        task.should_receive(:all_prerequisites_satisfied?).and_return(false)
+        task.fiber.resume
+
+        task.should be_failed
+        task.cause_of_failure.message.should eq "Can't execute task when it has unsatisfied prerequisites"
+      end
+
+       it "should attempt to meet, and be in executing state while meeting" do
         task.should_receive(:meet) do 
           task.should be_executing
           true

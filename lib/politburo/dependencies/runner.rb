@@ -9,7 +9,7 @@ module Politburo
 
       def pick_next_task
         visitor = TaskVisitor.new
-        visitor.visit(*start_with)
+        visitor.visit([], *start_with)
 
         visitor.have_no_unsatisfied_dependencies.first
       end
@@ -17,13 +17,15 @@ module Politburo
       private 
 
       class TaskVisitor
-        def visit(*tasks)
+        def visit(path, *tasks)
           tasks.each do | task |
-            visited << task
-            unsatisfied_idle_prerequisites = task.unsatisfied_idle_prerequisites
-            have_no_unsatisfied_dependencies << task if unsatisfied_idle_prerequisites.empty?
-
-            self.visit(*unsatisfied_idle_prerequisites)
+            visited.add(task)
+            raise "Cyclical dependency detected. Task '#{task.name}' is prerequisite of itself. Cycle: #{(path + [ task ]).map(&:name).join(' -> ')}" if path.include?(task)
+            if task.all_prerequisites_satisfied?              
+              have_no_unsatisfied_dependencies << task 
+            else
+              self.visit(path + [ task ], *task.unsatisfied_idle_prerequisites)
+            end
           end
         end
 

@@ -42,7 +42,7 @@ module Politburo
         @state = value
       end
 
-      attr_reader :cause_of_failure
+      attr_accessor :cause_of_failure
 
       def unsatisfied_idle_prerequisites
         (prerequisites || []).select { | prereq | prereq.unsatisfied_and_idle? }
@@ -57,12 +57,15 @@ module Politburo
           fiber = Fiber.new() do | task |
             begin
             Fiber.yield # Wait as unexecuted
+            raise "Can't check if task was met when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
+
             if (met?) then
               task.state = :satisfied
             else
               task.state = :ready_to_meet
             end
             Fiber.yield # Wait after checking if met, before execution
+            raise "Can't execute task when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
             task.state = :executing
             task.meet
             if (task.met?)
@@ -72,7 +75,7 @@ module Politburo
             end
             rescue => e
               task.state = :failed
-              @cause_of_failure = e
+              task.cause_of_failure = e
             end
           end
 
