@@ -67,6 +67,82 @@ describe Politburo::Dependencies::Runner do
 
   end
 
+  context "#scheduler_step" do
+    let(:available_task) { goal_b }
+    let(:available_task_fiber) { double("fiber ho") }
+
+    it "when a task is available, should pick the next task and enqueue it" do
+      runner.should_receive(:pick_next_task).and_return(available_task)
+      available_task.should_receive(:fiber).and_return(available_task_fiber)
+      runner.execution_queue.should_receive(:push).with(available_task_fiber)
+
+      runner.scheduler_step
+    end
+
+    it "when a no task is currently available" do
+      runner.should_receive(:pick_next_task).and_return(nil)
+      runner.execution_queue.should_not_receive(:push)
+      Kernel.should_receive(:sleep).with(1)
+
+      runner.scheduler_step
+    end
+
+  end
+
+  context "#run" do
+
+    let(:consumer_thread_1) { double('fake thread 1', :exit => true, :join => true) }
+    let(:consumer_thread_2) { double('fake thread 2', :exit => true, :join => true) }
+
+    let(:consumer_threads) { [ consumer_thread_1, consumer_thread_2 ] }
+
+    before :each do
+      runner.stub(:terminate?).and_return(true)
+      runner.stub(:fiber_consumer_threads).and_return(consumer_threads)
+    end
+
+    it "should run while not terminated" do
+      runner.should_receive(:terminate?).and_return(false, false, false, false, true)
+      runner.should_receive(:scheduler_step).exactly(4).times
+      runner.run
+    end
+
+    it "should exit consumer threads" do
+      consumer_thread_1.should_receive(:exit)
+      consumer_thread_2.should_receive(:exit)
+
+      consumer_thread_1.should_receive(:join)
+      consumer_thread_2.should_receive(:join)
+
+      runner.run
+    end
+
+  end
+
+  context "#fiber_consumer_threads" do
+
+    it "should create consumer_threads_count fiber consumer threads" do
+      runner.should_receive(:fiber_consumer_thread_count).and_return(5)
+      runner.should_receive(:create_fiber_consumer_thread).exactly(5).times.and_return { double("fake thread") }
+
+      runner.fiber_consumer_threads.should_not be_empty
+      runner.fiber_consumer_threads.length.should == 5
+    end
+
+  end
+
+  context "#fiber_consumer_step" do
+    let (:fiber) { double("fiber") }
+
+    it "should work its magic like fire" do
+      runner.execution_queue.should_receive(:pop).and_return(fiber)
+      fiber.should_receive(:resume)
+
+      runner.fiber_consumer_step
+    end
+
+  end
+
   context "#terminate?" do
 
     let(:failed_task) { sub_prerequisite_a.state = :failed; sub_prerequisite_a }

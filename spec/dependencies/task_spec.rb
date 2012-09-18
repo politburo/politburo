@@ -16,9 +16,9 @@ describe Politburo::Dependencies::Task do
   end
 
   context "unsatisfied_idle_prerequisites" do
-    let(:satisfied_task) { double("satisfied_task", :unsatisfied_and_idle? => false) }
-    let(:unsatisfied_task_a) { double("unsatisfied_task_a", :unsatisfied_and_idle? => true) }
-    let(:unsatisfied_task_b) { double("unsatisfied_task_b", :unsatisfied_and_idle? => true) }
+    let(:satisfied_task) { double("satisfied_task", :available_for_queueing? => false) }
+    let(:unsatisfied_task_a) { double("unsatisfied_task_a", :available_for_queueing? => true) }
+    let(:unsatisfied_task_b) { double("unsatisfied_task_b", :available_for_queueing? => true) }
 
     it "should return the subset of prerequisites which are unsatisfied" do
       task.prerequisites = [ satisfied_task, unsatisfied_task_a, unsatisfied_task_b ]
@@ -86,36 +86,42 @@ describe Politburo::Dependencies::Task do
 
   end
 
-  context "#unsatisfied_and_idle?" do
+  context "#available_for_queueing?" do
 
     it "should return false if satisfied" do
       task.state = :satisfied
 
-      task.should_not be_unsatisfied_and_idle
+      task.should_not be_available_for_queueing
+    end
+
+    it "should return false if it is queued" do
+      task.state = :queued
+
+      task.should_not be_available_for_queueing
     end
 
     it "should return false if executing" do
       task.state = :executing
 
-      task.should_not be_unsatisfied_and_idle
+      task.should_not be_available_for_queueing
     end
 
     it "should return true if ready to meet" do
       task.state = :ready_to_meet
 
-      task.should be_unsatisfied_and_idle
+      task.should be_available_for_queueing
     end
 
     it "should return true if unexecuted" do
       task.state = :unexecuted
 
-      task.should be_unsatisfied_and_idle
+      task.should be_available_for_queueing
     end
 
     it "should return true if failed" do
       task.state = :failed
 
-      task.should be_unsatisfied_and_idle
+      task.should be_available_for_queueing
     end
   end
 
@@ -127,8 +133,8 @@ describe Politburo::Dependencies::Task do
       task.fiber.should_not be_nil
     end
 
-    it "should initially pause in unexecuted state" do
-      task.should be_unexecuted
+    it "should initially pause in queued state" do
+      task.should be_queued
     end
 
     context "when checking if met" do
