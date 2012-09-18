@@ -57,6 +57,35 @@ describe Politburo::Dependencies::Task do
 
   end
 
+  context "#done?" do
+
+    before(:each) do
+      task.stub(:satisfied?).and_return(true)
+      task.stub(:all_prerequisites_satisfied?).and_return(true)
+    end
+
+    it "should return true iff all prerequisites satisfied and is satisfied" do
+      task.should_receive(:satisfied?).and_return(true)
+      task.should_receive(:all_prerequisites_satisfied?).and_return(true)
+
+      task.should be_done
+    end
+
+    it "should return false if all prerequisites satisfied but is not satisfied" do
+      task.should_receive(:satisfied?).and_return(false)
+
+      task.should_not be_done
+    end
+
+    it "should return false if not all prerequisites satisfied even if is satisfied" do
+      task.should_receive(:satisfied?).and_return(true)
+      task.should_receive(:all_prerequisites_satisfied?).and_return(false)
+
+      task.should_not be_done
+    end
+
+  end
+
   context "#unsatisfied_and_idle?" do
 
     it "should return false if satisfied" do

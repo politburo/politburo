@@ -44,16 +44,53 @@ describe Politburo::Dependencies::Runner do
       lambda { runner.pick_next_task }.should raise_error "Cyclical dependency detected. Task 'goal_a' is prerequisite of itself. Cycle: goal_a -> goal_b -> prerequisite_b -> sub_prerequisite_b -> goal_a"
     end
     
-    it "should detect when a task failed not provide additional tasks" do
+    it "should detect when a task failed and not provide additional tasks" do
       sub_prerequisite_a.state = :failed
       runner.pick_next_task.should == sub_prerequisite_a
     end
 
-    it "should return nil when there are no tasks to execute" do
+    it "should return nil when there are no available tasks to execute" do
       sub_prerequisite_a.state = :executing
       sub_prerequisite_b.state = :executing
       runner.pick_next_task.should be_nil
     end
 
+    it "should return nil when there are no more tasks to execute because they all completed" do
+      sub_prerequisite_a.state = :satisfied
+      sub_prerequisite_b.state = :satisfied
+      prerequisite_b.state = :satisfied
+      goal_b.state = :satisfied
+      goal_a.state = :satisfied
+
+      runner.pick_next_task.should be_nil
+    end
+
   end
+
+  context "#terminate?" do
+
+    let(:failed_task) { sub_prerequisite_a.state = :failed; sub_prerequisite_a }
+
+    it "should return true when pick_next_task returns a failed task" do
+      runner.should_receive(:pick_next_task).and_return(failed_task)
+
+      runner.should be_terminate
+    end
+
+    it "should return true when pick_next_task returns nil and all starter goals are done" do
+      runner.should_receive(:pick_next_task).and_return(nil)
+      goal_a.should_receive(:done?).and_return(true)
+      goal_b.should_receive(:done?).and_return(true)
+
+      runner.should be_terminate
+    end
+
+    it "should return false if pick_next_task returns an available task" do
+      runner.should_receive(:pick_next_task).and_return(goal_b)
+
+      runner.should_not be_terminate
+    end
+
+  end
+
 end

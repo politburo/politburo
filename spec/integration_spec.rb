@@ -63,9 +63,5 @@ describe "Integration" do
 		before :each do
 		end
 
-		it "should have generated the babushka deps into the target directory" do
-			fail("todo")
-		end
-
 	end
 end

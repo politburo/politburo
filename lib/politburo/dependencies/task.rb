@@ -52,6 +52,10 @@ module Politburo
         ((prerequisites || []).reject { | prereq | prereq.satisfied? } ).empty?
       end
 
+      def done?
+        satisfied? and all_prerequisites_satisfied?
+      end
+
       def fiber
         @fiber ||= begin
           fiber = Fiber.new() do | task |
@@ -72,6 +76,7 @@ module Politburo
               task.state = :satisfied
             else
               task.state = :failed
+              task.cause_of_failure = RuntimeError.new("Task #{task.name} failed as its criteria hasn't been met after executing.")
             end
             rescue => e
               task.state = :failed
