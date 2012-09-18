@@ -6,7 +6,7 @@ module Politburo
 
       def initialize(*tasks_to_run)
         @start_with = tasks_to_run
-        @fiber_consumer_thread_count = 5
+        @fiber_consumer_thread_count = 1
       end
 
       def pick_next_task
@@ -28,13 +28,19 @@ module Politburo
       def scheduler_step
         next_task = pick_next_task
         if next_task
+          logger.debug("Adding task [#{next_task.name}] to queue.")
           execution_queue.push(next_task.fiber)
         else
+          logger.debug("Waiting for tasks to become available...")
           Kernel.sleep(1)
         end
       end
 
       def run
+          logger.debug("Creating consumer threads...")
+          fiber_consumer_threads
+          logger.debug("Consumer threads created.")
+
           until (terminate?) do
             scheduler_step
           end
@@ -58,11 +64,19 @@ module Politburo
       end 
 
       def fiber_consumer_step
-        execution_queue.pop.resume
+        logger.debug("About to pop fiber from queue...")
+        next_fiber = execution_queue.pop
+        logger.debug("Popped fiber #{next_fiber.inspect}, about to resume...")
+        next_fiber.resume 
+        logger.debug("Resume returned.")
       end
 
       def execution_queue
         @execution_queue ||= Queue.new
+      end
+
+      def logger
+        @logger ||= Logger.new(STDOUT)
       end
 
       private 

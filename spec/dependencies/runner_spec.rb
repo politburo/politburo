@@ -8,7 +8,12 @@ describe Politburo::Dependencies::Runner do
   end
 
   def task(name, *deps)
-    TestTask.new(name: name.to_s, prerequisites: deps)
+    task = TestTask.new(name: name.to_s, prerequisites: deps)
+
+    task.stub(:met?).and_return(false, true)
+    task.stub(:meet)
+
+    task
   end
 
   let(:goal_a) { task(:goal_a, prerequisite_a, goal_b) }
@@ -20,6 +25,9 @@ describe Politburo::Dependencies::Runner do
 
   let(:runner) do
     runner = Politburo::Dependencies::Runner.new(goal_a, goal_b)
+    runner.logger.level = Logger::ERROR
+
+    runner
   end
 
   it "should store the startup tasks in the starter queue" do

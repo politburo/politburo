@@ -43,6 +43,7 @@ module Politburo
 
       def state=(value)
         raise "Unknown state: #{value.to_s}" unless Task::states.include? value
+        logger.debug("Setting state to: #{value.to_s}")
         @state = value
       end
 
@@ -65,17 +66,22 @@ module Politburo
           fiber = Fiber.new() do | task |
             begin
               task.state = :queued
+              task.logger.debug("Pausing as queued...")
               Fiber.yield # Wait as queued
+              task.logger.debug("Validating prerequisites before task.met?...")
               raise "Can't check if task was met when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
 
+              task.logger.debug("About to ask met? of the task...")
               if (met?) then
                 task.state = :satisfied
               else
                 task.state = :ready_to_meet
               end
               Fiber.yield # Wait after checking if met, before execution
+              task.logger.debug("Validating prerequisites before task.meet...")
               raise "Can't execute task when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
               task.state = :executing
+              task.logger.debug("About to meet the task...")
               task.meet
               if (task.met?)
                 task.state = :satisfied
@@ -92,6 +98,17 @@ module Politburo
           fiber.resume(self)
 
           fiber
+        end
+      end
+
+      def logger
+        @logger ||= begin 
+          logger = Logger.new(STDOUT)
+          task = self
+          logger.formatter = proc do |severity, datetime, progname, msg|
+            "#{datetime}\tTask [#{task.name}]:\t#{msg}\n"
+          end
+          logger
         end
       end
 
