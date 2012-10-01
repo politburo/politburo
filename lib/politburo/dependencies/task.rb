@@ -73,7 +73,7 @@ module Politburo
         task = self
 
           begin
-            task.logger.debug("Step called")
+            task.logger.debug("Step called! Current state: #{task.state}")
             case task.state
             when :unexecuted
               task.logger.debug("Just started!")
@@ -100,6 +100,8 @@ module Politburo
                 task.state = :failed
                 task.cause_of_failure = RuntimeError.new("Task #{task.name} failed as its criteria hasn't been met after executing.")
               end
+            when :satisfied
+              raise "Assertion failed. Task resumed with .step() when already satisfied!"
             when :failed
               raise "Assertion failed. Task resumed with .step() when already failed!"
             end
