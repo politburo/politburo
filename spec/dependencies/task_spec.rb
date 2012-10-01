@@ -4,7 +4,11 @@ describe Politburo::Dependencies::Task do
     include Politburo::Dependencies::Task
   end
 
-  let(:task) { TestTask.new }
+  let(:task) { 
+    task = TestTask.new 
+    task.logger.level = Logger::ERROR
+    task
+  }
 
   it "should start in a unexecuted state" do
     task.should be_unexecuted
@@ -88,14 +92,23 @@ describe Politburo::Dependencies::Task do
 
   context "#available_for_queueing?" do
 
+    it "should return false if in progress" do
+      task.should be_available_for_queueing
+
+      task.in_progress = true
+
+      task.should be_in_progress
+      task.should_not be_available_for_queueing
+    end
+
     it "should return false if satisfied" do
       task.state = :satisfied
 
       task.should_not be_available_for_queueing
     end
 
-    it "should return false if it is queued" do
-      task.state = :queued
+    it "should return false if it has been started" do
+      task.state = :started
 
       task.should_not be_available_for_queueing
     end
@@ -125,28 +138,28 @@ describe Politburo::Dependencies::Task do
     end
   end
 
-  context "#fiber" do
+  context "#step" do
 
     before :each do
       task.stub(:met?).and_return(false)
       task.stub(:all_prerequisites_satisfied?).and_return(true)
-      task.fiber.should_not be_nil
+      task.step
     end
 
-    it "should initially pause in queued state" do
-      task.should be_queued
+    it "should initially pause in started state" do
+      task.should be_started
     end
 
     context "when checking if met" do
 
       it "should verify the task doesn't have unsatisfied prerequisites at this point" do
         task.should_receive(:all_prerequisites_satisfied?).and_return(true)
-        task.fiber.resume
+        task.step
       end
 
       it "should fail if reached this point when task has unsatisfied prerequisites" do
         task.should_receive(:all_prerequisites_satisfied?).and_return(false)
-        task.fiber.resume
+        task.step
 
         task.should be_failed
         task.cause_of_failure.message.should eq "Can't check if task was met when it has unsatisfied prerequisites"
@@ -154,19 +167,19 @@ describe Politburo::Dependencies::Task do
 
       it "should then check if it is met, if it isn't it should set state as ready to meet" do
         task.should_receive(:met?).and_return(false)
-        task.fiber.resume
+        task.step
         task.should be_ready_to_meet
       end
 
       it "should check if it is met, if it is it should set state as met" do
         task.should_receive(:met?).and_return(true)
-        task.fiber.resume
+        task.step
         task.should be_satisfied
       end
 
       it "should check if it is met, if met raises an error it should set the task as failed" do
         task.should_receive(:met?).and_raise "Whoops"
-        task.fiber.resume
+        task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Whoops"
       end
@@ -176,7 +189,7 @@ describe Politburo::Dependencies::Task do
     context "when checked if met and is ready to execute" do
 
       before :each do
-        task.fiber.resume
+        task.step
         task.should be_ready_to_meet
         task.stub(:meet).and_return(true)
         task.stub(:met?).and_return(true)
@@ -184,12 +197,12 @@ describe Politburo::Dependencies::Task do
 
       it "should verify the task doesn't have unsatisfied prerequisites at this point" do
         task.should_receive(:all_prerequisites_satisfied?).and_return(true)
-        task.fiber.resume
+        task.step
       end
 
       it "should fail if reached this point when task has unsatisfied prerequisites" do
         task.should_receive(:all_prerequisites_satisfied?).and_return(false)
-        task.fiber.resume
+        task.step
 
         task.should be_failed
         task.cause_of_failure.message.should eq "Can't execute task when it has unsatisfied prerequisites"
@@ -200,26 +213,26 @@ describe Politburo::Dependencies::Task do
           task.should be_executing
           true
         end
-        task.fiber.resume
+        task.step
         task.should be_satisfied
       end
 
       it "should attempt to meet, and if successful should be satisfied" do
         task.should_receive(:meet).and_return(true)
-        task.fiber.resume
+        task.step
         task.should be_satisfied
       end
 
       it "should attempt to meet, and if it fails, it should be marked as failed" do
         task.should_receive(:meet).and_raise "Whoops"
-        task.fiber.resume
+        task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Whoops"
       end
 
       it "should verify is met, and if it isn't, it should be marked as failed" do
         task.should_receive(:met?).and_return(false)
-        task.fiber.resume
+        task.step
         task.should be_failed
       end
     end

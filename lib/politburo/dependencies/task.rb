@@ -6,15 +6,15 @@ module Politburo
       end
 
       def self.states
-        [ :unexecuted, :queued, :ready_to_meet, :executing, :failed, :satisfied ]
+        [ :unexecuted, :started, :ready_to_meet, :executing, :failed, :satisfied ]
       end
 
       def unexecuted?
         state == :unexecuted
       end
 
-      def queued?
-        state == :queued
+      def started?
+        state == :started
       end
 
       def ready_to_meet?
@@ -34,7 +34,15 @@ module Politburo
       end
 
       def available_for_queueing?
-        !satisfied? && !executing? && !queued?
+        !in_progress? and (unexecuted? or ready_to_meet? or failed?)
+      end
+
+      def in_progress?
+        @in_progress ||= false
+      end
+
+      def in_progress=(value)
+        @in_progress = value
       end
 
       def state
@@ -61,13 +69,16 @@ module Politburo
         satisfied? and all_prerequisites_satisfied?
       end
 
-      def fiber
-        @fiber ||= begin
-          fiber = Fiber.new() do | task |
-            begin
-              task.state = :queued
-              task.logger.debug("Pausing as queued...")
-              Fiber.yield # Wait as queued
+      def step
+        task = self
+
+          begin
+            task.logger.debug("Step called")
+            case task.state
+            when :unexecuted
+              task.logger.debug("Just started!")
+              task.state = :started
+            when :started
               task.logger.debug("Validating prerequisites before task.met?...")
               raise "Can't check if task was met when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
 
@@ -77,7 +88,7 @@ module Politburo
               else
                 task.state = :ready_to_meet
               end
-              Fiber.yield # Wait after checking if met, before execution
+            when :ready_to_meet
               task.logger.debug("Validating prerequisites before task.meet...")
               raise "Can't execute task when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
               task.state = :executing
@@ -89,24 +100,24 @@ module Politburo
                 task.state = :failed
                 task.cause_of_failure = RuntimeError.new("Task #{task.name} failed as its criteria hasn't been met after executing.")
               end
-            rescue => e
-              task.state = :failed
-              task.cause_of_failure = e
+            when :failed
+              raise "Assertion failed. Task resumed with .step() when already failed!"
             end
+          rescue => e
+            task.state = :failed
+            task.cause_of_failure = e
           end
 
-          fiber.resume(self)
-
-          fiber
-        end
+          task
       end
 
       def logger
         @logger ||= begin 
           logger = Logger.new(STDOUT)
           task = self
+          logger.level = Logger::ERROR
           logger.formatter = proc do |severity, datetime, progname, msg|
-            "#{datetime}\tTask [#{task.name}]:\t#{msg}\n"
+            "#{Thread.current}\t#{datetime}\tTask [#{task.name}]:\t#{msg}\n"
           end
           logger
         end

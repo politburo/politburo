@@ -1,7 +1,7 @@
 require 'politburo'
 require 'ostruct'
 
-describe Politburo::Dependencies::Runner do
+describe Politburo::Dependencies::Runner, "unit" do
 
   class TestTask < OpenStruct
     include Politburo::Dependencies::Task
@@ -13,6 +13,7 @@ describe Politburo::Dependencies::Runner do
     task.stub(:met?).and_return(false, true)
     task.stub(:meet)
 
+    task.logger.level = Logger::ERROR
     task
   end
 
@@ -75,14 +76,33 @@ describe Politburo::Dependencies::Runner do
 
   end
 
+  context "#clear_progress_flag_on_done_tasks" do
+    let (:done_tasks) { Array.new(5) { | i | double("Task #{i}") } }
+
+    it "should iterate over done tasks queue and set progress to false" do
+      runner.should_receive(:done_tasks_queue).at_least(1).and_return(done_tasks)
+      done_tasks.each { | task | task.should_receive(:in_progress=).with(false) }
+
+      runner.clear_progress_flag_on_done_tasks
+    end
+
+  end
+
   context "#scheduler_step" do
     let(:available_task) { goal_b }
-    let(:available_task_fiber) { double("fiber ho") }
+
+    it "should clear the progress flag on done tasks" do
+      runner.should_receive(:clear_progress_flag_on_done_tasks)
+
+      runner.scheduler_step
+    end
 
     it "when a task is available, should pick the next task and enqueue it" do
       runner.should_receive(:pick_next_task).and_return(available_task)
-      available_task.should_receive(:fiber).and_return(available_task_fiber)
-      runner.execution_queue.should_receive(:push).with(available_task_fiber)
+      available_task.should_receive(:available_for_queueing?).and_return(true)
+      available_task.should_receive(:step)
+      available_task.should_receive(:in_progress=).with(true)
+      runner.execution_queue.should_receive(:push).with(available_task)
 
       runner.scheduler_step
     end
@@ -90,7 +110,7 @@ describe Politburo::Dependencies::Runner do
     it "when a no task is currently available" do
       runner.should_receive(:pick_next_task).and_return(nil)
       runner.execution_queue.should_not_receive(:push)
-      Kernel.should_receive(:sleep).with(1)
+      Kernel.should_receive(:sleep).with(0.01)
 
       runner.scheduler_step
     end
@@ -106,7 +126,7 @@ describe Politburo::Dependencies::Runner do
 
     before :each do
       runner.stub(:terminate?).and_return(true)
-      runner.stub(:fiber_consumer_threads).and_return(consumer_threads)
+      runner.stub(:task_consumer_threads).and_return(consumer_threads)
     end
 
     it "should run while not terminated" do
@@ -127,26 +147,28 @@ describe Politburo::Dependencies::Runner do
 
   end
 
-  context "#fiber_consumer_threads" do
+  context "#task_consumer_threads" do
 
     it "should create consumer_threads_count fiber consumer threads" do
-      runner.should_receive(:fiber_consumer_thread_count).and_return(5)
-      runner.should_receive(:create_fiber_consumer_thread).exactly(5).times.and_return { double("fake thread") }
+      runner.should_receive(:task_consumer_thread_count).and_return(5)
+      runner.should_receive(:create_task_consumer_thread).exactly(5).times.and_return { double("fake thread") }
 
-      runner.fiber_consumer_threads.should_not be_empty
-      runner.fiber_consumer_threads.length.should == 5
+      runner.task_consumer_threads.should_not be_empty
+      runner.task_consumer_threads.length.should == 5
     end
 
   end
 
-  context "#fiber_consumer_step" do
-    let (:fiber) { double("fiber") }
+  context "#task_consumer_step" do
+    let (:a_task) { double("task", :name => 'name') }
 
     it "should work its magic like fire" do
-      runner.execution_queue.should_receive(:pop).and_return(fiber)
-      fiber.should_receive(:resume)
+      runner.execution_queue.should_receive(:pop).and_return(a_task)
+      a_task.should_receive(:step)
 
-      runner.fiber_consumer_step
+      runner.done_tasks_queue.should_receive(:push).with(a_task)
+
+      runner.task_consumer_step
     end
 
   end

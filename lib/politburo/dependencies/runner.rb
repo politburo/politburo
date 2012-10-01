@@ -2,11 +2,11 @@ module Politburo
   module Dependencies
     class Runner
       attr_reader :start_with
-      attr_reader :fiber_consumer_thread_count
+      attr_reader :task_consumer_thread_count
 
       def initialize(*tasks_to_run)
         @start_with = tasks_to_run
-        @fiber_consumer_thread_count = 1
+        @task_consumer_thread_count = 5
       end
 
       def pick_next_task
@@ -25,58 +25,77 @@ module Politburo
         false
       end
 
+      def clear_progress_flag_on_done_tasks
+        until (done_tasks_queue.empty?)
+          done_tasks_queue.pop.in_progress = false
+        end
+      end
+
       def scheduler_step
+        clear_progress_flag_on_done_tasks
+
         next_task = pick_next_task
-        if next_task
-          logger.debug("Adding task [#{next_task.name}] to queue.")
-          execution_queue.push(next_task.fiber)
+        if next_task and !next_task.failed?
+          logger.debug("Adding task '#{next_task.name}' to queue.")
+          raise "Assertion failed. Task '#{next_task.name}' provided, but is not available for queueing! (State: #{next_task.state})" unless next_task.available_for_queueing?
+          next_task.step if next_task.unexecuted?
+          next_task.in_progress = true
+          execution_queue.push(next_task)
         else
           logger.debug("Waiting for tasks to become available...")
-          Kernel.sleep(1)
+          Kernel.sleep(0.01)
         end
       end
 
       def run
           logger.debug("Creating consumer threads...")
-          fiber_consumer_threads
+          task_consumer_threads
           logger.debug("Consumer threads created.")
 
           until (terminate?) do
             scheduler_step
           end
 
-          fiber_consumer_threads.each(&:exit)
-          fiber_consumer_threads.each(&:join)
+          task_consumer_threads.each(&:exit)
+          task_consumer_threads.each(&:join)
       end
 
-      def create_fiber_consumer_thread
+      def create_task_consumer_thread
         Thread.new do 
           while (true) do
-            fiber_consumer_step
+            task_consumer_step
           end
         end
       end
 
-      def fiber_consumer_threads
-        @fiber_consumer_threads ||= Array.new(fiber_consumer_thread_count) do | i | 
-          create_fiber_consumer_thread
+      def task_consumer_threads
+        @task_consumer_threads ||= Array.new(task_consumer_thread_count) do | i | 
+          create_task_consumer_thread
         end
       end 
 
-      def fiber_consumer_step
-        logger.debug("About to pop fiber from queue...")
-        next_fiber = execution_queue.pop
-        logger.debug("Popped fiber #{next_fiber.inspect}, about to resume...")
-        next_fiber.resume 
-        logger.debug("Resume returned.")
+      def task_consumer_step
+        next_task = execution_queue.pop
+        logger.debug("Popped task '#{next_task.name}' about to resume...")
+        next_task.step
+        logger.debug("Step returned. Putting task '#{next_task.name}' on done tasks queue.")
+        done_tasks_queue.push(next_task)
       end
 
       def execution_queue
         @execution_queue ||= Queue.new
       end
 
+      def done_tasks_queue
+        @done_tasks_queue ||= Queue.new
+      end
+
       def logger
-        @logger ||= Logger.new(STDOUT)
+        @logger ||= begin 
+          logger = Logger.new(STDOUT)
+          logger.level = Logger::ERROR
+          logger
+        end
       end
 
       private 
