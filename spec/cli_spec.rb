@@ -158,7 +158,13 @@ ENVFILE_CONTENTS
 
   context "#create" do
 
-    let (:cli) { cli = nil; capture(:stdout, :stderr) { cli = Politburo::CLI.create(args) }; cli }
+    let (:cli) { 
+      cli = nil; 
+      capture(:stdout, :stderr) { 
+        cli = Politburo::CLI.create(args) 
+      }; 
+      cli 
+    }
 
     context "--envfile" do
 
@@ -204,7 +210,9 @@ ENVFILE_CONTENTS
 
     it "should print help when no targets provided" do
       lambda { 
-        capture(:stdout, :stderr) { Politburo::CLI.create([]) } 
+        capture(:stdout, :stderr) { 
+          Politburo::CLI.create([]) 
+        } 
       }.should raise_error SystemExit
 
       output.should_not be_nil

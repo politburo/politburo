@@ -36,13 +36,13 @@ describe Politburo::Dependencies::Runner, "integration" do
     task_a.should_not be_done
   end
 
-  (1..4).each do | i | 
+  (1..5).each do | i | 
 
     it "should run a #{i} levels node tree" do
       tasks_to_run = tasks("", 0, (i - 1), 0, i == 1 ? 1 : 3)
 
       runner = Politburo::Dependencies::Runner.new(*tasks_to_run)
-#      runner.logger.level = Logger::DEBUG
+      #runner.logger.level = Logger::DEBUG
       runner.run()
 
       tasks_to_run.each { | t | t.should be_done }
