@@ -60,6 +60,14 @@ module Politburo
       @root ||= Politburo::DSL.define(envfile_contents)
     end
 
+    def resolved_targets
+      targets.map do | unresolved_target |
+        resolved_set = root.find_all_by_attributes(full_name: "All:#{unresolved_target}")
+        raise("Could not resolved target: '#{unresolved_target}'.") if resolved_set.empty?
+        resolved_set.map(&:to_state)
+      end.flatten 
+    end
+
     def envfile_contents()
       @envfile_contents ||= File.open(options[:envfile], "r") { | f | f.read() }
     end

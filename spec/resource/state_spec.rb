@@ -78,7 +78,8 @@ describe Politburo::Resource::State do
 
 	end
 
-	context "#dependent_on?" do
+	context "#dependent_on?" do+6
+		
 		before :each do
 			state.dependencies << another_state
 		end

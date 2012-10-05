@@ -42,6 +42,49 @@ ENVFILE_CONTENTS
 
     end
 
+
+    context "#resolved_targets" do
+      let(:node) { cli.root.find_all_by_attributes(name: :node).first }
+      let(:another_node) { cli.root.find_all_by_attributes(name: "another node").first }
+      let(:yet_another_node) { cli.root.find_all_by_attributes(name: "yet another node").first }
+
+      before :each do
+        node.should_not be_nil
+        another_node.should_not be_nil
+        yet_another_node.should_not be_nil
+
+        cli.should_receive(:targets).and_return(targets)
+      end
+
+
+      context "when target names exist" do
+        let(:targets) { ["environment:node", "environment:another node#ready", "environment:yet another node#configured"] }
+
+        let(:resolved_targets) { cli.resolved_targets }
+        
+        it "should resolve the target names to the appropriate states" do
+          node.full_name.should eql("All:environment:node")
+          node.should respond_to(:state)
+          cli.root.find_all_by_attributes(full_name: "All:environment:node").should include node
+
+          resolved_targets.should include another_node.state(:ready)
+          resolved_targets.should include yet_another_node.state(:configured)
+          resolved_targets.should include node.state(:ready)
+        end
+
+      end
+
+      context "when target names do not exist" do
+        let(:targets) { ["environment:noodle", "environment:another node#ready", "environment:yet another node#configured"] }
+
+        it "should raise an error" do
+          lambda { cli.resolved_targets }.should raise_error("Could not resolved target: 'environment:noodle'.")
+        end
+      end
+
+    end
+
+
     context "#babushka_sources_path" do
 
       let (:fake_babushka_sources_pathname) { double("fake babushka sources pathname") }
@@ -165,6 +208,22 @@ ENVFILE_CONTENTS
       }; 
       cli 
     }
+
+    context "targets" do
+
+      context "when provided" do
+        let(:args) { %w(target1 target2#with-state target3#another-state) }
+
+        it "should set the targets correctly" do
+          cli.targets.should include "target1"
+          cli.targets.should include "target2#with-state"
+          cli.targets.should include "target3#another-state"
+        end
+
+      end
+
+    end
+
 
     context "--envfile" do
 

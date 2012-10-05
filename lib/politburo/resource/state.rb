@@ -14,8 +14,16 @@ module Politburo
 				resource.states << self
 			end
 
+			def inspect
+				"#<#{self.class.name} \"#{full_name}\">"
+			end
+
 			def dependencies()
 				@dependencies ||= []
+			end
+
+			def to_state
+				self
 			end
 
 			def dependent_on?(another_state)

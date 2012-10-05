@@ -28,12 +28,20 @@ module Politburo
 				@children ||= Set.new
 			end
 
+			def inspect
+				"#<#{self.class.name} \"#{full_name}\">"
+			end
+
 			def root()
 				parent_resource.nil? ? self : parent_resource.root
 			end
 
 			def full_name
 				parent_resource.nil? ? name : "#{parent_resource.full_name}:#{name}"
+			end
+
+			def to_state
+				state(:ready)
 			end
 
 			def contained_searchables
