@@ -26,6 +26,10 @@ module Politburo
 				self
 			end
 
+			def to_task
+				StateTask.new(self)
+			end
+
 			def dependent_on?(another_state)
 				dependencies.include?(another_state)
 			end
@@ -87,6 +91,20 @@ BABUSHKA_DEP
 				self.dependencies.map() { | s | "'#{s.full_name}'"}
 			end
 
+		end
+
+		class StateTask
+			include Politburo::Dependencies::Task
+
+			attr_reader :state
+
+			def initialize(state)
+				@state = state
+			end
+
+			def prerequisites
+				@state.dependencies.map(&:to_task)
+			end
 		end
 	end
 end

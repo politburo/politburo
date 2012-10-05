@@ -60,6 +60,21 @@ describe Politburo::Resource::State do
 
 	end
 
+	context "#to_task" do
+
+		before :each do
+			state.add_dependency_on(another_state)
+		end
+
+		let(:task) { state.to_task }
+
+		it "should construct a task that depends on the task of any prerequisite states" do
+			task.should_not be_nil
+			task.prerequisites.first.state.should == another_state
+		end
+
+	end
+
 	context "#to_babushka_dep" do
 
 		before :each do
@@ -79,7 +94,7 @@ describe Politburo::Resource::State do
 	end
 
 	context "#dependent_on?" do+6
-		
+
 		before :each do
 			state.dependencies << another_state
 		end
