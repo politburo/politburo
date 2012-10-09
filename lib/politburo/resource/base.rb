@@ -58,10 +58,6 @@ module Politburo
 				state(:ready).add_dependency_on(target)
 			end
 
-			def to_babushka_deps()
-				self.map() { | s | s.to_babushka_deps unless s == self }.join("\n")
-			end
-
 			def to_json_hash()
 				{
 					name: name,

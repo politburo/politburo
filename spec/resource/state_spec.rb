@@ -75,24 +75,6 @@ describe Politburo::Resource::State do
 
 	end
 
-	context "#to_babushka_dep" do
-
-		before :each do
-			state.add_dependency_on(another_state)
-		end
-
-		let(:babushka_dep_s) { state.to_babushka_dep }
-
-		it "should generate the dep name correctly" do
-			babushka_dep_s.should include "dep \"#{state.full_name}\" do"
-		end
-
-		it "should generate the babushka dep for the state with the correct dependencies" do
-			state.dependencies.each { | required_state |  babushka_dep_s.should include "'#{required_state.full_name}'" }
-		end
-
-	end
-
 	context "#dependent_on?" do+6
 
 		before :each do

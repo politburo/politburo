@@ -155,30 +155,6 @@ EXPECTED_ORDER
 		end
 	end
 
-	context "#to_babushka_deps" do
-
-		before :each do 
-			sub_resource_1.should_not be_nil
-			sub_resource_2.should_not be_nil
-			resource.should_not be_nil
-			parent_resource.should_not be_nil
-
-			parent_resource.children.should_not be_empty
-		end
-
-		it "should call #to_babushka_deps for each resource and output it to string" do
-			result = parent_resource.to_babushka_deps
-
-			parent_resource.each do | sub | 
-				result.should include sub.to_babushka_deps unless sub==parent_resource
-			end
-
-			result.should_not be_nil
-			result.should_not be_empty
-		end
-
-	end
-
 	context "#root" do
 
 		it "should return the root resource" do

@@ -16,6 +16,7 @@ The prologue:
 * We believe that code should be the lever that allows single
   developers to orchestrate entire environments.
 * We don't like Chef's complexity:
+  * We don't like needed centralised servers
   * We don't like having to manage cookbooks
   * We don't like Chef's over-complicated recipe style 
   * We don't like the way that Chef recipes tend to bit-rot
@@ -25,7 +26,7 @@ The prologue:
     '% successful run' metrics
 * Babushka is missing a couple of things to allow it to wield it to
   manage multi-host environments/clusters:
-  * A method of orchestrating multiple servers
+  * A method of orchestrating multiple servers with inter-machine dependencies
   * A cron-able mechanism to run Babushka tasks
   * A dashboard view of your Babushka provisioned servers
 * We like the ability to view and monitor our provisioned servers 
@@ -60,8 +61,8 @@ Politburo DSL Basics:
   * The production environment is a resource, and so are the load balancer, 
     db master and each of the web nodes. 
   * The environment resource contains the other resources.
-* The DSL is designed to be executed by Babushka. It is translated to
-  a hierarchy of dependencies
+* The DSL is designed to be run in parallel. It is translated to
+  a hierarchy of dependencies, most of which are remote tasks
 * A hierachical relationship is simply syntactic sugar to imply dependency.
   * e.g. To mark the production environment as ready, all the composite 
     parts of the production environment such as the load balancer and 

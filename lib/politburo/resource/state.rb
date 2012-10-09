@@ -47,26 +47,6 @@ module Politburo
 				dependencies << state
 			end
 
-			def to_babushka_dep()
-				<<BABUSHKA_DEP
-dep "#{self.full_name}" do
-	requires #{babushka_required_deps.join(", ")}
-
-	met? {
-		@state ||= {}
-		@state[:'#{self.full_name}']
-	}
-
-	meet {
-		@state[:'#{self.full_name}'] = true
-		log_ok "State reached: '#{self.full_name}'."
-	}
-end
-BABUSHKA_DEP
-			end
-
-			alias :to_babushka_deps :to_babushka_dep
-
 			def full_name()
 				"#{resource.full_name}##{name}"
 			end
