@@ -39,9 +39,7 @@ ENVFILE_CONTENTS
         cli.root.should_not be_nil
         cli.root.children.size.should == 2
       end
-
     end
-
 
     context "#resolved_targets" do
       let(:node) { cli.root.find_all_by_attributes(name: :node).first }
@@ -53,9 +51,10 @@ ENVFILE_CONTENTS
         another_node.should_not be_nil
         yet_another_node.should_not be_nil
 
+        node.full_name.should eq("environment:node")
+
         cli.should_receive(:targets).and_return(targets)
       end
-
 
       context "when target names exist" do
         let(:targets) { ["environment:node", "environment:another node#ready", "environment:yet another node#configured"] }
@@ -63,9 +62,9 @@ ENVFILE_CONTENTS
         let(:resolved_targets) { cli.resolved_targets }
         
         it "should resolve the target names to the appropriate states" do
-          node.full_name.should eql("All:environment:node")
+          node.full_name.should eql("environment:node")
           node.should respond_to(:state)
-          cli.root.find_all_by_attributes(full_name: "All:environment:node").should include node
+          cli.root.find_all_by_attributes(full_name: "environment:node").should include node
 
           resolved_targets.should include another_node.state(:ready)
           resolved_targets.should include yet_another_node.state(:configured)
@@ -78,7 +77,7 @@ ENVFILE_CONTENTS
         let(:targets) { ["environment:noodle", "environment:another node#ready", "environment:yet another node#configured"] }
 
         it "should raise an error" do
-          lambda { cli.resolved_targets }.should raise_error("Could not resolved target: 'environment:noodle'.")
+          lambda { cli.resolved_targets }.should raise_error("Could not resolve target: 'environment:noodle'.")
         end
       end
 

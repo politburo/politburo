@@ -62,8 +62,8 @@ module Politburo
 
     def resolved_targets
       targets.map do | unresolved_target |
-        resolved_set = root.find_all_by_attributes(full_name: "All:#{unresolved_target}")
-        raise("Could not resolved target: '#{unresolved_target}'.") if resolved_set.empty?
+        resolved_set = root.find_all_by_attributes(full_name: "#{unresolved_target}")
+        raise("Could not resolve target: '#{unresolved_target}'.") if resolved_set.empty?
         resolved_set.map(&:to_state)
       end.flatten 
     end

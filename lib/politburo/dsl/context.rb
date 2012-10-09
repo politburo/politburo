@@ -68,7 +68,7 @@ module Politburo
 		end
 
 		def self.define(definition = nil, &block)
-			root_resource = Politburo::Resource::Base.new(name: "All")
+			root_resource = Politburo::Resource::Base.new(name: "")
 			root_context = Context.new(root_resource)
 			root_context.define(definition, &block)
 		end

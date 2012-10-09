@@ -102,6 +102,10 @@ BABUSHKA_DEP
 				@state = state
 			end
 
+			def name 
+				state.full_name
+			end
+
 			def prerequisites
 				@state.dependencies.map(&:to_task)
 			end
