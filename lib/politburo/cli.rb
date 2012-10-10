@@ -39,21 +39,6 @@ module Politburo
     end
 
     def run()
-      generate_to_path = target_generation_path
-
-      begin
-        generate_to(generate_to_path.realpath)
-        run_babushka
-      ensure
-        generate_to_path.rmtree
-        log.debug("Cleaned up target generation path: '#{generate_to_path.realdirpath}'")
-      end
-    end
-
-    def generate_to(target_dir)
-      target_deps_file = File.join(target_dir, 'politburo_generated_deps.rb')
-      File.open(target_deps_file, "w") { | f | f.write(root.to_babushka_deps) }
-      log.debug("Generated deps to: '#{target_deps_file}'")
     end
 
     def root()
@@ -76,20 +61,6 @@ module Politburo
       result_path = Pathname.new(File.expand_path(options[:'babushka-sources-dir']))
       raise "Babushka sources directory: '#{result_path.to_s}' does not exist or isn't a directory" unless result_path.directory?
       result_path
-    end
-
-    def target_generation_dirname
-      @target_generation_dirname ||= "politburo-run-#{Time.now.to_i.to_s}"
-    end
-
-    def target_generation_path()
-      @target_generation_path ||= begin 
-        target_generation_path = babushka_sources_path + target_generation_dirname
-        target_generation_path.mkdir
-        raise "Could not create target generation path: '#{target_generation_path.realpath}'" unless target_generation_path.directory?
-        log.debug("Created target generation path: '#{target_generation_path.realpath}' ")
-        target_generation_path
-      end
     end
 
     def log()

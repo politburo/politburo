@@ -64,13 +64,6 @@ module Politburo
 
 			attr_writer :resource
 
-			private 
-
-			def babushka_required_deps
-				#[ "\"politburo:support\"" ].push(*self.dependencies.map() { | s | "'#{s.full_name}'"})
-				self.dependencies.map() { | s | "'#{s.full_name}'"}
-			end
-
 		end
 
 		class StateTask
