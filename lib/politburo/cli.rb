@@ -39,6 +39,11 @@ module Politburo
     end
 
     def run()
+      tasks_to_run = resolved_targets.map(&:to_task)
+
+      runner = Politburo::Dependencies::Runner.new(*tasks_to_run)
+      
+      runner.run
     end
 
     def root()
@@ -46,11 +51,11 @@ module Politburo
     end
 
     def resolved_targets
-      targets.map do | unresolved_target |
+      Set.new(targets.map do | unresolved_target |
         resolved_set = root.find_all_by_attributes(full_name: "#{unresolved_target}")
         raise("Could not resolve target: '#{unresolved_target}'.") if resolved_set.empty?
         resolved_set.map(&:to_state)
-      end.flatten 
+      end.flatten)
     end
 
     def envfile_contents()

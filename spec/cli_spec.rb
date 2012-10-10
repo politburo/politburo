@@ -27,6 +27,10 @@ end
 ENVFILE_CONTENTS
     end
 
+    let(:node) { cli.root.find_all_by_attributes(name: :node).first }
+    let(:another_node) { cli.root.find_all_by_attributes(name: "another node").first }
+    let(:yet_another_node) { cli.root.find_all_by_attributes(name: "yet another node").first }
+
     before(:each) do
       cli.stub(:envfile_contents).and_return(envfile_contents)
       cli.log.stub(:debug)
@@ -42,9 +46,6 @@ ENVFILE_CONTENTS
     end
 
     context "#resolved_targets" do
-      let(:node) { cli.root.find_all_by_attributes(name: :node).first }
-      let(:another_node) { cli.root.find_all_by_attributes(name: "another node").first }
-      let(:yet_another_node) { cli.root.find_all_by_attributes(name: "yet another node").first }
 
       before :each do
         node.should_not be_nil
@@ -62,15 +63,14 @@ ENVFILE_CONTENTS
         let(:resolved_targets) { cli.resolved_targets }
         
         it "should resolve the target names to the appropriate states" do
-          node.full_name.should eql("environment:node")
-          node.should respond_to(:state)
-          cli.root.find_all_by_attributes(full_name: "environment:node").should include node
-
           resolved_targets.should include another_node.state(:ready)
           resolved_targets.should include yet_another_node.state(:configured)
           resolved_targets.should include node.state(:ready)
         end
 
+        it "should return a set" do
+          resolved_targets.should be_a Set
+        end
       end
 
       context "when target names do not exist" do
@@ -109,6 +109,40 @@ ENVFILE_CONTENTS
     end
 
     context "#run" do
+      let(:targets) { ["environment:noodle", "environment:another node#ready", "environment:yet another node#configured"] }
+      let(:node_ready_state) { node.state(:ready) }
+      let(:another_node_ready_state) { another_node.state(:ready) }
+      let(:resolved_targets) { Set.new([ node_ready_state, another_node_ready_state ]) }
+
+      let(:node_ready_task) { double("node ready task") }
+      let(:another_node_ready_task) { double("another ready task") }
+      let(:tasks) { [ node_ready_task, another_node_ready_task ] }
+      
+      let(:runner) { double("runner", :run => true) }
+
+      before(:each) do
+        cli.stub(:resolved_targets).and_return(resolved_targets)
+        node_ready_state.stub(:to_task).and_return(node_ready_task)
+        another_node_ready_state.stub(:to_task).and_return(another_node_ready_task)
+        Politburo::Dependencies::Runner.stub(:new).with(*tasks).and_return(runner)
+      end
+
+      it "should convert resolved targets to tasks" do
+        cli.should_receive(:resolved_targets).and_return(resolved_targets)
+
+        node_ready_state.should_receive(:to_task).and_return(node_ready_task)
+        another_node_ready_state.should_receive(:to_task).and_return(another_node_ready_task)
+
+        cli.run
+      end
+
+      it "should create a runner with the converted tasks and run it" do
+        Politburo::Dependencies::Runner.should_receive(:new).with(*tasks).and_return(runner)
+        runner.should_receive(:run)
+
+        cli.run
+      end
+
     end
 
   end
