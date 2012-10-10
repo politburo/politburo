@@ -2,7 +2,7 @@ require 'politburo'
 
 describe "Integration" do
 
-	let(:target_dir_path) { File.join(File.dirname(__FILE__), "..", "tmp", Time.now.to_i.to_s) }
+  let (:cli) { Politburo::CLI.new(options, targets) }
 
 	let(:simple_environment_definition) do
 		Politburo::DSL.define do
@@ -52,10 +52,6 @@ describe "Integration" do
 			end
 
 		end
-	end
-
-	before(:each) do
-		FileUtils.mkdir_p(target_dir_path)
 	end
 
 	describe "end-to-end process" do
