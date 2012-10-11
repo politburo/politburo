@@ -19,6 +19,7 @@ module Politburo
                politburo [options] resource[#state] [resource2[#state]]+
         where [options] are:
         EOS
+        opt :interactive, "Interactive pry console", :short => 'i'
         opt :envfile, "Use a different envfile", :short => 'e', :default => 'Envfile'
         opt :'babushka-sources-dir', "Use a different babushka sources dir", :short => 'b', :default => '~/.babushka/sources'
       end
@@ -39,10 +40,12 @@ module Politburo
     end
 
     def run()
-      tasks_to_run = resolved_targets.map(&:to_task)
-
-      runner = Politburo::Dependencies::Runner.new(*tasks_to_run)
-      runner.run
+      if (options[:interactive])
+        require 'pry'
+        self.pry 
+      else
+        runner.run
+      end
     end
 
     def root()
@@ -72,6 +75,14 @@ module Politburo
     end
 
     private
+
+    def tasks_to_run
+      @tasks_to_run ||= resolved_targets.map(&:to_task)
+    end
+
+    def runner
+      @runner ||= Politburo::Dependencies::Runner.new(*tasks_to_run)
+    end
 
     def run_babushka
         command = "babushka #{target_generation_dirname}:All#ready"
