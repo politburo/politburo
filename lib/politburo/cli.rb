@@ -42,7 +42,6 @@ module Politburo
       tasks_to_run = resolved_targets.map(&:to_task)
 
       runner = Politburo::Dependencies::Runner.new(*tasks_to_run)
-      
       runner.run
     end
 
