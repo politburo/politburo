@@ -9,6 +9,7 @@ module Politburo
 			attr_reader :parent_resource
 
 			attr_accessor :name
+			attr_accessor :description
 
 			requires :name
 

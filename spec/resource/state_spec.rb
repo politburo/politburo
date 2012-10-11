@@ -70,9 +70,20 @@ describe Politburo::Resource::State do
 
 		it "should construct a task that depends on the task of any prerequisite states" do
 			task.should_not be_nil
-			task.prerequisites.first.state.should == another_state
+			first_prereq_task = task.prerequisites.first
+
+			first_prereq_task.should_not be_in_progress
+			first_prereq_task.should be_unexecuted
+			first_prereq_task.should be_available_for_queueing
+
+			first_prereq_task.resource_state.should == another_state
+			first_prereq_task.resource.should == resource
+
 		end
 
+		it "should cache and return the same task on 2nd call" do
+			task.should == state.to_task
+		end
 	end
 
 	context "#dependent_on?" do+6

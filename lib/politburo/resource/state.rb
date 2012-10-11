@@ -27,7 +27,7 @@ module Politburo
 			end
 
 			def to_task
-				StateTask.new(self)
+				@task ||= StateTask.new(self)
 			end
 
 			def dependent_on?(another_state)
@@ -69,18 +69,26 @@ module Politburo
 		class StateTask
 			include Politburo::Dependencies::Task
 
-			attr_reader :state
+			attr_reader :resource_state
 
-			def initialize(state)
-				@state = state
+			def initialize(resource_state)
+				@resource_state = resource_state
 			end
 
 			def name 
-				state.full_name
+				resource_state.full_name
+			end
+
+			def resource
+				resource_state.resource
 			end
 
 			def prerequisites
-				@state.dependencies.map(&:to_task)
+				resource_state.dependencies.map(&:to_task)
+			end
+
+			def met?
+				true
 			end
 		end
 	end

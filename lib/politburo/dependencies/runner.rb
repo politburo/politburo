@@ -36,8 +36,8 @@ module Politburo
 
         next_task = pick_next_task
         if next_task and !next_task.failed?
-          logger.debug("Adding task '#{next_task.name}' to queue.")
-          raise "Assertion failed. Task '#{next_task.name}' provided, but is not available for queueing! (State: #{next_task.state})" unless next_task.available_for_queueing?
+          logger.debug("Adding task #{next_task.name} [#{next_task.object_id}] to the execution queue.")
+          raise "Assertion failed. Task #{next_task.name} [#{next_task.object_id}] provided, but is not available for queueing! (State: #{next_task.state})" unless next_task.available_for_queueing?
           next_task.step if next_task.unexecuted?
           next_task.in_progress = true
           execution_queue.push(next_task)
@@ -48,6 +48,7 @@ module Politburo
       end
 
       def run
+          logger.debug("Will start runner with following initial tasks: #{start_with.map(&:name).join(', ')}")
           logger.debug("Creating consumer threads...")
           task_consumer_threads
           logger.debug("Consumer threads created.")
@@ -76,7 +77,7 @@ module Politburo
 
       def task_consumer_step
         next_task = execution_queue.pop
-        logger.debug("Popped task '#{next_task.name}' about to resume...")
+        logger.debug("Popped task '#{next_task.name} [#{next_task.object_id}]' about to resume...")
         next_task.step
         logger.debug("Step returned. Putting task '#{next_task.name}' on done tasks queue.")
         done_tasks_queue.push(next_task)
@@ -101,14 +102,27 @@ module Politburo
       private 
 
       class TaskVisitor
+        def logger
+          @logger ||= begin 
+            logger = Logger.new(STDOUT)
+            logger.level = Logger::ERROR
+            logger
+          end
+        end
+
         def visit(path, *tasks)
           tasks.each do | task |
+            logger.debug("Visiting #{task.name}...")
             visited.add(task)
             raise "Cyclical dependency detected. Task '#{task.name}' is prerequisite of itself. Cycle: #{(path + [ task ]).map(&:name).join(' -> ')}" if path.include?(task)
-            if task.all_prerequisites_satisfied? and task.available_for_queueing?              
+            if task.all_prerequisites_satisfied? and task.available_for_queueing?
+              logger.debug("Task #{task.name} is ready for queueing.")              
               have_no_unsatisfied_dependencies << task 
             else
-              self.visit(path + [ task ], *task.unsatisfied_idle_prerequisites)
+              logger.debug("Task prerequisites: '#{task.prerequisites.map(&:name).join(", ")}' ")              
+              prereqs = task.unsatisfied_idle_prerequisites
+              logger.debug("Will visit task prerequisites: '#{prereqs.map(&:name).join(", ")}' ")              
+              self.visit(path + [ task ], *prereqs)
             end
           end
         end
