@@ -2,6 +2,7 @@ module Politburo
 	module Resource
 		class Node < Base
 			attr_accessor :node_flavour
+			attr_accessor :host
 
 			requires :node_flavour
 			requires :parent_resource
