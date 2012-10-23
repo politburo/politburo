@@ -1,9 +1,7 @@
 describe Politburo::Resource::StateTask do
 
   let(:resource) { Politburo::Resource::Base.new(name: "Resource") }
-
   let(:state) { Politburo::Resource::State.new(resource: resource, name: "state") }
-
   let(:state_task) { Politburo::Resource::StateTask.new(state) }
 
   it "should initialize correctly" do

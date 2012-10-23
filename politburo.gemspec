@@ -18,13 +18,16 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  # specify any dependencies here; for example:
-  # s.add_development_dependency "rspec"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 2.8"
-  # s.add_runtime_dependency "rest-client"
+
   s.add_runtime_dependency "pry"
   s.add_runtime_dependency "foreman"
   s.add_runtime_dependency "json"
   s.add_runtime_dependency "trollop"
+  s.add_runtime_dependency "net-ssh"
+  s.add_runtime_dependency "net-sftp"
+  s.add_runtime_dependency "net-scp"
+  s.add_runtime_dependency "net-ssh-gateway"
+
 end
