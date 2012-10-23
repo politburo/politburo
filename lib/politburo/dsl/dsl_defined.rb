@@ -21,6 +21,10 @@ module Politburo
 				end
 			end
 
+			def validate!
+				raise ValidationError.new(self, validation_errors) unless valid?
+			end
+
 			module ClassMethods
 
 				def validations
@@ -54,7 +58,7 @@ module Politburo
 						rescue => e
 							# Any errors will result in value being blank
 						ensure
-							raise "'#{name_sym.to_s}' is required." if value.nil?
+							raise "'#{name_sym.to_s}' is required" if value.nil?
 						end
 					end
 					)
@@ -65,6 +69,15 @@ module Politburo
 				def add_validation(name_sym, validation_lambda)
 					validations[name_sym.to_sym] ||= []
 					validations[name_sym.to_sym] << validation_lambda
+				end
+			end
+
+			class ValidationError < Exception
+				def initialize(invalid_object, validation_errors)
+					super("Validation error(s): #{validation_errors.each_pair.map { |k, v| v.map(&:message) } .flatten.join(", ")}")
+
+					@invalid_object = invalid_object
+					@validation_errors = validation_errors
 				end
 			end
 

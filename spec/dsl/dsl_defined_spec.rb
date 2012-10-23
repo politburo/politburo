@@ -54,8 +54,16 @@ describe Politburo::DSL::DslDefined do
 			validation_errors_for_name.size.should == 1
 
 			validation_errors_for_name.first.should be_a RuntimeError
-			validation_errors_for_name.first.message.should eql("'name' is required.")
+			validation_errors_for_name.first.message.should eql("'name' is required")
 		end
+	end
+
+	context "#validate!" do
+
+		before(:each) { dsl_defined_obj.name = nil }
+
+		it { lambda { dsl_defined_obj.validate! }.should raise_error "Validation error(s): 'name' is required" }
+
 	end
 
 	context "#validation_errors_for" do
@@ -73,7 +81,7 @@ describe Politburo::DSL::DslDefined do
 			validation_errors_for_name.size.should == 1
 
 			validation_errors_for_name.first.should be_a RuntimeError
-			validation_errors_for_name.first.message.should eql("'name' is required.")
+			validation_errors_for_name.first.message.should eql("'name' is required")
 		end
 	end
 
