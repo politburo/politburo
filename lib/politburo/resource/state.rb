@@ -26,6 +26,10 @@ module Politburo
 				self
 			end
 
+			def release
+				# To be overriden by subclasses
+			end
+
 			def to_task
 				@task ||= Politburo::Resource::StateTask.new(self)
 			end

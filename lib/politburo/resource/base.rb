@@ -49,6 +49,10 @@ module Politburo
 				Set.new().merge(children).merge(states)
 			end
 
+			def release
+				# To be overriden by subclasses
+			end
+
 			def each(&block)
 				block.call(self)
 				states.each(&block)

@@ -46,10 +46,16 @@ module Politburo
       else
         runner.run
       end
+
+      release
     end
 
     def root()
       @root ||= Politburo::DSL.define(envfile_contents)
+    end
+
+    def release()
+      root.each { | r | r.release }
     end
 
     def resolved_targets
@@ -84,13 +90,5 @@ module Politburo
       @runner ||= Politburo::Dependencies::Runner.new(*tasks_to_run)
     end
 
-    def run_babushka
-        command = "babushka #{target_generation_dirname}:All#ready"
-        log.debug("About to execute command: '#{command}'")
-        process = Foreman::Process.new(command)
-        process.run
-        Process.waitall
-        log.info("Run complete.")
-    end
   end
 end

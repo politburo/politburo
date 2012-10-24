@@ -143,6 +143,27 @@ ENVFILE_CONTENTS
         cli.run
       end
 
+      it "should call release" do
+        cli.should_receive(:release)
+
+        cli.run
+      end
+    end
+
+    context "#release" do
+      let(:fake_root) { double("root of envfile") }
+      let(:fake_resource_a) { double("fake resource a") }
+      let(:fake_resource_b) { double("fake resource b") }
+
+      it "should iterate all resources (depth first) and call #release on each" do
+        cli.should_receive(:root).and_return(fake_root)
+        fake_root.should_receive(:each).and_yield(fake_resource_a).and_yield(fake_resource_b)
+        fake_resource_a.should_receive(:release)
+        fake_resource_b.should_receive(:release)
+
+        cli.release
+      end
+
     end
 
   end

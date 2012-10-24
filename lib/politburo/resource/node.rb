@@ -18,6 +18,14 @@ module Politburo
 				Net::SSH.start(host, user)
 			end
 
+			def session(create_if_missing = true)
+				@session || @session = (create_if_missing ? create_session : nil)
+			end
+
+			def release
+				session(false).close if session(false)
+			end
+
 		end
 	end
 end
