@@ -16,7 +16,7 @@ environment(name: "Complex integration test environment", flavour: :amazon_web_s
     depends_on facet(name: "Database")
     webnode(name: "Load Balancer", flavour: "c1.xlarge") do
       # At the very least, the IP addresses for the slaves would be required to configure the load balancer
-      state(:ready_to_configure).depends_on facet(name: "Webnode Instances").state(:running) 
+      state(:ready_to_configure) { depends_on facet(name: "Webnode Instances").state(:running) }
     end
     facet(name: "Webnode Instances", cardinality: 2) do
       webnode(name: "Webnode", flavour: "m1.large") do

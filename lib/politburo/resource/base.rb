@@ -33,10 +33,6 @@ module Politburo
 				"#<#{self.class.name} \"#{full_name}\">"
 			end
 
-			def root()
-				parent_resource.nil? ? self : parent_resource.root
-			end
-
 			def full_name
 				parent_resource.nil? ? name : (parent_resource.name.empty? ? name : "#{parent_resource.full_name}:#{name}")
 			end

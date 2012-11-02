@@ -24,6 +24,10 @@ module Politburo
 				found
 			end
 
+			def root()
+				parent_resource.nil? ? self : parent_resource.root
+			end
+
 			def contained_searchables
 				Set.new
 			end

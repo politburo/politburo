@@ -7,6 +7,10 @@ module Politburo
 				base.extend(ClassMethods)
 			end
 
+			def context
+				@context ||= Politburo::DSL::Context.new(self)
+			end
+
 			def validation_errors
 				self.class.validation_errors_for(self)
 			end
@@ -17,7 +21,9 @@ module Politburo
 
 			def update_attributes(attributes)
 				attributes.each_pair do | attr_name, attr_value |
-					self.send("#{attr_name.to_s}=".to_sym, attr_value )
+					setter_sym = "#{attr_name.to_s}=".to_sym
+					raise "#{self} does not have a setter for attribute '#{attr_name}'." unless self.respond_to?(setter_sym)
+					self.send(setter_sym, attr_value )
 				end
 			end
 

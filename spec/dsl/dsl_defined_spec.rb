@@ -27,6 +27,18 @@ describe Politburo::DSL::DslDefined do
 		DslDefinedObj.validations.should_not be_empty
 	end
 
+	context "#context" do
+		let (:context) { dsl_defined_obj.context }
+
+		it "should lazily instantiante and return a context with this dsl defined object as the receiver" do
+			Politburo::DSL::Context.should_receive(:new).with(dsl_defined_obj).and_return(:context_obj)
+
+			dsl_defined_obj.context.should_not be_nil
+			dsl_defined_obj.context.should be context
+		end
+
+	end
+
 	context "#valid?" do
 		it "should return false when validation errors exist for the obj" do
 			dsl_defined_obj.description = nil

@@ -17,7 +17,7 @@ environment(name: "environment", flavour: :amazon_web_services) do
     depends_on node(name: "node").state(:configured)
   end
   node(name: "yet another node", flavour: "m1.large") do
-    state('configured').depends_on node(name: "node")
+    state(name: 'configured') { depends_on node(name: "node") }
   end
 end
 

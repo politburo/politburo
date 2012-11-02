@@ -2,6 +2,7 @@ module Politburo
 	module Resource
 		class State
 			include ::Politburo::DSL::DslDefined
+			include ::Politburo::Resource::Searchable
 
 			attr_reader :resource
 			attr_accessor :name
@@ -18,12 +19,24 @@ module Politburo
 				"#<#{self.class.name} \"#{full_name}\">"
 			end
 
+			def parent_resource=(resource)
+				self.resource= resource
+			end
+
+			def parent_resource()
+				self.resource
+			end
+
 			def dependencies()
 				@dependencies ||= []
 			end
 
 			def to_state
 				self
+			end
+
+			def context
+				@context ||= StateContext.new(self)
 			end
 
 			def release
@@ -70,6 +83,13 @@ module Politburo
 
 		end
 
+		class StateContext < Politburo::DSL::Context
+
+			def requires(task)
+				puts "Requires: #{task.to_s}"
+			end
+
+		end
 	end
 end
 

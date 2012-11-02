@@ -2,6 +2,15 @@ module Politburo
 
 	module DSL
 
+		class ContextException < Exception
+			def initialize(msg = nil, cause = nil)
+				super(msg)
+				@cause = cause
+			end
+
+			attr_reader :cause
+		end
+
 		class Context
 			attr_reader :receiver
 
@@ -14,6 +23,8 @@ module Politburo
 				instance_eval(&block) if block_given?
 
 				receiver
+			rescue => e
+				raise ContextException.new("Error while evaluating DSL context. Underlying error is: #{e}\n\t#{e.backtrace.join("\n\t")}", e)
 			end
 
 			alias :evaluate :define
@@ -26,8 +37,9 @@ module Politburo
 				define_or_lookup_receiver(::Politburo::Resource::Node, attributes, &block)
 			end
 
-			def state(state_name)
-				Context.new(receiver.state(state_name))
+			def state(state_name_or_attributes, &block)
+				attributes = state_name_or_attributes.respond_to?(:keys) ? state_name_or_attributes : { name: state_name_or_attributes }
+				lookup_receiver(::Politburo::Resource::State, attributes, &block).context
 			end
 
 			def depends_on(state)
@@ -55,14 +67,26 @@ module Politburo
 					define_new_receiver(new_receiver_class, attributes, &block)
 				else
 					# Lookup
-					find_attrs = attributes.merge(:class => new_receiver_class)
-					lookup(find_attrs)
+					lookup_receiver(new_receiver_class, attributes, &block)
 				end
+			end
+
+			def lookup_receiver(new_receiver_class, attributes, &block)
+				find_attrs = attributes.merge(:class => new_receiver_class)
+				receiver = lookup(find_attrs)
+
+				if (block_given?)
+					context = receiver.context
+					context.define(&block)
+				end
+
+				receiver
 			end
 
 			def define_new_receiver(new_receiver_class, attributes, &block)
 				new_receiver = new_receiver_class.new(attributes.merge(parent_resource: receiver))
-				Context.new(new_receiver).define(&block)
+				context = new_receiver.context
+				context.define(&block)
 
 				receiver.add_dependency_on(new_receiver)
 
@@ -73,7 +97,7 @@ module Politburo
 
 		def self.define(definition = nil, &block)
 			root_resource = Politburo::Resource::Base.new(name: "")
-			root_context = Context.new(root_resource)
+			root_context = root_resource.context
 			root_context.define(definition, &block)
 			root_context.validate!
 

@@ -38,7 +38,7 @@ describe Politburo::DSL::Context do
 
 			before :each do
 				Politburo::Resource::Base.stub(:new).with(name: "").and_return(root)
-				Politburo::DSL::Context.stub(:new).with(root).and_return(context)
+				root.stub(:context).and_return(context)
 				context.stub(:define).with("string eval").and_return(root)
 				context.stub(:validate!)
 			end
@@ -50,7 +50,7 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should create a new root context" do
-				Politburo::DSL::Context.should_receive(:new).with(root).and_return(context)
+				root.should_receive(:context).and_return(context)
 
 				Politburo::DSL.define("string eval") { "a block" }
 			end
