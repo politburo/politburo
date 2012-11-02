@@ -39,11 +39,11 @@ module Politburo
 
 			def state(state_name_or_attributes, &block)
 				attributes = state_name_or_attributes.respond_to?(:keys) ? state_name_or_attributes : { name: state_name_or_attributes }
-				lookup_receiver(::Politburo::Resource::State, attributes, &block).context
+				lookup_receiver(::Politburo::Resource::State, attributes, &block)
 			end
 
-			def depends_on(state)
-				receiver.add_dependency_on(state)
+			def depends_on(state_context)
+				receiver.add_dependency_on(state_context.receiver)
 			end
 
 		  def validate!()
@@ -74,13 +74,13 @@ module Politburo
 			def lookup_receiver(new_receiver_class, attributes, &block)
 				find_attrs = attributes.merge(:class => new_receiver_class)
 				receiver = lookup(find_attrs)
+				context = receiver.context
 
 				if (block_given?)
-					context = receiver.context
 					context.define(&block)
 				end
 
-				receiver
+				context
 			end
 
 			def define_new_receiver(new_receiver_class, attributes, &block)
@@ -90,7 +90,7 @@ module Politburo
 
 				receiver.add_dependency_on(new_receiver)
 
-				new_receiver
+				context
 			end
 
 		end
