@@ -11,7 +11,7 @@ describe Politburo::DSL::Context do
 					depends_on node(name: "node").state(:configured)
 				end
 				node(name: "yet another node", flavour: "m1.large") do
-					state('configured').depends_on node(name: "node")
+					state('configured').depends_on(node(name: "node"))
 				end
 			end
 
@@ -103,7 +103,7 @@ describe Politburo::DSL::Context do
       fake_resource_a.should_receive(:validate!)
       fake_resource_b.should_receive(:validate!)
 
-      context.validate!
+      context.send(:validate!)
     end
 
 	end
@@ -114,15 +114,15 @@ describe Politburo::DSL::Context do
 		let(:context_for_node) { Politburo::DSL::Context.new(node) }
 
 		it "should lookup first within a resource hierarchy" do
-			context_for_node.lookup(:class => Politburo::Resource::Node).should == node
+			context_for_node.lookup(:class => Politburo::Resource::Node).receiver.should == node
 		end
 
 		it "should lookup in parent's hierarchy next" do
-			context_for_node.lookup(name: 'another node').should == another_node
+			context_for_node.lookup(name: 'another node').receiver.should == another_node
 		end
 
 		it "should travel up to the root if neccessary" do
-			context_for_node.lookup(name: 'a node from another galaxy').should == another_environment_node
+			context_for_node.lookup(name: 'a node from another galaxy').receiver.should == another_environment_node
 		end
 
 	end

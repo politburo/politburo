@@ -44,11 +44,8 @@ module Politburo
 
 			def depends_on(state_context)
 				receiver.add_dependency_on(state_context.receiver)
+				state_context
 			end
-
-		  def validate!()
-		    receiver.each { | r | r.validate! }
-		  end
 
 			def lookup(find_attrs)
 				receivers = receiver.find_all_by_attributes(find_attrs)
@@ -56,8 +53,14 @@ module Politburo
 				receivers.merge(receiver.root.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
 				raise "Could not find receiver by attributes: #{find_attrs.inspect}." if (receivers.empty?) 
 				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Founds: #{receivers.inspect}" if (receivers.size > 1) 
-				receivers.first				
+				receivers.first.context			
 			end
+
+			protected
+
+		  def validate!()
+		    receiver.each { | r | r.validate! }
+		  end
 
 			private
 
@@ -73,8 +76,8 @@ module Politburo
 
 			def lookup_receiver(new_receiver_class, attributes, &block)
 				find_attrs = attributes.merge(:class => new_receiver_class)
-				receiver = lookup(find_attrs)
-				context = receiver.context
+				context = lookup(find_attrs)
+				receiver = context.receiver
 
 				if (block_given?)
 					context.define(&block)
@@ -99,7 +102,7 @@ module Politburo
 			root_resource = Politburo::Resource::Base.new(name: "")
 			root_context = root_resource.context
 			root_context.define(definition, &block)
-			root_context.validate!
+			root_context.send(:validate!)
 
 			root_resource
 		end
