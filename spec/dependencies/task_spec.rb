@@ -7,6 +7,7 @@ describe Politburo::Dependencies::Task do
   let(:task) { 
     task = TestTask.new 
     task.logger.level = Logger::ERROR
+    task.stub(:name).and_return('test-task')
     task
   }
 
@@ -223,17 +224,25 @@ describe Politburo::Dependencies::Task do
         task.should be_satisfied
       end
 
-      it "should attempt to meet, and if it fails, it should be marked as failed" do
+      it "should attempt to meet, and if it fails with an error, it should be marked as failed" do
         task.should_receive(:meet).and_raise "Whoops"
         task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Whoops"
       end
 
+      it "should attempt to meet, and if it fails with a nil or false return value, it should be marked as failed" do
+        task.should_receive(:meet).and_return false
+        task.step
+        task.should be_failed
+        task.cause_of_failure.message.should eq "Task 'test-task' failed as calling #meet() indicated failure by returning nil or false."
+      end
+
       it "should verify is met, and if it isn't, it should be marked as failed" do
         task.should_receive(:met?).and_return(false)
         task.step
         task.should be_failed
+        task.cause_of_failure.message.should eq "Task 'test-task' failed as its criteria hasn't been met after executing."
       end
     end
 

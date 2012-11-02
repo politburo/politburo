@@ -10,7 +10,8 @@ describe Politburo::Dependencies::Runner, "integration" do
   def task(name, *deps)
     task = TestTaskA.new(name: name.to_s, prerequisites: deps)
     task.stub(:met?).and_return(false, true)
-    task.stub(:meet)
+    task.stub(:meet).and_return(true)
+    task.stub(:name).and_return('test-task')
     #task.logger.level = Logger::DEBUG
     task
   end

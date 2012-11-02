@@ -30,14 +30,35 @@ describe Politburo::Tasks::RemoteTask do
     it "should return true when met_test_command executes with successful outcome" do
       remote_met_test_command.should_receive(:execute).and_return({ exit_code: "0" })
 
-      task.met?
+      task.should be_met
     end
 
-    it "should return false when met_test_command execution with unsucessful outcome" do
+    it "should return false when met_test_command executes with unsucessful outcome" do
       remote_met_test_command.should_receive(:execute).and_return(nil)
 
-      task.met?
+      task.should_not be_met
     end
 
   end
+
+  context "#meet" do
+
+    before :each do
+      node.should_receive(:session).and_return(session)
+      session.should_receive(:open_channel).and_yield(channel)
+    end
+
+    it "should return true when command executes with successful outcome" do
+      remote_command.should_receive(:execute).and_return({ exit_code: "0" })
+
+      task.meet.should_not be_nil
+    end
+
+    it "should return false when command executes with unsucessful outcome" do
+      remote_command.should_receive(:execute).and_return(nil)
+
+      task.meet.should be_nil
+    end
+
+  end  
 end

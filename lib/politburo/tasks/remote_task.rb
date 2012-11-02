@@ -22,6 +22,12 @@ module Politburo
           met_test_command.execute(channel)
         end
       end
+
+      def meet
+        node.session.open_channel do | channel |
+          command.execute(channel)
+        end
+      end
     end
 
 

@@ -93,12 +93,14 @@ module Politburo
               raise "Can't execute task when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
               task.state = :executing
               task.logger.debug("About to meet the task...")
-              task.meet
-              if (task.met?)
+              if !task.meet
+                task.state = :failed
+                task.cause_of_failure = RuntimeError.new("Task '#{task.name}' failed as calling #meet() indicated failure by returning nil or false.")
+              elsif (task.met?)
                 task.state = :satisfied
               else
                 task.state = :failed
-                task.cause_of_failure = RuntimeError.new("Task #{task.name} failed as its criteria hasn't been met after executing.")
+                task.cause_of_failure = RuntimeError.new("Task '#{task.name}' failed as its criteria hasn't been met after executing.")
               end
             when :satisfied
               raise "Assertion failed. Task resumed with .step() when already satisfied!"
