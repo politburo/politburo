@@ -34,6 +34,10 @@ module Politburo
 				receiver.add_dependency_on(state)
 			end
 
+		  def validate!()
+		    receiver.each { | r | r.validate! }
+		  end
+
 			def lookup(find_attrs)
 				receivers = receiver.find_all_by_attributes(find_attrs)
 				receivers.merge(receiver.parent_resource.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
@@ -71,7 +75,11 @@ module Politburo
 			root_resource = Politburo::Resource::Base.new(name: "")
 			root_context = Context.new(root_resource)
 			root_context.define(definition, &block)
+			root_context.validate!
+
+			root_resource
 		end
+
 	end
 
 end

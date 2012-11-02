@@ -7,10 +7,21 @@ describe Politburo::Resource::Node do
 		Politburo::Resource::Node.new(parent_resource: parent_resource, name: "Node resource")
 	end
 
-	it "should require a node_flavour" do
-		node.node_flavour = nil
-		node.should_not be_valid
-	end
+  context "#flavour" do
+
+    it "should inherit flavour" do
+      parent_resource.should_receive(:flavour).and_return(:simple)
+
+      node.flavour.should be :simple
+    end
+
+  	it "should require a flavour" do
+      parent_resource.should_receive(:flavour).and_return(nil)
+  		node.flavour = nil
+  		node.should_not be_valid
+  	end
+
+  end
 
   context "#session" do
     before :each do

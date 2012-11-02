@@ -8,6 +8,8 @@ describe Politburo::DSL::DslDefined do
 		requires :name
 		requires :description
 
+		inherits :flavour
+
 		attr_accessor :name
 		attr_accessor :description
 	end
@@ -83,6 +85,18 @@ describe Politburo::DSL::DslDefined do
 			validation_errors_for_name.first.should be_a RuntimeError
 			validation_errors_for_name.first.message.should eql("'name' is required")
 		end
+	end
+
+	context "#inherits" do
+		let (:parent_resource) { double("parent resource") }
+
+		it "should define an instance getter that delegates to the parent resource if doesn't have a value" do
+			dsl_defined_obj.should_receive(:parent_resource).and_return(parent_resource)
+			parent_resource.should_receive(:flavour).and_return(:parent_flavour)
+
+			dsl_defined_obj.flavour.should be :parent_flavour
+		end
+
 	end
 
 	context "#requires" do

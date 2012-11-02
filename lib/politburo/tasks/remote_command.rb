@@ -21,6 +21,10 @@ module Politburo
         @execution_result = nil
       end
 
+      def self.unix_command(unix_command, stdin = STDIN, stdout = STDOUT, stderr = STDERR)
+        self.new("#{unix_command}; echo $?", /^(?<exit_code>\d*)$[^$]?\z/, stdin, stdout, stderr)
+      end
+
       def execute(channel) 
         channel.exec command do |ch, success|
           raise "Could not execute command '#{command}'." unless success

@@ -50,6 +50,16 @@ module Politburo
 					errors
 				end
 
+				def inherits(name_sym_)
+					name_sym = name_sym_.to_sym
+
+					define_method(name_sym) do
+						instance_variable_get("@#{name_sym}".to_sym) || parent_resource.send(name_sym)
+					end
+
+					attr_writer(name_sym)
+				end
+
 				def requires(name_sym)
 					add_validation(name_sym, lambda do | name_sym, instance | 
 						value = nil

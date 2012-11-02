@@ -11,18 +11,18 @@ describe Politburo::CLI do
 
     let (:envfile_contents) do
       <<ENVFILE_CONTENTS
-environment(name: "environment", environment_flavour: :amazon_web_services) do
-  node(name: "node", node_flavour: "m1.large") {}
-  node(name: "another node", node_flavour: "m1.large") do
+environment(name: "environment", flavour: :amazon_web_services) do
+  node(name: "node", flavour: "m1.large") {}
+  node(name: "another node", flavour: "m1.large") do
     depends_on node(name: "node").state(:configured)
   end
-  node(name: "yet another node", node_flavour: "m1.large") do
+  node(name: "yet another node", flavour: "m1.large") do
     state('configured').depends_on node(name: "node")
   end
 end
 
-environment(name: 'another environment', environment_flavour: :amazon_web_services) do
-  node(name: "a node from another galaxy", node_flavour: "c1.xlarge") {}
+environment(name: 'another environment', flavour: :amazon_web_services) do
+  node(name: "a node from another galaxy", flavour: "c1.xlarge") {}
 end
 ENVFILE_CONTENTS
     end
@@ -43,6 +43,7 @@ ENVFILE_CONTENTS
         cli.root.should_not be_nil
         cli.root.children.size.should == 2
       end
+
     end
 
     context "#resolved_targets" do

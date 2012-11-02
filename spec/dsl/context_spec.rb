@@ -5,18 +5,18 @@ describe Politburo::DSL::Context do
 	let(:root_definition) do
 		Politburo::DSL.define do	
 
-			environment(name: "environment", environment_flavour: :amazon_web_services) do
-				node(name: "node", node_flavour: "m1.large") {}
-				node(name: "another node", node_flavour: "m1.large") do
+			environment(name: "environment", flavour: :amazon_web_services) do
+				node(name: "node", flavour: "m1.large") {}
+				node(name: "another node", flavour: "m1.large") do
 					depends_on node(name: "node").state(:configured)
 				end
-				node(name: "yet another node", node_flavour: "m1.large") do
+				node(name: "yet another node", flavour: "m1.large") do
 					state('configured').depends_on node(name: "node")
 				end
 			end
 
-			environment(name: 'another environment', environment_flavour: :amazon_web_services) do
-				node(name: "a node from another galaxy", node_flavour: "c1.xlarge") {}
+			environment(name: 'another environment', flavour: :amazon_web_services) do
+				node(name: "a node from another galaxy", flavour: "c1.xlarge") {}
 			end
 		end
 	end
@@ -31,23 +31,81 @@ describe Politburo::DSL::Context do
 	let(:another_environment_node) { another_environment.find_all_by_attributes(:class => Politburo::Resource::Node).first }
 	
 	context "::define" do
+		context "unit test" do
 
-		it "should allow you to define a resource hierarchy" do
-			root_definition.name.should eql("")
-			root_definition.children.should_not be_empty
-			root_definition.children.length.should == 2
+			let (:root) { double("root resource") }
+			let (:context) { double("root context") }
+
+			before :each do
+				Politburo::Resource::Base.stub(:new).with(name: "").and_return(root)
+				Politburo::DSL::Context.stub(:new).with(root).and_return(context)
+				context.stub(:define).with("string eval").and_return(root)
+				context.stub(:validate!)
+			end
+
+			it "should create a new root resource" do
+				Politburo::Resource::Base.should_receive(:new).with(name: "").and_return(root)
+
+				Politburo::DSL.define("string eval") { "a block" }
+			end
+
+			it "should create a new root context" do
+				Politburo::DSL::Context.should_receive(:new).with(root).and_return(context)
+
+				Politburo::DSL.define("string eval") { "a block" }
+			end
+
+			it "should call define on the root context" do
+				context.should_receive(:define).with("string eval").and_return(root)
+
+				Politburo::DSL.define("string eval") { "a block" }
+			end
+
+			it "should call validate on the root context" do
+				context.should_receive(:validate!)
+
+				Politburo::DSL.define("string eval") { "a block" }
+			end
+
 		end
 
-		it "defined hierarchy, should define an implicit state dependency" do
-			environment.state(:ready).should be_dependent_on node.state(:ready)
-			environment.state(:ready).should be_dependent_on another_node.state(:ready)
-		end
+		context "effects test" do
+			it "should allow you to define a resource hierarchy" do
+				root_definition.name.should eql("")
+				root_definition.children.should_not be_empty
+				root_definition.children.length.should == 2
+			end
+
+			it "defined hierarchy, should define an implicit state dependency" do
+				environment.state(:ready).should be_dependent_on node.state(:ready)
+				environment.state(:ready).should be_dependent_on another_node.state(:ready)
+			end
 
 
-		it "should allow you to define state dependencies" do
-			another_node.state(:ready).should be_dependent_on node.state(:configured)
-			yet_another_node.state(:configured).should be_dependent_on node.state(:ready)
+			it "should allow you to define state dependencies" do
+				another_node.state(:ready).should be_dependent_on node.state(:configured)
+				yet_another_node.state(:configured).should be_dependent_on node.state(:ready)
+			end
+
 		end
+
+	end
+
+	context "#validate!" do
+		let(:receiver) { double("receiver") }
+		let(:fake_resource_a) { double("fake resource a") }
+		let(:fake_resource_b) { double("fake resource b") }
+
+		let(:context) { Politburo::DSL::Context.new(receiver) }
+
+    it "should iterate all resources (depth first) starting with the receiver and call #validate! on each" do
+      receiver.should_receive(:each).and_yield(fake_resource_a).and_yield(fake_resource_b)
+      fake_resource_a.should_receive(:validate!)
+      fake_resource_b.should_receive(:validate!)
+
+      context.validate!
+    end
+
 	end
 
 	context "#lookup" do

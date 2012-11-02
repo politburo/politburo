@@ -1,9 +1,9 @@
 module Politburo
 	module Resource
 		class Environment < Base
-			attr_accessor :environment_flavour
+			attr_accessor :flavour
 
-			requires :environment_flavour
+			requires :flavour
 			requires :parent_resource
 
 		end
