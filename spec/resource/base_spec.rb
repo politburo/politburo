@@ -85,7 +85,7 @@ describe Politburo::Resource::Base do
 			each_a = parent_resource.to_a
 			each_a.should_not be_empty
 			each_a.first.should == parent_resource
-			each_a.last.should == sub_resource_2.state(:ready)
+			each_a.last.should == sub_resource_2.state(:terminated)
 
 			expected_order = <<EXPECTED_ORDER
 Parent resource
@@ -95,6 +95,9 @@ Parent resource#started
 Parent resource#configuring
 Parent resource#configured
 Parent resource#ready
+Parent resource#stopping
+Parent resource#stopped
+Parent resource#terminated
 Parent resource:Child resource
 Parent resource:Child resource#defined
 Parent resource:Child resource#starting
@@ -102,6 +105,9 @@ Parent resource:Child resource#started
 Parent resource:Child resource#configuring
 Parent resource:Child resource#configured
 Parent resource:Child resource#ready
+Parent resource:Child resource#stopping
+Parent resource:Child resource#stopped
+Parent resource:Child resource#terminated
 Parent resource:Child resource:Sub Resource 1
 Parent resource:Child resource:Sub Resource 1#defined
 Parent resource:Child resource:Sub Resource 1#starting
@@ -109,13 +115,19 @@ Parent resource:Child resource:Sub Resource 1#started
 Parent resource:Child resource:Sub Resource 1#configuring
 Parent resource:Child resource:Sub Resource 1#configured
 Parent resource:Child resource:Sub Resource 1#ready
+Parent resource:Child resource:Sub Resource 1#stopping
+Parent resource:Child resource:Sub Resource 1#stopped
+Parent resource:Child resource:Sub Resource 1#terminated
 Parent resource:Child resource:Sub Resource 2
 Parent resource:Child resource:Sub Resource 2#defined
 Parent resource:Child resource:Sub Resource 2#starting
 Parent resource:Child resource:Sub Resource 2#started
 Parent resource:Child resource:Sub Resource 2#configuring
 Parent resource:Child resource:Sub Resource 2#configured
-Parent resource:Child resource:Sub Resource 2#ready			
+Parent resource:Child resource:Sub Resource 2#ready
+Parent resource:Child resource:Sub Resource 2#stopping
+Parent resource:Child resource:Sub Resource 2#stopped
+Parent resource:Child resource:Sub Resource 2#terminated
 EXPECTED_ORDER
 
 			each_a.map(&:full_name).join("\n").strip.should == expected_order.strip
@@ -137,7 +149,7 @@ EXPECTED_ORDER
 			end
 
 			it "should include both child resources and state resources" do
-				resource.contained_searchables.length.should == 8
+				resource.contained_searchables.length.should == 11
 			end
 
 			it "should include all child resources" do

@@ -14,11 +14,17 @@ module Politburo
 			requires :name
 
 			has_state :defined
+
 			has_state :starting => :defined
 			has_state :started => :starting
 			has_state :configuring => :started
 			has_state :configured => :configuring
 			has_state :ready => :configured
+
+			has_state :stopping => :defined
+			has_state :stopped => :stopping
+
+			has_state :terminated => :stopped
 
 			def initialize(attributes)
 				update_attributes(attributes)

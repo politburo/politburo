@@ -11,7 +11,9 @@ describe Politburo::DSL::Context do
 					depends_on node(name: "node").state(:configured)
 				end
 				node(name: "yet another node", flavour: "m1.large") do
-					state('configured').depends_on(node(name: "node"))
+					state('configured') do
+						depends_on node(name: "node")
+					end
 				end
 			end
 
@@ -81,10 +83,12 @@ describe Politburo::DSL::Context do
 				environment.state(:ready).should be_dependent_on another_node.state(:ready)
 			end
 
-
 			it "should allow you to define state dependencies" do
 				another_node.state(:ready).should be_dependent_on node.state(:configured)
 				yet_another_node.state(:configured).should be_dependent_on node.state(:ready)
+			end
+
+			it "should allow you to define execution tasks for states" do
 			end
 
 		end

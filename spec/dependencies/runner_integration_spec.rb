@@ -37,7 +37,7 @@ describe Politburo::Dependencies::Runner, "integration" do
     task_a.should_not be_done
   end
 
-  (1..5).each do | i | 
+  (1..4).each do | i | 
 
     it "should run a #{i} levels node tree" do
       tasks_to_run = tasks("", 0, (i - 1), 0, i == 1 ? 1 : 3)
