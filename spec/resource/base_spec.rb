@@ -167,6 +167,15 @@ EXPECTED_ORDER
 		end
 	end
 
+	context "#as_dependency" do
+
+		it "should return ready state" do
+			resource.as_dependency.should be resource.state(:ready)
+		end
+
+	end
+
+
 	context "#root" do
 
 		it "should return the root resource" do

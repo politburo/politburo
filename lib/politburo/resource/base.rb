@@ -43,7 +43,7 @@ module Politburo
 				parent_resource.nil? ? name : (parent_resource.name.empty? ? name : "#{parent_resource.full_name}:#{name}")
 			end
 
-			def to_state
+			def as_dependency
 				state(:ready)
 			end
 

@@ -3,6 +3,7 @@ module Politburo
 		class State
 			include ::Politburo::DSL::DslDefined
 			include ::Politburo::Resource::Searchable
+			include ::Politburo::Resource::HasDependencies
 
 			attr_reader :resource
 			attr_accessor :name
@@ -27,14 +28,6 @@ module Politburo
 				self.resource
 			end
 
-			def dependencies()
-				@dependencies ||= []
-			end
-
-			def to_state
-				self
-			end
-
 			def context
 				@context ||= StateContext.new(self)
 			end
@@ -47,21 +40,8 @@ module Politburo
 				@task ||= Politburo::Resource::StateTask.new(self)
 			end
 
-			def dependent_on?(another_state)
-				dependencies.include?(another_state)
-			end
-
-			def add_dependency_on(state_or_resource)
-				state = nil
-				if state_or_resource.is_a?(Politburo::Resource::State)
-					state = state_or_resource
-				elsif state_or_resource.is_a?(Politburo::Resource::HasStates)
-					state = state_or_resource.state(:ready)
-				else
-					raise "Can only become dependent on state or resource. #{state_or_resource.inspect} is neither."
-				end
-
-				dependencies << state
+			def as_dependency
+				self
 			end
 
 			def full_name()

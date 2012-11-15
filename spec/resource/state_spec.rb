@@ -8,6 +8,10 @@ describe Politburo::Resource::State do
 		state.resource.should == resource
 	end
 
+	it "should include HasDependencies" do
+		state.should be_a Politburo::Resource::HasDependencies
+	end
+
 	it "should require a name" do
 		state.should be_valid
 
@@ -56,6 +60,14 @@ describe Politburo::Resource::State do
 
 		it "should be constructed of the resource full name and the state name" do
 			state.full_name.should == "Resource#state"
+		end
+
+	end
+
+	context "#as_dependency" do
+
+		it "should return self" do
+			state.as_dependency.should be state
 		end
 
 	end

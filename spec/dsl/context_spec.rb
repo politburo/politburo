@@ -3,7 +3,7 @@ require 'politburo'
 describe Politburo::DSL::Context do
 
 	let(:root_definition) do
-		Politburo::DSL.define do	
+		Politburo::DSL.define do
 
 			environment(name: "environment", flavour: :amazon_web_services) do
 				node(name: "node", flavour: "m1.large") {}
