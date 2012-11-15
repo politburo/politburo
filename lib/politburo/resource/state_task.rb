@@ -2,11 +2,26 @@ module Politburo
   module Resource
     class StateTask
       include Politburo::Dependencies::Task
+      include Politburo::DSL::DslDefined
 
-      attr_reader :resource_state
+      attr_accessor :resource_state
+      attr_accessor :prerequisites
 
-      def initialize(resource_state)
-        @resource_state = resource_state
+      requires :resource_state
+      requires :prerequisites
+
+      def initialize(attributes)
+        update_attributes(attributes)
+
+        validate!
+      end
+
+      def parent_resource=(resource)
+        self.resource_state= resource
+      end
+
+      def parent_resource()
+        self.resource_state
       end
 
       def name 
@@ -15,10 +30,6 @@ module Politburo
 
       def resource
         resource_state.resource
-      end
-
-      def prerequisites
-        resource_state.dependencies.map(&:to_task)
       end
 
       def met?

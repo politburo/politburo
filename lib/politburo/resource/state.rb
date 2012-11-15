@@ -37,7 +37,7 @@ module Politburo
 			end
 
 			def to_task
-				@task ||= Politburo::Resource::StateTask.new(self)
+				@task ||= Politburo::Resource::StateTask.new(parent_resource: self, prerequisites: self.dependencies.map(&:to_task))
 			end
 
 			def as_dependency
@@ -64,12 +64,8 @@ module Politburo
 		end
 
 		class StateContext < Politburo::DSL::Context
-
-			def requires(task)
-				puts "Requires: #{task.to_s}"
-			end
-
 		end
+
 	end
 end
 

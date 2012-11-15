@@ -5,11 +5,12 @@ describe Politburo::Tasks::RemoteTask do
 
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
+  let(:state) { Politburo::Resource::State.new(resource: node, name: "state") }
 
   let(:remote_command) { double("remote command") }
   let(:remote_met_test_command) { double("remote met test command") }
 
-  let(:task) { Politburo::Tasks::RemoteTask.new(node: node, command: remote_command, met_test_command: remote_met_test_command) }
+  let(:task) { Politburo::Tasks::RemoteTask.new(parent_resource: state, command: remote_command, met_test_command: remote_met_test_command) }
 
   it "should initialize correctly" do
     task.should_not be_nil

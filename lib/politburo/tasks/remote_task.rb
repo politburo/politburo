@@ -1,20 +1,15 @@
 module Politburo
   module Tasks
-    class RemoteTask
-      include Politburo::DSL::DslDefined
-      include Politburo::Dependencies::Task
+    class RemoteTask < Politburo::Resource::StateTask
 
-      attr_accessor :node
       attr_accessor :command
       attr_accessor :met_test_command
 
       requires :command
       requires :met_test_command
 
-      def initialize(attributes)
-        update_attributes(attributes)
-
-        validate!
+      def node
+        self.resource
       end
 
       def met?
