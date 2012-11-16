@@ -119,7 +119,7 @@ module Politburo
         @logger ||= begin 
           logger = Logger.new(STDOUT)
           task = self
-          logger.level = Logger::ERROR
+          logger.level = Logger::INFO
           logger.formatter = proc do |severity, datetime, progname, msg|
             "#{Thread.current}\t#{datetime}\tTask [#{task.name}]:\t#{msg}\n"
           end

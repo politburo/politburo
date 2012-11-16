@@ -9,7 +9,7 @@ module Politburo
 
       attr_reader   :stdin, :stdout, :stderr
 
-      def initialize(command, execution_output_match_pattern, stdin = STDIN, stdout = STDOUT, stderr = STDERR, &validate_success_block)
+      def initialize(command, execution_output_match_pattern = nil, stdin = STDIN, stdout = STDOUT, stderr = STDERR, &validate_success_block)
         @command = command
         @execution_output_match_pattern = execution_output_match_pattern
 
@@ -25,11 +25,12 @@ module Politburo
         command
       end
 
-      def self.unix_command(unix_command, stdin = STDIN, stdout = STDOUT, stderr = STDERR)
-        self.new("#{unix_command}; echo $?", /^(?<exit_code>\d*)$[^$]?\z/, stdin, stdout, stderr)
+      def self.unix_command(unix_command, execution_output_match_pattern = nil, stdin = STDIN, stdout = STDOUT, stderr = STDERR)
+        self.new("#{unix_command}", execution_output_match_pattern, stdin, stdout, stderr)
       end
 
       def execute(channel) 
+        exec_result = {}
         channel.exec command do |ch, success|
           raise "Could not execute command '#{command}'." unless success
 
@@ -45,14 +46,24 @@ module Politburo
             stderr.print data
           end
 
+          channel.on_request("exit-status") do |ch,data|
+            exec_result[:exit_status] = data.read_long
+          end
+
+          channel.on_request("exit-signal") do |ch,data|
+            exec_result[:exit_signal] = data.read_long
+          end
+
           ch.on_close { }
         end        
 
         channel.wait
 
-        match_data = execution_output_match_pattern.match(captured_output.string)
-
-        @execution_result = match_data ? Hash[ match_data.names.map(&:to_sym).zip( match_data.captures ) ] : nil
+        @execution_result = exec_result
+        if (execution_output_match_pattern) 
+          match_data = execution_output_match_pattern.match(captured_output.string)
+          @execution_result = @execution_result.merge(match_data ? Hash[ match_data.names.map(&:to_sym).zip( match_data.captures ) ] : {})
+        end
 
         return @execution_result if (@execution_result and validate_success_block.call(self, execution_result))
         nil
@@ -63,7 +74,7 @@ module Politburo
       end
 
       def validate_success_block
-        @validate_success_block ||= Proc.new { | remote_command, execution_result | execution_result[:exit_code] == "0" }
+        @validate_success_block ||= Proc.new { | remote_command, execution_result | execution_result[:exit_status] == 0 }
       end
 
     end

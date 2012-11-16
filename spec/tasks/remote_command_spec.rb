@@ -31,6 +31,9 @@ describe Politburo::Tasks::RemoteCommand do
         ssh_channel.stub(:on_data)
         ssh_channel.stub(:on_extended_data)
         ssh_channel.stub(:on_close)
+        ssh_channel.stub(:on_request)
+
+        remote_command.validate_success_block.stub(:call).with(remote_command, anything).and_return(true)
       end
 
       it "should print remote standard output to output stream" do
@@ -51,11 +54,37 @@ describe Politburo::Tasks::RemoteCommand do
         remote_command.execute(ssh_channel)
       end
 
+      it "should store the exit status in the execution result" do
+        ssh_channel.should_receive(:on_request).with("exit-status").and_yield(ssh_channel, double("exit status data", :read_long => 127))
+
+        remote_command.execute(ssh_channel)
+
+        remote_command.execution_result.should include(:exit_status)
+        remote_command.execution_result[:exit_status].should == 127
+      end
+
+      it "should store the exit signal in the execution result" do
+        ssh_channel.should_receive(:on_request).with("exit-signal").and_yield(ssh_channel, double("exit signal data", :read_long => 127))
+
+        remote_command.execute(ssh_channel)
+
+        remote_command.execution_result.should include(:exit_signal)
+        remote_command.execution_result[:exit_signal].should == 127
+      end
+
+      context "and the match pattern is nil" do
+        it "should return empty result" do
+          remote_command.should_receive(:execution_output_match_pattern).and_return(nil)
+
+          remote_command.execute(ssh_channel).should be_empty
+        end        
+      end
+
       context "and remote command output does not match pattern" do
-        it "should return nil" do
+        it "should return empty result" do
           ssh_channel.should_receive(:on_data).and_yield(ssh_channel, "Output to standard output, no exit code after. Oops.\n")
 
-          remote_command.execute(ssh_channel).should be_nil
+          remote_command.execute(ssh_channel).should be_empty
         end        
       end
 
@@ -69,7 +98,8 @@ describe Politburo::Tasks::RemoteCommand do
 
         it "should have matches in the result hash" do
           remote_command.execute(ssh_channel)
-          remote_command.execution_result.should == { exit_code: '127' }
+          remote_command.execution_result.should include :exit_code
+          remote_command.execution_result[:exit_code].should == "127"
         end
 
         context "when the validation block return true" do
@@ -78,7 +108,7 @@ describe Politburo::Tasks::RemoteCommand do
           end
 
           it "should return the result hash" do
-            remote_command.execute(ssh_channel).should == { exit_code: '127' }
+            remote_command.execute(ssh_channel).should be_a Hash
           end
 
         end
@@ -105,7 +135,6 @@ describe Politburo::Tasks::RemoteCommand do
 
 
       it "should raise an error" do
-        
         lambda { remote_command.execute(ssh_channel) }.should raise_error("Could not execute command 'command here; echo $?'.")
       end
 
