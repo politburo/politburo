@@ -97,12 +97,21 @@ describe Politburo::Dependencies::Runner, "unit" do
       runner.scheduler_step
     end
 
-    it "when a task is available, should pick the next task and enqueue it" do
+    it "when a non failed task is available, should pick the next task and enqueue it" do
       runner.should_receive(:pick_next_task).and_return(available_task)
       available_task.should_receive(:available_for_queueing?).and_return(true)
       available_task.should_receive(:step)
       available_task.should_receive(:in_progress=).with(true)
       runner.execution_queue.should_receive(:push).with(available_task)
+
+      runner.scheduler_step
+    end
+
+    it "when a failed task is in the queue, should report the error and terminate" do
+      runner.should_receive(:pick_next_task).and_return(available_task)
+      available_task.should_receive(:failed?).and_return(true, true)
+
+      runner.logger.should_receive(:error)
 
       runner.scheduler_step
     end

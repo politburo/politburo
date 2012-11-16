@@ -47,7 +47,7 @@ describe Politburo::Resource::HasDependencies do
     end
 
     it "should raise an error if target does not respond to #as_dependency" do
-      lambda { dependent_obj.add_dependency_on(non_dependency) }.should raise_error "Can't add dependency on object that doesn't respond to #as_dependency"
+      lambda { dependent_obj.add_dependency_on(non_dependency) }.should raise_error /Can\'t add dependency on object (.*) that doesn\'t respond to #as_dependency/
     end
 
     it "should call #as_dependency on target and add the result of that to dependencies" do

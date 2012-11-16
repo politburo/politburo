@@ -17,7 +17,7 @@ module Politburo
       end
 
       def add_dependency_on(target)
-        raise "Can't add dependency on object that doesn't respond to #as_dependency" unless target.respond_to?(:as_dependency)
+        raise "Can't add dependency on object (#{target}) that doesn't respond to #as_dependency" unless target.respond_to?(:as_dependency)
 
         dependency = target.as_dependency
 

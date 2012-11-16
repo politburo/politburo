@@ -32,6 +32,14 @@ module Politburo
         resource_state.resource
       end
 
+      def as_dependency 
+        self
+      end
+
+      def to_task
+        self
+      end
+
       def met?
         true
       end

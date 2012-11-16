@@ -41,6 +41,8 @@ module Politburo
           next_task.step if next_task.unexecuted?
           next_task.in_progress = true
           execution_queue.push(next_task)
+        elsif next_task and next_task.failed? 
+          logger.error("Task #{next_task.name} failed with error: #{next_task.cause_of_failure}")
         else
           logger.debug("Waiting for tasks to become available...")
           Kernel.sleep(0.01)

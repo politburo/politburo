@@ -11,8 +11,12 @@ describe Politburo::DSL::Context do
 					depends_on node(name: "node").state(:configured)
 				end
 				node(name: "yet another node", flavour: "m1.large") do
-					state('configured') do
+					state(:configured) do
 						depends_on node(name: "node")
+
+						remote_task(
+							command: Politburo::Tasks::RemoteCommand.unix_command('sudo sh -c "`curl https://babushka.me/up`"'), 
+							met_test_command: Politburo::Tasks::RemoteCommand.unix_command('which babushka')) {}
 					end
 				end
 			end

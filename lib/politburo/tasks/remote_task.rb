@@ -12,6 +12,10 @@ module Politburo
         self.resource
       end
 
+      def name 
+        "RemoteTask { command: '#{command}', met_test_command: '#{met_test_command}' }"
+      end
+
       def met?
         node.session.open_channel do | channel |
           met_test_command.execute(channel)

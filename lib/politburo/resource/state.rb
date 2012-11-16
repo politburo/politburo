@@ -64,6 +64,10 @@ module Politburo
 		end
 
 		class StateContext < Politburo::DSL::Context
+			def remote_task(attributes, &block)
+				define_or_lookup_receiver(::Politburo::Tasks::RemoteTask, attributes, &block)
+			end
+
 		end
 
 	end

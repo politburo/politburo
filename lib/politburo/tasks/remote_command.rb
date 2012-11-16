@@ -21,6 +21,10 @@ module Politburo
         @execution_result = nil
       end
 
+      def to_s
+        command
+      end
+
       def self.unix_command(unix_command, stdin = STDIN, stdout = STDOUT, stderr = STDERR)
         self.new("#{unix_command}; echo $?", /^(?<exit_code>\d*)$[^$]?\z/, stdin, stdout, stderr)
       end

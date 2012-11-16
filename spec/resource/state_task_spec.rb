@@ -15,4 +15,10 @@ describe Politburo::Resource::StateTask do
     end
 
   end
+
+  context "#as_dependency" do
+    it "should return itself" do
+      state_task.as_dependency.should be state_task
+    end
+  end
 end

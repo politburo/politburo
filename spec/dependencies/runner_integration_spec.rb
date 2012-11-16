@@ -31,8 +31,12 @@ describe Politburo::Dependencies::Runner, "integration" do
     task_a.should_receive(:met?).and_return(false, false)
     task_a.should_receive(:meet)
 
+
     runner = Politburo::Dependencies::Runner.new(task_a)
+
+    runner.logger.should_receive(:error)
     runner.run()
+
 
     task_a.should_not be_done
   end
