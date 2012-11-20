@@ -31,31 +31,34 @@ module Politburo
 
       def execute(channel) 
         exec_result = {}
-        channel.exec command do |ch, success|
-          raise "Could not execute command '#{command}'." unless success
+        channel.request_pty do | ch, success | 
+          raise "Failed to get interactive shell (pty) on SSH session." unless success
+          channel.exec command do |ch, success|
+            raise "Could not execute command '#{command}'." unless success
 
-          # "on_data" is called when the process writes something to stdout
-          ch.on_data do |c, data|
-            captured_output.print data
-            stdout.print data
+            # "on_data" is called when the process writes something to stdout
+            ch.on_data do |c, data|
+              captured_output.print data
+              stdout.print data
+            end
+
+            # "on_extended_data" is called when the process writes something to stderr
+            ch.on_extended_data do |c, type, data|
+              captured_output.print data
+              stderr.print data
+            end
+
+            channel.on_request("exit-status") do |ch,data|
+              exec_result[:exit_status] = data.read_long
+            end
+
+            channel.on_request("exit-signal") do |ch,data|
+              exec_result[:exit_signal] = data.read_long
+            end
+
+            ch.on_close { }
           end
-
-          # "on_extended_data" is called when the process writes something to stderr
-          ch.on_extended_data do |c, type, data|
-            captured_output.print data
-            stderr.print data
-          end
-
-          channel.on_request("exit-status") do |ch,data|
-            exec_result[:exit_status] = data.read_long
-          end
-
-          channel.on_request("exit-signal") do |ch,data|
-            exec_result[:exit_signal] = data.read_long
-          end
-
-          ch.on_close { }
-        end        
+        end  
 
         channel.wait
 

@@ -23,6 +23,30 @@ describe Politburo::Tasks::RemoteCommand do
 
     let(:ssh_channel) {  double("SSH channel") }
 
+    before :each do
+      ssh_channel.stub(:exec).with("command here; echo $?").and_yield(ssh_channel, true)
+      ssh_channel.stub(:wait)
+      ssh_channel.stub(:on_data)
+      ssh_channel.stub(:on_extended_data)
+      ssh_channel.stub(:on_close)
+      ssh_channel.stub(:on_request)
+      ssh_channel.stub(:request_pty).and_yield(ssh_channel, true)
+
+      remote_command.validate_success_block.stub(:call).with(remote_command, anything).and_return(true)
+    end
+
+    it "should attempt to start pty" do
+      ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, true)
+
+      remote_command.execute(ssh_channel)
+    end
+
+    it "should throw an error if it didn't successfully request pty" do
+      ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, false)
+
+      lambda { remote_command.execute(ssh_channel) }.should raise_error "Failed to get interactive shell (pty) on SSH session."
+    end
+
     context "when successfully started remote command execution" do
 
       before :each do
@@ -139,6 +163,7 @@ describe Politburo::Tasks::RemoteCommand do
       end
 
     end
+
 
   end
 

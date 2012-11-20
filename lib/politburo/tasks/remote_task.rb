@@ -17,16 +17,25 @@ module Politburo
       end
 
       def met?
-        node.session.open_channel do | channel |
-          met_test_command.execute(channel)
-        end
+        execute_command(met_test_command)
       end
 
       def meet
-        node.session.open_channel do | channel |
-          command.execute(channel)
-        end
+        execute_command(command)
       end
+
+      private 
+
+      def execute_command(cmd)
+        logger.info("Executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
+        result = nil
+        node.session.open_channel do | channel |
+          result = cmd.execute(channel)
+        end
+        logger.debug("Finished executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
+        result
+      end
+
     end
 
 
