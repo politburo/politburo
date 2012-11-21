@@ -8,7 +8,7 @@ environment(name: 'simple', description: "Simple integration test environment", 
       depends_on node(name: "node")
       remote_task(
         command: 'sudo sh -c "`curl https://babushka.me/up`"', 
-        met_test_command: 'which babushka') { }
+        met_test_command: 'bash -l -c "which babushka"') { }
     }
   end
 end
