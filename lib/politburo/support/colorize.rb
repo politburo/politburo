@@ -22,6 +22,10 @@ String.class_eval do
     colorize(32)
   end
 
+  def blue
+    colorize(34)
+  end
+
   def yellow
     colorize(33)
   end
