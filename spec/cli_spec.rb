@@ -7,7 +7,7 @@ describe Politburo::CLI do
 
     let (:cli) { Politburo::CLI.new(options, targets) }
     let (:targets) { ['fake-target'] }
-    let (:options) { { } }
+    let (:options) { { color: true } }
 
     let (:envfile_contents) do
       <<ENVFILE_CONTENTS
@@ -126,6 +126,12 @@ ENVFILE_CONTENTS
         node_ready_state.stub(:to_task).and_return(node_ready_task)
         another_node_ready_state.stub(:to_task).and_return(another_node_ready_task)
         Politburo::Dependencies::Runner.stub(:new).with(*tasks).and_return(runner)
+      end
+
+      it "should set the colorise flag on String" do
+        String.should_receive(:allow_colors=).with(true)
+
+        cli.run
       end
 
       it "should convert resolved targets to tasks" do

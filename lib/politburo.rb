@@ -1,3 +1,4 @@
+require_relative "politburo/support"
 require_relative "politburo/version"
 require_relative "politburo/dependencies"
 require_relative "politburo/dsl"

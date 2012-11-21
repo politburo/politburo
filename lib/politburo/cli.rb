@@ -20,6 +20,7 @@ module Politburo
         where [options] are:
         EOS
         opt :interactive, "Interactive pry console", :short => 'i'
+        opt :color, "Use colored output", :default => true, :short => 'c'
         opt :envfile, "Use a different envfile", :short => 'e', :default => 'Envfile'
         opt :'babushka-sources-dir', "Use a different babushka sources dir", :short => 'b', :default => '~/.babushka/sources'
       end
@@ -40,6 +41,7 @@ module Politburo
     end
 
     def run()
+      String.allow_colors = options[:color]
       if (options[:interactive])
         require 'pry'
         self.pry 
