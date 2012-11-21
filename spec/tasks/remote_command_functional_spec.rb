@@ -1,6 +1,6 @@
 describe Politburo::Tasks::RemoteCommand, "functional" do
-  let(:output_stream) { StringIO.new }
 
+  let(:output_stream) { StringIO.new }
 
   let(:remote_command) { 
     Politburo::Tasks::RemoteCommand.new(
@@ -23,6 +23,7 @@ describe Politburo::Tasks::RemoteCommand, "functional" do
     result
   }
 
+  before(:each) { result }
 
   context "when command succeeds" do
     let(:command_string) { "which ls" }
@@ -32,6 +33,11 @@ describe Politburo::Tasks::RemoteCommand, "functional" do
       remote_command.execution_result.should_not be_nil
       remote_command.execution_result.should be result
     end
+
+    it "should have the correct output" do
+      output_stream.string.should include "ls"
+    end
+
   end
 
   context "when command fails" do

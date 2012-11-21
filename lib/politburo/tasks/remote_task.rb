@@ -2,8 +2,8 @@ module Politburo
   module Tasks
     class RemoteTask < Politburo::Resource::StateTask
 
-      attr_accessor :command
-      attr_accessor :met_test_command
+      attr_reader :command
+      attr_reader :met_test_command
 
       requires :command
       requires :met_test_command
@@ -22,6 +22,14 @@ module Politburo
 
       def meet
         execute_command(command)
+      end
+
+      def command=(command_obj_or_string)
+        @command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string)
+      end
+
+      def met_test_command=(command_obj_or_string)
+        @met_test_command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string)
       end
 
       private 

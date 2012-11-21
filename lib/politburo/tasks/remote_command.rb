@@ -29,6 +29,10 @@ module Politburo
         self.new("#{unix_command}", execution_output_match_pattern, stdin, stdout, stderr)
       end
 
+      def self.repack(command_obj_or_string)
+        command_obj_or_string.kind_of?(Politburo::Tasks::RemoteCommand) ? command_obj_or_string : Politburo::Tasks::RemoteCommand.unix_command(command_obj_or_string.to_s)
+      end
+
       def execute(channel) 
         exec_result = {}
         channel.request_pty do | ch, success | 

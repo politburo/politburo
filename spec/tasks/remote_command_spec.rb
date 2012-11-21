@@ -19,6 +19,39 @@ describe Politburo::Tasks::RemoteCommand do
     remote_command.stderr.should be output_stream
   end
 
+  context "#repack" do
+
+    context "when the parameter is a remote command object" do
+
+      before :each do
+        remote_command.should_receive(:kind_of?).with(Politburo::Tasks::RemoteCommand).and_return(true)
+      end
+
+      it "should simply return the object" do
+        Politburo::Tasks::RemoteCommand.repack(remote_command).should be remote_command
+      end
+
+    end
+
+    context "when the parameter is not a remote command object" do
+      let(:not_a_remote_command) { double("not a remote command") }
+      let(:a_string) { "just a string" }
+
+      before :each do
+        not_a_remote_command.should_receive(:kind_of?).with(Politburo::Tasks::RemoteCommand).and_return(false)
+      end
+
+      it "should convert it to a string, and pack it through unix_command" do
+        not_a_remote_command.should_receive(:to_s).and_return(a_string)
+        Politburo::Tasks::RemoteCommand.should_receive(:unix_command).with(a_string).and_return(:a_new_command)
+
+        Politburo::Tasks::RemoteCommand.repack(not_a_remote_command).should be :a_new_command
+      end
+
+    end
+
+  end
+
   context "#execute" do
 
     let(:ssh_channel) {  double("SSH channel") }
