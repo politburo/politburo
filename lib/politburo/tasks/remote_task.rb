@@ -29,9 +29,10 @@ module Politburo
       def execute_command(cmd)
         logger.info("Executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
         result = nil
-        node.session.open_channel do | channel |
+        channel = node.session.open_channel do | channel |
           result = cmd.execute(channel)
         end
+        channel.wait
         logger.debug("Finished executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
         result
       end

@@ -1,7 +1,7 @@
 describe Politburo::Tasks::RemoteTask do
 
   let(:session) { double("fake ssh session") }
-  let(:channel) { double("fake ssh channel") }
+  let(:channel) { double("fake ssh channel", :wait => true) }
 
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
@@ -25,17 +25,19 @@ describe Politburo::Tasks::RemoteTask do
 
     before :each do
       node.should_receive(:session).and_return(session)
-      session.should_receive(:open_channel).and_yield(channel)
+      session.should_receive(:open_channel).and_yield(channel).and_return(channel)
     end
 
     it "should return true when met_test_command executes with successful outcome" do
       remote_met_test_command.should_receive(:execute).and_return({ exit_code: "0" })
+      channel.should_receive(:wait)
 
       task.should be_met
     end
 
     it "should return false when met_test_command executes with unsucessful outcome" do
       remote_met_test_command.should_receive(:execute).and_return(nil)
+      channel.should_receive(:wait)
 
       task.should_not be_met
     end
@@ -46,7 +48,7 @@ describe Politburo::Tasks::RemoteTask do
 
     before :each do
       node.should_receive(:session).and_return(session)
-      session.should_receive(:open_channel).and_yield(channel)
+      session.should_receive(:open_channel).and_yield(channel).and_return(channel)
     end
 
     it "should return true when command executes with successful outcome" do
