@@ -13,7 +13,7 @@ module Politburo
       end
 
       def name 
-        "RemoteTask { command: '#{command}', met_test_command: '#{met_test_command}' }"
+        @name ||= "RemoteTask { command: '#{command}', met_test_command: '#{met_test_command}' }"
       end
 
       def met?

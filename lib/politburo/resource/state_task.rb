@@ -7,6 +7,8 @@ module Politburo
       attr_accessor :resource_state
       attr_accessor :prerequisites
 
+      attr_writer :name
+
       requires :resource_state
       requires :prerequisites
 
@@ -25,7 +27,7 @@ module Politburo
       end
 
       def name 
-        resource_state.full_name
+        @name ||= resource_state.full_name
       end
 
       def resource
