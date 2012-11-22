@@ -123,16 +123,28 @@ module Politburo
           task
       end
 
+      def logger_display_name
+        self.name.yellow
+      end
+
       def logger
         @logger ||= begin 
           logger = Logger.new(STDOUT)
           task = self
           logger.level = Logger::INFO
           logger.formatter = proc do |severity, datetime, progname, msg|
-            "#{Thread.current}\t#{datetime}\tTask [#{task.name}]:\t#{msg}\n"
+            "#{datetime.to_s} #{task.logger_display_name}\t#{msg.colorize( severity_color[severity.to_s.downcase.to_sym])}\n"
           end
           logger
         end
+      end
+
+      def severity_color()
+        {
+          info: 0,
+          warn: 33,
+          error: 31,
+        }
       end
 
       module ClassMethods
