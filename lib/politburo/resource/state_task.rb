@@ -45,6 +45,19 @@ module Politburo
       def met?
         true
       end
+
+      def logger
+        @logger ||= begin 
+          logger = Logger.new(STDOUT)
+          task = self
+          logger.level = Logger::INFO
+          logger.formatter = proc do |severity, datetime, progname, msg|
+            "#{datetime.to_s.green} #{resource_state.full_name.yellow} #{task.name.green}\t#{msg}\n"
+          end
+          logger
+        end
+      end
+
     end
 
   end

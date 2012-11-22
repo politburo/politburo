@@ -10,7 +10,7 @@ describe Politburo::Tasks::RemoteTask do
   let(:remote_command) { double("remote command", :kind_of? => true) }
   let(:remote_met_test_command) { double("remote met test command", :kind_of? => true) }
 
-  let(:task) { Politburo::Tasks::RemoteTask.new(parent_resource: state, command: remote_command, met_test_command: remote_met_test_command) }
+  let(:task) { Politburo::Tasks::RemoteTask.new(name: 'Test Task', parent_resource: state, command: remote_command, met_test_command: remote_met_test_command) }
 
   it "should initialize correctly" do
     task.should_not be_nil
