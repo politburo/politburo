@@ -25,7 +25,7 @@ module Politburo
         command
       end
 
-      def self.unix_command(unix_command, execution_output_match_pattern = nil, stdin = STDIN, stdout = STDOUT, stderr = STDERR)
+      def self.unix_command(unix_command, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)
         self.new("#{unix_command}", execution_output_match_pattern, stdin, stdout, stderr)
       end
 
@@ -37,6 +37,7 @@ module Politburo
         exec_result = {}
         channel.request_pty do | ch, success | 
           raise "Failed to get interactive shell (pty) on SSH session." unless success
+          
           channel.exec command do |ch, success|
             raise "Could not execute command '#{command}'." unless success
 

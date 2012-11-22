@@ -17,6 +17,7 @@ describe Politburo::Tasks::RemoteCommand do
 
     remote_command.stdout.should be output_stream
     remote_command.stderr.should be output_stream
+    remote_command.stdin.should be STDIN
   end
 
   context "#repack" do
