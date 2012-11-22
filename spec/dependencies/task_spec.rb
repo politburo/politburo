@@ -32,6 +32,24 @@ describe Politburo::Dependencies::Task do
     end
   end
 
+  context "#paths" do
+    before :each do
+      task.paths << :path1
+      task.paths << :path2
+    end
+
+    it "should maintain an ordered list of execution paths to the task" do
+      task.paths.should eq [ :path1, :path2 ]
+    end
+
+    context "#primary_path" do
+      it "should return the first path" do
+        task.primary_path.should be :path1
+      end
+
+    end
+  end
+
   context "#all_prerequisites_satisfied?" do
     let(:satisfied_task_a) { double("satisfied_task_a", :satisfied? => true) }
     let(:satisfied_task_b) { double("satisfied_task_b", :satisfied? => true) }

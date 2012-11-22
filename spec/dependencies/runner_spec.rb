@@ -47,6 +47,12 @@ describe Politburo::Dependencies::Runner, "unit" do
       runner.pick_next_task.should == sub_prerequisite_b
     end
 
+    it "should set the paths for the tasks visited" do
+      runner.pick_next_task.should == sub_prerequisite_a
+
+      sub_prerequisite_a.primary_path.map(&:name).join(' -> ').should eq "goal_a -> goal_b -> prerequisite_b"
+    end
+
     it "should raise an error if there's a cyclical dependency" do
       sub_prerequisite_b.prerequisites << goal_a
 

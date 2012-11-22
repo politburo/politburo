@@ -116,6 +116,7 @@ module Politburo
           tasks.each do | task |
             logger.debug("Visiting #{task.name}...")
             visited.add(task)
+            task.paths << path
             raise "Cyclical dependency detected. Task '#{task.name}' is prerequisite of itself. Cycle: #{(path + [ task ]).map(&:name).join(' -> ')}" if path.include?(task)
             if task.all_prerequisites_satisfied? and task.available_for_queueing?
               logger.debug("Task #{task.name} is ready for queueing.")              

@@ -55,6 +55,14 @@ module Politburo
         @state = value
       end
 
+      def primary_path
+        paths.first
+      end
+
+      def paths
+        @paths ||= []
+      end
+
       attr_accessor :cause_of_failure
 
       def unsatisfied_idle_prerequisites
