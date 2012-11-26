@@ -44,9 +44,9 @@ describe Politburo::Tasks::RemoteCommand do
 
       it "should convert it to a string, and pack it through unix_command" do
         not_a_remote_command.should_receive(:to_s).and_return(a_string)
-        Politburo::Tasks::RemoteCommand.should_receive(:unix_command).with(a_string).and_return(:a_new_command)
+        Politburo::Tasks::RemoteCommand.should_receive(:unix_command).with(a_string, :execution_output_match_pattern, :stdin, :stdout, :stderr).and_return(:a_new_command)
 
-        Politburo::Tasks::RemoteCommand.repack(not_a_remote_command).should be :a_new_command
+        Politburo::Tasks::RemoteCommand.repack(not_a_remote_command, :execution_output_match_pattern, :stdin, :stdout, :stderr).should be :a_new_command
       end
 
     end

@@ -1,13 +1,13 @@
 describe Politburo::Support::Consoles do
 
   let(:consoles) { Politburo::Support::Consoles.instance }
-  let(:console) { consoles.create_console('prefix') }
+  let(:console) { consoles.create_console() { | s | "formatted #{s}" } }
 
   context "#create_console" do
 
     it "should create a new console correctly" do 
       console.should_not be_nil
-      console.prefix.should == 'prefix'
+      console.format("string").should == "formatted string"
     end
 
     it "should retain the console" do
@@ -36,7 +36,8 @@ describe Politburo::Support::Consoles do
       consoles.instance_variable_set(:@mutex, mutex)
 
       mutex.stub(:synchronize).and_yield
-      consoles.output.stub(:puts).with("prefix", "line of text")
+      consoles.output.stub(:puts).with("formatted line of text")
+      console.stub(:format).with("line of text").and_return("formatted line of text")
     end
 
     it "should synchronize on mutex" do
@@ -46,7 +47,8 @@ describe Politburo::Support::Consoles do
     end
 
     it "should puts to the output" do
-      consoles.output.should_receive(:puts).with("prefix", "line of text")
+      console.should_receive(:format).with("line of text").and_return("formatted line of text")
+      consoles.output.should_receive(:puts).with("formatted line of text")
 
       consoles.output_with_mutex(console, "line of text")
     end

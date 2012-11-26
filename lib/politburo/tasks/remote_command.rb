@@ -29,8 +29,8 @@ module Politburo
         self.new("#{unix_command}", execution_output_match_pattern, stdin, stdout, stderr)
       end
 
-      def self.repack(command_obj_or_string)
-        command_obj_or_string.kind_of?(Politburo::Tasks::RemoteCommand) ? command_obj_or_string : Politburo::Tasks::RemoteCommand.unix_command(command_obj_or_string.to_s)
+      def self.repack(command_obj_or_string, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)
+        command_obj_or_string.kind_of?(Politburo::Tasks::RemoteCommand) ? command_obj_or_string : Politburo::Tasks::RemoteCommand.unix_command(command_obj_or_string.to_s, execution_output_match_pattern, stdin, stdout, stderr)
       end
 
       def execute(channel) 

@@ -5,8 +5,12 @@ module Politburo
     class Consoles
       include Singleton
 
-      def create_console(prefix)
-        console = Console.new(prefix)
+      def initialize
+        watch_for_output
+      end
+
+      def create_console(&block)
+        console = Console.new(&block)
 
         items << console
         @consoles_by_readers = nil
@@ -45,7 +49,7 @@ module Politburo
 
       def output_with_mutex(console, data)
         @mutex.synchronize do
-          output.puts console.prefix, data
+          output.puts console.format(data)
         end
       end
 
