@@ -110,6 +110,8 @@ module Politburo
                 task.state = :failed
                 task.cause_of_failure = RuntimeError.new("Task '#{task.name}' failed as its criteria hasn't been met after executing.")
               end
+              task.logger.debug("About to clean-up task after #meet...")
+              task.cleanup
             when :satisfied
               raise "Assertion failed. Task resumed with .step() when already satisfied!"
             when :failed
@@ -118,6 +120,8 @@ module Politburo
           rescue => e
             task.state = :failed
             task.cause_of_failure = e
+            task.logger.debug("About to clean-up task after an error was raised...")
+            task.cleanup
           end
 
           task

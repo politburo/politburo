@@ -262,6 +262,20 @@ describe Politburo::Dependencies::Task do
         task.should be_failed
         task.cause_of_failure.message.should eq "Task 'test-task' failed as its criteria hasn't been met after executing."
       end
+
+      it "should call the task's cleanup method" do
+        task.should_receive(:cleanup).and_return(true)
+        task.step
+      end
+
+      it "should cleanup the task even if there was an error raised" do
+        task.should_receive(:meet).and_raise "Whoops"
+        task.should_receive(:cleanup).and_return(true)
+        task.step
+        task.should be_failed
+        task.cause_of_failure.message.should eq "Whoops"
+      end
+      
     end
 
   end
