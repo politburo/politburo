@@ -5,7 +5,7 @@ environment(name: 'simple', description: "Simple integration test environment", 
   end
   node(name: "yet another node", user: 'redbeard', host: 'localhost') do
     state('configuring') {
-      depends_on node(name: "node")
+      depends_on node("node")
       remote_task(
         name: 'install babushka',
         command: 'sudo sh -c "`curl https://babushka.me/up`"', 
@@ -13,10 +13,10 @@ environment(name: 'simple', description: "Simple integration test environment", 
         
       remote_task(
         name: 'print time',
-        command: 'bash -l -c "ruby -e \'STDOUT.puts Time.now \' " ', 
-        met_test_command: 'bash -l -c "ruby -e \'STDERR.puts Time.now \' " ') { 
+        command: 'bash -l -c "ruby -e \'STDOUT.puts :Standard\'"', 
+        met_test_command: 'bash -l -c "ruby -e \'STDERR.puts :Error\'"') { 
 
-        depends_on remote_task(name: 'install babushka')
+        depends_on remote_task('install babushka')
       }
     }
   end

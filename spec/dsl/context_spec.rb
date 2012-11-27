@@ -12,7 +12,7 @@ describe Politburo::DSL::Context do
 				end
 				node(name: "yet another node", flavour: "m1.large") do
 					state(:configured) do
-						depends_on node(name: "node")
+						depends_on node("node")
 
 						remote_task(
 							command: Politburo::Tasks::RemoteCommand.unix_command('sudo sh -c "`curl https://babushka.me/up`"'), 

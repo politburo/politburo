@@ -37,8 +37,7 @@ module Politburo
 				define_or_lookup_receiver(::Politburo::Resource::Node, attributes, &block)
 			end
 
-			def state(state_name_or_attributes, &block)
-				attributes = state_name_or_attributes.respond_to?(:keys) ? state_name_or_attributes : { name: state_name_or_attributes }
+			def state(attributes, &block)
 				lookup_receiver(::Politburo::Resource::State, attributes, &block)
 			end
 
@@ -78,7 +77,8 @@ module Politburo
 				end
 			end
 
-			def lookup_receiver(new_receiver_class, attributes, &block)
+			def lookup_receiver(new_receiver_class, name_or_attributes, &block)
+				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
 				find_attrs = attributes.merge(:class => new_receiver_class)
 				context = lookup(find_attrs)
 				receiver = context.receiver

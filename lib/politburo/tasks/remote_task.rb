@@ -35,13 +35,13 @@ module Politburo
       private 
 
       def execute_command(cmd)
-        logger.info("Executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
+        logger.info("Remote executing '#{cmd}' on '#{node.name}' (#{node.user}@#{node.host})...")
         result = nil
         channel = node.session.open_channel do | channel |
           result = cmd.execute(channel)
         end
         channel.wait
-        logger.debug("Finished executing '#{cmd}' on #{node.user}@#{node.host} (#{node.name})...")
+        logger.debug("Execution result: #{cmd.execution_result}.")
         result
       end
 
