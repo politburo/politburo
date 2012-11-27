@@ -17,6 +17,8 @@ module Politburo
       end
 
       def terminate?
+        return true unless failed_tasks.empty?
+
         next_task = pick_next_task
 
         return true if !next_task.nil? and next_task.failed?
@@ -25,24 +27,29 @@ module Politburo
         false
       end
 
+      def failed_tasks
+        @failed_tasks ||= []
+      end
+
       def clear_progress_flag_on_done_tasks
         until (done_tasks_queue.empty?)
-          done_tasks_queue.pop.in_progress = false
+          task = done_tasks_queue.pop
+          task.in_progress = false
+          failed_tasks << task if (task.failed?)
         end
       end
 
       def scheduler_step
         clear_progress_flag_on_done_tasks
+        return unless (failed_tasks.empty?)
 
         next_task = pick_next_task
         if next_task and !next_task.failed?
-          logger.debug("Adding task #{next_task.name} [#{next_task.object_id}] to the execution queue.")
-          raise "Assertion failed. Task #{next_task.name} [#{next_task.object_id}] provided, but is not available for queueing! (State: #{next_task.state})" unless next_task.available_for_queueing?
+          logger.debug("Adding task #{next_task.name.yellow} [#{next_task.object_id}] to the execution queue.")
+          raise "Assertion failed. Task #{next_task.name.yellow} [#{next_task.object_id}] provided, but is not available for queueing! (State: #{next_task.state})" unless next_task.available_for_queueing?
           next_task.step if next_task.unexecuted?
           next_task.in_progress = true
           execution_queue.push(next_task)
-        elsif next_task and next_task.failed? 
-          logger.error("Task #{next_task.name} failed with error: #{next_task.cause_of_failure}")
         else
           logger.debug("Waiting for tasks to become available...")
           Kernel.sleep(0.01)
@@ -59,14 +66,26 @@ module Politburo
             scheduler_step
           end
 
+          failed_tasks.each do | next_task |
+            logger.error("Task '#{next_task.name.yellow}' failed with error: '#{next_task.cause_of_failure.to_s.red}'. Trace:\n\t#{next_task.cause_of_failure.backtrace.nil? ? 'N/A' : next_task.cause_of_failure.backtrace.join("\n\t")}")
+          end
+
           task_consumer_threads.each(&:exit)
           task_consumer_threads.each(&:join)
+
+          logger.debug "Finished run."
+
+          return failed_tasks.empty?
       end
 
       def create_task_consumer_thread
         Thread.new do 
-          while (true) do
-            task_consumer_step
+          begin
+            while (true) do
+              task_consumer_step
+            end
+          ensure
+            logger.debug "Task consumer thread finished."
           end
         end
       end
@@ -79,9 +98,9 @@ module Politburo
 
       def task_consumer_step
         next_task = execution_queue.pop
-        logger.debug("Popped task '#{next_task.name} [#{next_task.object_id}]' about to resume...")
+        logger.debug("Popped task '#{next_task.name.yellow} [#{next_task.object_id}]' about to resume...")
         next_task.step
-        logger.debug("Step returned. Putting task '#{next_task.name}' on done tasks queue.")
+        logger.debug("Step returned. Putting task '#{next_task.name.yellow}' on done tasks queue.")
         done_tasks_queue.push(next_task)
       end
 
@@ -96,7 +115,7 @@ module Politburo
       def logger
         @logger ||= begin 
           logger = Logger.new(STDOUT)
-          logger.level = Logger::ERROR
+          logger.level = Logger::INFO
           logger
         end
       end
@@ -107,7 +126,7 @@ module Politburo
         def logger
           @logger ||= begin 
             logger = Logger.new(STDOUT)
-            logger.level = Logger::ERROR
+            logger.level = Logger::INFO
             logger
           end
         end

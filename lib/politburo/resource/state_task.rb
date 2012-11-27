@@ -46,12 +46,6 @@ module Politburo
         true
       end
 
-      def cleanup
-        @stdout_console and stdout_console.close
-        @stderr_console and stderr_console.close
-        true
-      end
-
       def logger_display_name
         "#{resource_state.full_name.yellow} #{name.green}"
       end
@@ -66,15 +60,15 @@ module Politburo
 
       def stdout_console
         @stdout_console ||= begin 
-          prefix = stdout_console_prefix
-          Politburo::Support::Consoles.instance.create_console() { | s | "#{prefix}#{s}" }
+          task = self
+          Politburo::Support::Consoles.instance.create_console() { | s | "#{task.stdout_console_prefix}#{s}" }
         end
       end
 
       def stderr_console
         @stderr_console ||= begin 
-          prefix = stderr_console_prefix
-          Politburo::Support::Consoles.instance.create_console() { | s | "#{prefix}#{s}" }
+          task = self
+          Politburo::Support::Consoles.instance.create_console() { | s | "#{task.stderr_console_prefix}#{s}" }
         end
       end
 

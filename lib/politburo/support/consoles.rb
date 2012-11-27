@@ -6,6 +6,7 @@ module Politburo
       include Singleton
 
       def initialize
+        @mutex = Mutex.new
         watch_for_output
       end
 
@@ -41,8 +42,10 @@ module Politburo
               watch_for_output_step
             end
           rescue Exception => ex
-            puts ex.message
-            puts ex.backtrace
+            output.puts ex.message
+            output.puts ex.backtrace
+          ensure
+            items.map(&:close)
           end
         end
       end

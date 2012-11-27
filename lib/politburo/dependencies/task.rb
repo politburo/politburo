@@ -51,8 +51,12 @@ module Politburo
 
       def state=(value)
         raise "Unknown state: #{value.to_s}" unless Task::states.include? value
-        logger.debug("Setting state to: #{value.to_s}")
+        logger.debug("Setting state to: #{value.to_s.yellow}")
         @state = value
+      end
+
+      def cleanup
+        true
       end
 
       def primary_path
@@ -81,7 +85,7 @@ module Politburo
         task = self
 
           begin
-            task.logger.debug("Step called! Current state: #{task.state}")
+            task.logger.debug("Step called! Current state: #{task.state.to_s.yellow}")
             case task.state
             when :unexecuted
               task.logger.debug("Just started!")
@@ -133,7 +137,7 @@ module Politburo
 
       def logger
         @logger ||= begin 
-          logger = Logger.new(STDOUT)
+          logger = Logger.new($stdout)
           task = self
           logger.level = Logger::INFO
           logger.formatter = proc do |severity, datetime, progname, msg|

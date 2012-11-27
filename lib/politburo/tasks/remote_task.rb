@@ -25,11 +25,11 @@ module Politburo
       end
 
       def command=(command_obj_or_string)
-        @command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string)
+        @command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string, nil, nil, stdout_console.writer, stderr_console.writer)
       end
 
       def met_test_command=(command_obj_or_string)
-        @met_test_command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string)
+        @met_test_command = Politburo::Tasks::RemoteCommand.repack(command_obj_or_string, nil, nil, stdout_console.writer, stderr_console.writer)
       end
 
       private 

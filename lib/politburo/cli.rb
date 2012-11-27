@@ -41,15 +41,19 @@ module Politburo
     end
 
     def run()
+      exit_success = true
+
       String.allow_colors = options[:color]
       if (options[:interactive])
         require 'pry'
         self.pry 
       else
-        runner.run
+        exit_success = runner.run
       end
 
       release
+
+      exit_success
     end
 
     def root()

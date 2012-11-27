@@ -83,15 +83,35 @@ describe Politburo::Dependencies::Runner, "unit" do
   end
 
   context "#clear_progress_flag_on_done_tasks" do
-    let (:done_tasks) { Array.new(5) { | i | double("Task #{i}") } }
+    let (:done_tasks) { Array.new(5) { | i | double("Task #{i}", :failed? => false) } }
+
+    before :each do
+      runner.stub(:done_tasks_queue).at_least(1).and_return(done_tasks)
+      done_tasks.each { | task | task.stub(:in_progress=).with(false) }
+    end
 
     it "should iterate over done tasks queue and set progress to false" do
       runner.should_receive(:done_tasks_queue).at_least(1).and_return(done_tasks)
       done_tasks.each { | task | task.should_receive(:in_progress=).with(false) }
 
       runner.clear_progress_flag_on_done_tasks
+
+      runner.failed_tasks.should be_empty
     end
 
+    it "should identify failed tasks and add them to the failed task list" do
+      first_task = done_tasks.first
+      last_task = done_tasks.last
+
+      first_task.should_receive(:failed?).and_return(true)
+      last_task.should_receive(:failed?).and_return(true)
+
+      runner.clear_progress_flag_on_done_tasks
+
+      runner.failed_tasks.should_not be_empty
+      runner.failed_tasks.should include first_task
+      runner.failed_tasks.should include last_task
+    end
   end
 
   context "#scheduler_step" do
@@ -103,21 +123,19 @@ describe Politburo::Dependencies::Runner, "unit" do
       runner.scheduler_step
     end
 
+    it "should return immediately if failed tasks exist" do
+      runner.failed_tasks.should_receive(:empty?).and_return(false)
+      runner.should_not_receive(:pick_next_task)
+
+      runner.scheduler_step
+    end
+
     it "when a non failed task is available, should pick the next task and enqueue it" do
       runner.should_receive(:pick_next_task).and_return(available_task)
       available_task.should_receive(:available_for_queueing?).and_return(true)
       available_task.should_receive(:step)
       available_task.should_receive(:in_progress=).with(true)
       runner.execution_queue.should_receive(:push).with(available_task)
-
-      runner.scheduler_step
-    end
-
-    it "when a failed task is in the queue, should report the error and terminate" do
-      runner.should_receive(:pick_next_task).and_return(available_task)
-      available_task.should_receive(:failed?).and_return(true, true)
-
-      runner.logger.should_receive(:error)
 
       runner.scheduler_step
     end
@@ -160,6 +178,28 @@ describe Politburo::Dependencies::Runner, "unit" do
       runner.run
     end
 
+    context "when there are failed tasks" do
+      let(:failed_tasks) { [ goal_a, goal_b ] }
+
+      it "should report on failed tasks and return false" do
+        runner.should_receive(:failed_tasks).twice.and_return(failed_tasks)
+
+        failed_tasks.each do | failed_task |
+          failed_task.should_receive(:cause_of_failure).twice.and_return( RuntimeError.new("fake error") )
+          runner.logger.should_receive(:error)
+        end
+
+        runner.run.should be_false
+      end
+    end
+
+    context "when there are no failed tasks" do
+
+      it "should return true" do
+        runner.run.should be_true
+      end
+    end
+
   end
 
   context "#task_consumer_threads" do
@@ -191,6 +231,12 @@ describe Politburo::Dependencies::Runner, "unit" do
   context "#terminate?" do
 
     let(:failed_task) { sub_prerequisite_a.state = :failed; sub_prerequisite_a }
+
+    it "should return true if failed_tasks is not empty" do
+      runner.failed_tasks.should_receive(:empty?).and_return(false)
+
+      runner.should be_terminate
+    end
 
     it "should return true when pick_next_task returns a failed task" do
       runner.should_receive(:pick_next_task).and_return(failed_task)

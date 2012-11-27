@@ -7,4 +7,4 @@ end
 
 require 'politburo'
 
-Politburo::CLI.create(ARGV).run
+exit(Politburo::CLI.create(ARGV).run)
