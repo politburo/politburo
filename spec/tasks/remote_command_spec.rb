@@ -69,16 +69,20 @@ describe Politburo::Tasks::RemoteCommand do
       remote_command.validate_success_block.stub(:call).with(remote_command, anything).and_return(true)
     end
 
-    it "should attempt to start pty" do
-      ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, true)
+    context "with tty enabled" do
+      before(:each) { remote_command.use_tty = true }
 
-      remote_command.execute(ssh_channel)
-    end
+      it "should attempt to start pty" do
+        ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, true)
 
-    it "should throw an error if it didn't successfully request pty" do
-      ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, false)
+        remote_command.execute(ssh_channel)
+      end
 
-      lambda { remote_command.execute(ssh_channel) }.should raise_error "Failed to get interactive shell (pty) on SSH session."
+      it "should throw an error if it didn't successfully request pty" do
+        ssh_channel.should_receive(:request_pty).and_yield(ssh_channel, false)
+
+        lambda { remote_command.execute(ssh_channel) }.should raise_error "Failed to get interactive shell (pty) on SSH session."
+      end
     end
 
     context "when successfully started remote command execution" do

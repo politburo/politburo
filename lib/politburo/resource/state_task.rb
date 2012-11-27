@@ -3,6 +3,8 @@ module Politburo
     class StateTask
       include Politburo::Dependencies::Task
       include Politburo::DSL::DslDefined
+      include Politburo::Resource::HasDependencies
+      include Politburo::Resource::Searchable
 
       attr_accessor :resource_state
       attr_accessor :prerequisites
@@ -14,6 +16,8 @@ module Politburo
 
       def initialize(attributes)
         update_attributes(attributes)
+
+        resource_state.tasks << self
 
         validate!
       end
@@ -34,6 +38,14 @@ module Politburo
         resource_state.resource
       end
 
+      def dependencies=(new_deps)
+        @dependencies ||= new_deps
+      end
+
+      def prerequisites
+        dependencies.map(&:to_task)
+      end
+
       def as_dependency 
         self
       end
@@ -47,15 +59,15 @@ module Politburo
       end
 
       def logger_display_name
-        "#{resource_state.full_name.yellow} #{name.green}"
+        "#{Time.now} #{resource_state.full_name.yellow} #{name.green}"
       end
 
       def stdout_console_prefix
-        "#{resource_state.full_name.yellow} #{name.green} "
+        "#{Time.now} #{name.yellow} #{ "#{resource.user}@#{resource.host}".green } | "
       end
 
       def stderr_console_prefix
-        "#{resource_state.full_name.yellow} #{name.red} "
+        "#{Time.now} #{name.yellow} #{ "#{resource.user}@#{resource.host}".red } ! "
       end
 
       def stdout_console

@@ -32,12 +32,20 @@ module Politburo
 				@context ||= StateContext.new(self)
 			end
 
+			def contained_searchables
+				dependencies
+			end			
+
+			def tasks
+				@tasks ||= Set.new
+			end
+
 			def release
 				# To be overriden by subclasses
 			end
 
 			def to_task
-				@task ||= Politburo::Resource::StateTask.new(parent_resource: self, prerequisites: self.dependencies.map(&:to_task))
+				@task ||= Politburo::Resource::StateTask.new(parent_resource: self, dependencies: self.dependencies)
 			end
 
 			def as_dependency
@@ -64,10 +72,6 @@ module Politburo
 		end
 
 		class StateContext < Politburo::DSL::Context
-			def remote_task(attributes, &block)
-				define_or_lookup_receiver(::Politburo::Tasks::RemoteTask, attributes, &block)
-			end
-
 		end
 
 	end

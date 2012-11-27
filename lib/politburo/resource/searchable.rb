@@ -29,7 +29,7 @@ module Politburo
 			end
 
 			def contained_searchables
-				Set.new
+				Set.new()
 			end
 
 			def self.matches(obj, attributes)

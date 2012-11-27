@@ -9,7 +9,15 @@ environment(name: 'simple', description: "Simple integration test environment", 
       remote_task(
         name: 'install babushka',
         command: 'sudo sh -c "`curl https://babushka.me/up`"', 
-        met_test_command: 'bash -l -c "which babushka"') { }
+        met_test_command: 'bash -l -c "env"') { }
+        
+      remote_task(
+        name: 'print time',
+        command: 'bash -l -c "ruby -e \'STDOUT.puts Time.now \' " ', 
+        met_test_command: 'bash -l -c "ruby -e \'STDERR.puts Time.now \' " ') { 
+
+        depends_on remote_task(name: 'install babushka')
+      }
     }
   end
 end

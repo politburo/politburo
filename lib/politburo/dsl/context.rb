@@ -42,6 +42,10 @@ module Politburo
 				lookup_receiver(::Politburo::Resource::State, attributes, &block)
 			end
 
+			def remote_task(attributes, &block)
+				define_or_lookup_receiver(::Politburo::Tasks::RemoteTask, attributes, &block)
+			end
+
 			def depends_on(state_context)
 				receiver.add_dependency_on(state_context.receiver)
 				state_context
