@@ -104,40 +104,49 @@ describe Politburo::DSL::Context do
 
 	end
 
-	context "#validate!" do
+	context "instance" do
 		let(:receiver) { double("receiver") }
-		let(:fake_resource_a) { double("fake resource a") }
-		let(:fake_resource_b) { double("fake resource b") }
-
 		let(:context) { Politburo::DSL::Context.new(receiver) }
 
-    it "should iterate all resources (depth first) starting with the receiver and call #validate! on each" do
-      receiver.should_receive(:each).and_yield(fake_resource_a).and_yield(fake_resource_b)
-      fake_resource_a.should_receive(:validate!)
-      fake_resource_b.should_receive(:validate!)
+		context "#define" do
 
-      context.send(:validate!)
-    end
+				it "should wrap internal errors in a context exception" do
+					lambda { context.define { raise "Internal error" } }.should raise_error /.*Internal error.*/
+				end
 
+		end
+
+		context "#validate!" do
+			let(:fake_resource_a) { double("fake resource a") }
+			let(:fake_resource_b) { double("fake resource b") }
+
+	    it "should iterate all resources (depth first) starting with the receiver and call #validate! on each" do
+	      receiver.should_receive(:each).and_yield(fake_resource_a).and_yield(fake_resource_b)
+	      fake_resource_a.should_receive(:validate!)
+	      fake_resource_b.should_receive(:validate!)
+
+	      context.send(:validate!)
+	    end
+
+		end
+
+		context "#lookup" do
+
+			let(:context_for_environment) { Politburo::DSL::Context.new(environment) }
+			let(:context_for_node) { Politburo::DSL::Context.new(node) }
+
+			it "should lookup first within a resource hierarchy" do
+				context_for_node.lookup(:class => Politburo::Resource::Node).receiver.should == node
+			end
+
+			it "should lookup in parent's hierarchy next" do
+				context_for_node.lookup(name: 'another node').receiver.should == another_node
+			end
+
+			it "should travel up to the root if neccessary" do
+				context_for_node.lookup(name: 'a node from another galaxy').receiver.should == another_environment_node
+			end
+
+		end
 	end
-
-	context "#lookup" do
-
-		let(:context_for_environment) { Politburo::DSL::Context.new(environment) }
-		let(:context_for_node) { Politburo::DSL::Context.new(node) }
-
-		it "should lookup first within a resource hierarchy" do
-			context_for_node.lookup(:class => Politburo::Resource::Node).receiver.should == node
-		end
-
-		it "should lookup in parent's hierarchy next" do
-			context_for_node.lookup(name: 'another node').receiver.should == another_node
-		end
-
-		it "should travel up to the root if neccessary" do
-			context_for_node.lookup(name: 'a node from another galaxy').receiver.should == another_environment_node
-		end
-
-	end
-
 end
