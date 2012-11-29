@@ -35,10 +35,6 @@ module Politburo
 				@children ||= Set.new
 			end
 
-			def inspect
-				"#<#{self.class.name} \"#{full_name}\">"
-			end
-
 			def full_name
 				parent_resource.nil? ? name : (parent_resource.name.empty? ? name : "#{parent_resource.full_name}:#{name}")
 			end
@@ -63,18 +59,6 @@ module Politburo
 
 			def add_dependency_on(target)
 				state(:ready).add_dependency_on(target)
-			end
-
-			def to_json_hash()
-				{
-					name: name,
-					states: states.to_a,
-					children: children.to_a,
-				}
-			end
-
-			def to_json(*args) 
-				to_json_hash.to_json(*args)
 			end
 
 			attr_writer :parent_resource

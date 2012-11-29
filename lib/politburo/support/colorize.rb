@@ -1,44 +1,62 @@
-# Based on http://stackoverflow.com/questions/1489183/colorized-ruby-output
-String.class_eval do
-  # colorization
+# Based on http://stackoverflow.com/questions/1489183/colorized-ruby-output-colorization
+module Politburo
 
-  def self.allow_colors=(toggle)
-    @allow_colors = toggle
-  end
+  module Support
 
-  def self.allow_colors()
-    @allow_colors
-  end
+    module Colorize
 
-  def colorize(color_code)
-    String.allow_colors ? "\e[#{color_code}m#{self}\e[0m" : self
-  end
+      def self.included(base)
+        puts "Extending #{base.to_s}"
+        base.extend(ClassMethods)
+      end
 
-  def red
-    colorize(31)
-  end
+      module ClassMethods
+        def allow_colors=(toggle)
+          @allow_colors = toggle
+        end
 
-  def green
-    colorize(32)
-  end
+        def allow_colors()
+          @allow_colors
+        end
+      end
 
-  def yellow
-    colorize(33)
-  end
+      def colorize(color_code)
+        String.allow_colors ? "\e[#{color_code}m#{self}\e[0m" : self
+      end
 
-  def blue
-    colorize(34)
-  end
+      def red
+        colorize(31)
+      end
 
-  def pink
-    colorize(35)
-  end
+      def green
+        colorize(32)
+      end
 
-  def cyan
-    colorize(36)
-  end
+      def yellow
+        colorize(33)
+      end
 
-  def white
-    colorize(37)
+      def blue
+        colorize(34)
+      end
+
+      def pink
+        colorize(35)
+      end
+
+      def cyan
+        colorize(36)
+      end
+
+      def white
+        colorize(37)
+      end
+      
+    end
   end
 end
+
+String.class_eval do
+  include Politburo::Support::Colorize
+end
+

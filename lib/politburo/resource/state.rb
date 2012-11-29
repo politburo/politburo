@@ -16,10 +16,6 @@ module Politburo
 				resource.states << self
 			end
 
-			def inspect
-				"#<#{self.class.name} \"#{full_name}\">"
-			end
-
 			def parent_resource=(resource)
 				self.resource= resource
 			end
@@ -54,17 +50,6 @@ module Politburo
 
 			def full_name()
 				"#{resource.full_name}##{name}"
-			end
-
-			def to_json_hash()
-				{
-						name: name,
-						dependencies: dependencies.map(&:full_name),
-				}
-			end
-
-			def to_json(*args) 
-				to_json_hash.to_json(*args)
 			end
 
 			attr_writer :resource

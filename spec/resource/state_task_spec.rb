@@ -22,6 +22,18 @@ describe Politburo::Resource::StateTask do
     end
   end
 
+  context "#to_task" do
+    it "should return itself" do
+      state_task.to_task.should be state_task
+    end
+  end
+
+  context "#parent_resource" do
+    it "should return the resource state this task is part of" do
+      state_task.parent_resource.should be state
+    end
+  end
+
   context "#stdout_console" do
     let (:console) { double("fake console") }
 
