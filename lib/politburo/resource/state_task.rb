@@ -58,16 +58,21 @@ module Politburo
         true
       end
 
-      def logger_display_name
-        "#{Time.now} #{resource_state.full_name.yellow} #{name.green}"
+      def log_format(severity, datetime, progname, msg)
+        "#{console_prefix(datetime)} #{msg}\n"
       end
 
+      def console_prefix(datetime)
+        "#{datetime.to_s} #{self.resource_state.full_name.to_s.white} #{self.name.cyan}"
+      end
+
+
       def stdout_console_prefix
-        "#{Time.now} #{name.yellow} #{ "#{resource.user}@#{resource.host}".green } | "
+        "#{self.console_prefix(Time.now)} #{ "#{resource.user}@#{resource.host}".cyan } | "
       end
 
       def stderr_console_prefix
-        "#{Time.now} #{name.yellow} #{ "#{resource.user}@#{resource.host}".red } ! "
+        "#{self.console_prefix(Time.now)} #{ "#{resource.user}@#{resource.host}".red } ! "
       end
 
       def stdout_console

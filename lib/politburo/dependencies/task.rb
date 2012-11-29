@@ -131,8 +131,8 @@ module Politburo
           task
       end
 
-      def logger_display_name
-        self.name.yellow
+      def log_format(severity, datetime, progname, msg)
+        "#{datetime.to_s} #{severity.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{self.name.white}\t#{msg}\n"
       end
 
       def logger
@@ -141,7 +141,7 @@ module Politburo
           task = self
           logger.level = Logger::INFO
           logger.formatter = proc do |severity, datetime, progname, msg|
-            "#{datetime.to_s} #{task.logger_display_name}\t#{msg.colorize( severity_color[severity.to_s.downcase.to_sym])}\n"
+            task.log_format(severity, datetime, progname, msg)
           end
           logger
         end
@@ -149,7 +149,8 @@ module Politburo
 
       def severity_color()
         {
-          info: 0,
+          debug: 37,
+          info: 36,
           warn: 33,
           error: 31,
         }

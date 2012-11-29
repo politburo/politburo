@@ -2,7 +2,6 @@ require 'trollop'
 require 'json'
 require 'pathname'
 require 'logger'
-require 'foreman/process'
 
 module Politburo
   class CLI

@@ -144,29 +144,43 @@ ENVFILE_CONTENTS
         cli.run
       end
 
-      it "should create a runner with the converted tasks and run it" do
-        Politburo::Dependencies::Runner.should_receive(:new).with(*tasks).and_return(runner)
-        runner.should_receive(:run).and_return(true)
-
-        cli.run
-      end
-
-      context "when run failed" do
-
-        it "should return false" do
-          runner.should_receive(:run).and_return(false)
-          cli.run.should be_false
+      context "when in interactive mode" do
+        before :each do
+          cli.options[:interactive] = true
         end
 
+        it "should call pry on the cli" do
+          cli.should_receive(:pry)
+
+          cli.run
+        end
       end
 
-      context "when run succeeds" do
-
-        it "should return true" do
+      context "when in non interactive mode" do
+        it "should create a runner with the converted tasks and run it" do
+          Politburo::Dependencies::Runner.should_receive(:new).with(*tasks).and_return(runner)
           runner.should_receive(:run).and_return(true)
-          cli.run.should be_true
+
+          cli.run
         end
 
+        context "when run failed" do
+
+          it "should return false" do
+            runner.should_receive(:run).and_return(false)
+            cli.run.should be_false
+          end
+
+        end
+
+        context "when run succeeds" do
+
+          it "should return true" do
+            runner.should_receive(:run).and_return(true)
+            cli.run.should be_true
+          end
+
+        end
       end
 
       it "should call release" do

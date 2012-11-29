@@ -169,6 +169,24 @@ describe Politburo::Dependencies::Task do
       task.should be_started
     end
 
+    it "should fail with an error if called when already satisfied" do
+      task.state = :satisfied
+
+      task.step
+
+      task.should be_failed
+      task.cause_of_failure.message.should eq "Assertion failed. Task resumed with .step() when already satisfied!"
+    end
+
+    it "should fail with an error if called when already failed" do
+      task.state = :failed
+
+      task.step
+
+      task.should be_failed
+      task.cause_of_failure.message.should eq "Assertion failed. Task resumed with .step() when already failed!"
+    end
+
     context "when checking if met" do
 
       it "should verify the task doesn't have unsatisfied prerequisites at this point" do

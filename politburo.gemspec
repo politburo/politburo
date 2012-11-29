@@ -20,9 +20,10 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 2.8"
+  s.add_development_dependency "cover_me"
 
   s.add_runtime_dependency "pry"
-  s.add_runtime_dependency "foreman"
+  s.add_runtime_dependency "fog"
   s.add_runtime_dependency "json"
   s.add_runtime_dependency "trollop"
   s.add_runtime_dependency "net-ssh"

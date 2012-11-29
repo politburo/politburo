@@ -15,8 +15,9 @@ describe Politburo::DSL::Context do
 						depends_on node("node")
 
 						remote_task(
-							command: Politburo::Tasks::RemoteCommand.unix_command('sudo sh -c "`curl https://babushka.me/up`"'), 
-							met_test_command: Politburo::Tasks::RemoteCommand.unix_command('which babushka')) {}
+        			name: 'install babushka',
+        			command: 'sudo sh -c "`curl https://babushka.me/up`"', 
+        			met_test_command: 'which babushka') {	}
 					end
 				end
 			end
@@ -33,6 +34,8 @@ describe Politburo::DSL::Context do
 	let(:node) { root_definition.find_all_by_attributes(name: :node).first }
 	let(:another_node) { root_definition.find_all_by_attributes(name: "another node").first }
 	let(:yet_another_node) { root_definition.find_all_by_attributes(name: "yet another node").first }
+
+	let(:remote_task) { root_definition.find_all_by_attributes(name: "install babushka").first }
 
 	let(:another_environment_node) { another_environment.find_all_by_attributes(:class => Politburo::Resource::Node).first }
 	
@@ -93,6 +96,8 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should allow you to define execution tasks for states" do
+				remote_task.should_not be_nil
+				yet_another_node.state(:configured).should be_dependent_on remote_task
 			end
 
 		end

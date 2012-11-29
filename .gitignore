@@ -7,3 +7,5 @@ bin
 tmp/*
 .DS_Store
 spec/functional/test_app/bin
+coverage.data
+coverage
