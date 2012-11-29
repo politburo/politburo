@@ -19,6 +19,16 @@ describe Politburo::Resource::State do
 		state.should_not be_valid
 	end
 
+	context "#parent_resource" do
+
+		it "should be the state's resource" do
+			state.parent_resource.should be resource
+			state.parent_resource = :fake
+			state.resource.should be :fake
+		end
+
+	end
+
 	it "should maintain a list of state dependencies" do
 		state.dependencies.should be_empty
 

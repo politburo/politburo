@@ -157,6 +157,14 @@ describe Politburo::Dependencies::Task do
     end
   end
 
+  context "#log_format" do
+    
+    it "should colorize the severity of the log message" do
+      task.log_format(:error, Time.now, "Test prog", "Message").should include "error".red
+    end
+
+  end
+
   context "#step" do
 
     before :each do

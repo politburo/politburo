@@ -152,8 +152,7 @@ module Politburo
           debug: 37,
           info: 36,
           warn: 33,
-          error: 31,
-        }
+          error: 31, }
       end
 
       module ClassMethods
