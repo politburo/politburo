@@ -6,7 +6,6 @@ module Politburo
     module Colorize
 
       def self.included(base)
-        puts "Extending #{base.to_s}"
         base.extend(ClassMethods)
       end
 

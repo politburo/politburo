@@ -20,6 +20,12 @@ describe Politburo::Tasks::RemoteCommand do
     remote_command.stdin.should be STDIN
   end
 
+  context "#to_s" do
+    it {
+      remote_command.to_s.should eq remote_command.command
+    }
+  end
+
   context "#repack" do
 
     context "when the parameter is a remote command object" do
