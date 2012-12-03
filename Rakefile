@@ -1,9 +1,12 @@
 require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
+require_relative 'lib/politburo/support/colorize'
 
 RSpec::Core::RakeTask.new(:spec)
 
 task :default => "cover_me:report"
+
+String.allow_colors = true
 
 namespace :cover_me do
 
@@ -19,9 +22,12 @@ namespace :cover_me do
     raise "Couldn't figure out coverage" if match.nil?
 
     coverage = match[1].to_f
+    coverage_threshold = 99.4
 
-    puts "Coverage at: #{coverage}"
-    raise "Not enough coverage: #{coverage}" if coverage < 99.35
+    colored_coverage_s = "#{coverage}%".send(coverage < coverage_threshold ? :red : :green)
+
+    puts "Coverage at: #{ colored_coverage_s }"
+    raise "Not enough coverage, #{colored_coverage_s} is less than current ratchet threshold of #{ "#{coverage_threshold}%".green }" if coverage < coverage_threshold
   end
 
 end
