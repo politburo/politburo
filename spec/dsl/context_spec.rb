@@ -5,12 +5,12 @@ describe Politburo::DSL::Context do
 	let(:root_definition) do
 		Politburo::DSL.define do
 
-			environment(name: "environment", flavor: :amazon_web_services) do
-				node(name: "node", flavor: "m1.large") {}
-				node(name: "another node", flavor: "m1.large") do
+			environment(name: "environment", provider: :amazon_web_services) do
+				node(name: "node", provider: "m1.large") {}
+				node(name: "another node", provider: "m1.large") do
 					depends_on node(name: "node").state(:configured)
 				end
-				node(name: "yet another node", flavor: "m1.large") do
+				node(name: "yet another node", provider: "m1.large") do
 					state(:configured) do
 						depends_on node("node")
 
@@ -22,8 +22,8 @@ describe Politburo::DSL::Context do
 				end
 			end
 
-			environment(name: 'another environment', flavor: :amazon_web_services) do
-				node(name: "a node from another galaxy", flavor: "c1.xlarge") {}
+			environment(name: 'another environment', provider: :amazon_web_services) do
+				node(name: "a node from another galaxy", provider: "c1.xlarge") {}
 			end
 		end
 	end

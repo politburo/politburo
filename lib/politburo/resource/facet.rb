@@ -1,10 +1,10 @@
 module Politburo
   module Resource
     class Facet < Base
-      inherits :flavor
+      inherits :provider
       inherits :availability_zone
 
-      requires :flavor
+      requires :provider
       requires :parent_resource
 
       def initialize(parent_resource)

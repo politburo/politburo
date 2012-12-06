@@ -7,17 +7,17 @@ describe Politburo::Resource::Facet do
     Politburo::Resource::Facet.new(parent_resource: parent_resource, name: "Facet resource")
   end
 
-  context "#flavor" do
+  context "#provider" do
 
-    it "should inherit flavor" do
-      parent_resource.should_receive(:flavor).and_return(:simple)
+    it "should inherit provider" do
+      parent_resource.should_receive(:provider).and_return(:simple)
 
-      facet.flavor.should be :simple
+      facet.provider.should be :simple
     end
 
-    it "should require a flavor" do
-      parent_resource.should_receive(:flavor).and_return(nil)
-      facet.flavor = nil
+    it "should require a provider" do
+      parent_resource.should_receive(:provider).and_return(nil)
+      facet.provider = nil
       facet.should_not be_valid
     end
 

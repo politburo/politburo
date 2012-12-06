@@ -1,4 +1,4 @@
-environment(name: 'simple', description: "Simple integration test environment", flavor: :simple) do
+environment(name: 'simple', description: "Simple integration test environment", provider: :simple) do
   node(name: "node", host: 'localhost') {}
   node(name: "another node", host: 'localhost') do
     depends_on node(name: "node").state(:configured)

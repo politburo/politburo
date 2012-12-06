@@ -8,7 +8,7 @@ describe Politburo::DSL::DslDefined do
 		requires :name
 		requires :description
 
-		inherits :flavor
+		inherits :provider
 
 		attr_accessor :name
 		attr_accessor :description
@@ -104,9 +104,9 @@ describe Politburo::DSL::DslDefined do
 
 		it "should define an instance getter that delegates to the parent resource if doesn't have a value" do
 			dsl_defined_obj.should_receive(:parent_resource).and_return(parent_resource)
-			parent_resource.should_receive(:flavor).and_return(:parent_flavor)
+			parent_resource.should_receive(:provider).and_return(:parent_provider)
 
-			dsl_defined_obj.flavor.should be :parent_flavor
+			dsl_defined_obj.provider.should be :parent_provider
 		end
 
 	end
