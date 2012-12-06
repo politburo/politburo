@@ -33,6 +33,17 @@ describe Politburo::Resource::Node do
 
   end
 
+  context "#provider_config" do
+
+    it "should inherit provider_config" do
+      parent_resource.should_receive(:provider_config).and_return(:config)
+
+      node.provider_config.should be :config
+    end
+
+  end
+
+
   context "#session" do
     before :each do
       node.stub(:create_session).and_return(double("a session"))

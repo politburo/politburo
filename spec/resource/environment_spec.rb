@@ -15,6 +15,11 @@ describe Politburo::Resource::Environment do
 		environment.availability_zone.should be :us_west_1
 	end
 
+	it "should allow a provider configuration parameter" do
+		environment.provider_config = {}
+		environment.provider_config.should be {}
+	end
+
 	it "should have all the default states" do
 		parent_resource.states.each do | state | 
 			state = environment.state(state.name)

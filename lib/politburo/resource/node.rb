@@ -7,6 +7,7 @@ module Politburo
 			attr_accessor :user
 
 			inherits :provider
+			inherits :provider_config
 			inherits :availability_zone
 
 			requires :provider

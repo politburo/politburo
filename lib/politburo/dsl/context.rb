@@ -29,6 +29,10 @@ module Politburo
 
 			alias :evaluate :define
 
+			def method_missing(method, *args)
+				@receiver.send(method, *args)
+			end
+
 			def environment(attributes, &block)
 				define_or_lookup_receiver(::Politburo::Resource::Environment, attributes, &block)
 			end

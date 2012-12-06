@@ -148,5 +148,14 @@ describe Politburo::DSL::Context do
 			end
 
 		end
+
+		context "#method_missing" do
+
+			it "should delegate to the underlying receiver with all arguments" do
+				receiver.should_receive(:some_method_that_doesnt_exit).with(:param_a, :param_b)
+
+				context.some_method_that_doesnt_exit(:param_a, :param_b)
+			end
+		end
 	end
 end

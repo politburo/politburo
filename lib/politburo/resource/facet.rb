@@ -2,6 +2,7 @@ module Politburo
   module Resource
     class Facet < Base
       inherits :provider
+      inherits :provider_config
       inherits :availability_zone
 
       requires :provider

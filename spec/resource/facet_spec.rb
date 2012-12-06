@@ -33,4 +33,14 @@ describe Politburo::Resource::Facet do
 
   end
 
+  context "#provider_config" do
+
+    it "should inherit provider_config" do
+      parent_resource.should_receive(:provider_config).and_return(:config)
+
+      facet.provider_config.should be :config
+    end
+
+  end
+
 end
