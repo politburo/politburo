@@ -37,6 +37,10 @@ module Politburo
 				define_or_lookup_receiver(::Politburo::Resource::Node, attributes, &block)
 			end
 
+			def facet(attributes, &block)
+				define_or_lookup_receiver(::Politburo::Resource::Facet, attributes, &block)
+			end
+
 			def state(attributes, &block)
 				lookup_receiver(::Politburo::Resource::State, attributes, &block)
 			end
