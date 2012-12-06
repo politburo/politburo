@@ -27,6 +27,28 @@ describe Politburo::Support::Consoles do
 
       consoles.watch_for_output
     end
+
+    context "when an error happens internally" do
+      before :each do
+        Thread.should_receive(:new).and_yield
+        consoles.should_receive(:watch_for_output_step) { raise ("Error internally") }
+        consoles.output.stub(:puts)
+        consoles.items.stub(:map)
+      end
+
+      it "should ensure items are closed" do
+        consoles.items.should_receive(:map)
+
+        consoles.watch_for_output
+      end
+
+      it "should output the error" do
+        consoles.output.should_receive(:puts).with("Error internally")
+        consoles.output.should_receive(:puts).with(anything)
+
+        consoles.watch_for_output
+      end
+    end
   end
 
   context "#output_with_mutex" do
