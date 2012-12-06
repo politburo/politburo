@@ -45,7 +45,7 @@ module Politburo
       String.allow_colors = options[:color]
       if (options[:interactive])
         require 'pry'
-        self.pry 
+        root.context.pry 
       else
         exit_success = runner.run
       end

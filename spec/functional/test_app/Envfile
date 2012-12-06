@@ -1,4 +1,8 @@
-environment(name: 'simple', description: "Simple integration test environment", provider: :simple) do
+environment(name: 'simple', description: "Simple integration test environment", 
+  provider: :simple,
+  provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } 
+  ) do
+
   node(name: "node", description: "the nicest node") {}
   node(name: "another node") do
     depends_on node(description: "the nicest node").state(:configured)
