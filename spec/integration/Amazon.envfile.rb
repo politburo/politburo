@@ -1,4 +1,4 @@
-environment(name: 'Amazon', description: "Amazon integration test environment", flavour: :amazon_web_services) do
+environment(name: 'Amazon', description: "Amazon integration test environment", flavor: :amazon_web_services) do
 
   { "US West" => 'us-west-1', "US East" => 'us-east-1', "APAC Sydney" => 'ap-southeast-2' }.each_pair do 
     | name, availability_zone |

@@ -6,10 +6,10 @@ module Politburo
 			attr_accessor :host
 			attr_accessor :user
 
-			inherits :flavour
+			inherits :flavor
 			inherits :availability_zone
 
-			requires :flavour
+			requires :flavor
 			requires :parent_resource
 
 			def initialize(parent_resource)
