@@ -1,7 +1,7 @@
 environment(name: 'simple', description: "Simple integration test environment", flavour: :simple) do
-  node(name: "node") {}
+  node(name: "node", description: "the nicest node") {}
   node(name: "another node") do
-    depends_on node(name: "node").state(:configured)
+    depends_on node(description: "the nicest node").state(:configured)
   end
   node(name: "yet another node", user: 'redbeard', host: 'localhost') do
     state('configuring') {

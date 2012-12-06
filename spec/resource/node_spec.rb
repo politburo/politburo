@@ -23,6 +23,16 @@ describe Politburo::Resource::Node do
 
   end
 
+  context "#availability_zone" do
+
+    it "should inherit availability_zone" do
+      parent_resource.should_receive(:availability_zone).and_return(:us_west_1)
+
+      node.availability_zone.should be :us_west_1
+    end
+
+  end
+
   context "#session" do
     before :each do
       node.stub(:create_session).and_return(double("a session"))

@@ -1,26 +1,35 @@
 require 'politburo'
 
-describe "Integration" do
+describe "End to end test" do
 
   let (:cli) { Politburo::CLI.create(arguments) }
-
-	let(:simple_environment_definition_file) do
-		File.join(File.dirname(__FILE__), "Simple.envfile.rb")
-	end
 
 	let(:complex_environment_definition) do
 		File.join(File.dirname(__FILE__), "Complex.envfile.rb")
 	end
 
-	describe "end-to-end process" do
+	let(:arguments) { "-e #{environment_definition_file} #ready".split(/\s/) }
 
-		describe "simple environment" do
-			let(:arguments) { "-e #{simple_environment_definition_file} simple".split(/\s/) }
+	describe "with simple environment" do
 
-			it "should run the simple envfile correctly" do
-				cli.run
-			end
+		let(:environment_definition_file) do
+			File.join(File.dirname(__FILE__), "Simple.envfile.rb")
 		end
 
+		it "should run the envfile correctly" do
+			cli.run.should be_true
+		end
 	end
+
+	describe "with Amazon environment" do
+
+		let(:environment_definition_file) do
+			File.join(File.dirname(__FILE__), "Amazon.envfile.rb")
+		end
+
+		it "should run the envfile correctly" do
+			cli.run.should be_true
+		end
+	end
+
 end

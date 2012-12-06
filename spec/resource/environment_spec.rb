@@ -10,6 +10,11 @@ describe Politburo::Resource::Environment do
 		environment.should_not be_valid
 	end
 
+	it "should allow an availability zone" do
+		environment.availability_zone = :us_west_1
+		environment.availability_zone.should be :us_west_1
+	end
+
 	it "should have all the default states" do
 		parent_resource.states.each do | state | 
 			state = environment.state(state.name)

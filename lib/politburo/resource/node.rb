@@ -7,6 +7,7 @@ module Politburo
 			attr_accessor :user
 
 			inherits :flavour
+			inherits :availability_zone
 
 			requires :flavour
 			requires :parent_resource
