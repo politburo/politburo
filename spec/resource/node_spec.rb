@@ -43,6 +43,16 @@ describe Politburo::Resource::Node do
 
   end
 
+  context "#cloud_provider" do
+
+    it "should use the Provider class to ask for the provider from the pool, based on the type and config" do
+      node.should_receive(:provider).and_return(:simple)
+      node.should_receive(:provider_config).and_return(:config)
+      Politburo::Resource::Cloud::Provider.should_receive(:for).with(:simple, :config).and_return(:cloud_provider)
+
+      node.cloud_provider.should be :cloud_provider
+    end
+  end
 
   context "#session" do
     before :each do

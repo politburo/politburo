@@ -29,6 +29,9 @@ module Politburo
 				session(false).close if session(false)
 			end
 
+			def cloud_provider
+				Politburo::Resource::Cloud::Provider.for(provider, provider_config)
+			end
 		end
 	end
 end
