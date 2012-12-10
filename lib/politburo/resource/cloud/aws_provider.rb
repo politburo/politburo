@@ -7,6 +7,15 @@ module Politburo
           { provider: 'AWS' }.merge(resource.provider_config).merge(region: resource.availability_zone )
         end
 
+        def server_for(node)
+          matching_servers = compute_instance.servers.select do | s | 
+            not s.tags.select { | k,v | k == "politburo:full_name" and v == node.full_name }.empty?
+          end          
+
+          return nil if matching_servers.empty?
+          raise "More than one cloud server tagged with the full name: '#{node.full_name}'. Matching servers: #{matching_servers.inspect}" unless matching_servers.length == 1
+          matching_servers.first
+        end
       end
     end
   end
