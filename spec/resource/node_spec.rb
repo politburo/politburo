@@ -51,6 +51,19 @@ describe Politburo::Resource::Node do
       node.cloud_provider.should be :cloud_provider
     end
   end
+  context "#cloud_server" do
+    let(:cloud_provider) { double("fake cloud provider") }
+
+    before :each do
+      node.should_receive(:cloud_provider).and_return(cloud_provider)
+    end
+
+    it "should use the cloud_provider to ask for the server for this node" do
+      cloud_provider.should_receive(:server_for).with(node).and_return(:cloud_server)
+
+      node.cloud_server.should be :cloud_server
+    end
+  end
 
   context "#session" do
     before :each do

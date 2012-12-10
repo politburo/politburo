@@ -32,6 +32,11 @@ module Politburo
 			def cloud_provider
 				Politburo::Resource::Cloud::Providers.for(self)
 			end
+
+			def cloud_server
+				cloud_provider.server_for(self)
+			end
+			
 		end
 	end
 end
