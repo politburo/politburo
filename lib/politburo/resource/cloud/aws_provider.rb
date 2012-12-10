@@ -4,7 +4,7 @@ module Politburo
       class AWSProvider < Provider
 
         def self.config_for(resource)
-          { provider: 'AWS' }.merge(resource.provider_config).merge(availability_zone: resource.availability_zone )
+          { provider: 'AWS' }.merge(resource.provider_config).merge(region: resource.availability_zone )
         end
 
       end

@@ -1,5 +1,12 @@
 describe Politburo::Resource::Cloud::Providers do
 
+  context "#initialize" do
+
+    it 'should raise an error if called' do
+      lambda { Politburo::Resource::Cloud::Providers.new }.should raise_error "Static singleton!"
+    end
+  end
+
   context "class methods" do
 
     context "#for" do

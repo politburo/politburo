@@ -27,7 +27,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
     context "#config_for" do
 
       it "should merge the resource's availability_zone and provider_config" do
-        Politburo::Resource::Cloud::AWSProvider.config_for(resource).should eq({ :provider => 'AWS', :availability_zone => 'az-0', :configuration => 'of some sort' })
+        Politburo::Resource::Cloud::AWSProvider.config_for(resource).should eq({ :provider => 'AWS', :region => 'az-0', :configuration => 'of some sort' })
       end
 
     end
