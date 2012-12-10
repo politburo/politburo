@@ -1,20 +1,29 @@
+require 'fog'
+
 module Politburo
   module Resource
     module Cloud
       class Provider
+        attr_reader :config
 
-        @mutex = Mutex.new
-
-        def self.provider_types
-          {
-            aws: Politburo::Resource::Cloud::AWSProvider.class
-          }
+        def initialize(config)
+          @config = config
         end
 
-        def self.for(provider_type, provider_config)
-          @mutex.synchronize do
+        def compute_instance
+          @compute_instance ||= Fog::Compute.new(config)
+        end
+
+        def self.mutex
+          @mutex ||= Mutex.new
+        end
+
+        def self.for(resource)
+          config = config_for(resource)
+
+          mutex.synchronize do
             @providers ||= {}
-            @providers[{ type: provider_type, config: provider_config }] ||= provider_types[provider_type].new(provider_config)
+            @providers[config] ||= self.new(config)
           end
         end
 

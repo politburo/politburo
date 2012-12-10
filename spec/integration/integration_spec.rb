@@ -27,7 +27,16 @@ describe "End to end test" do
 			File.join(File.dirname(__FILE__), "Amazon.envfile.rb")
 		end
 
+		let(:test_host) do
+			cli.root.context.lookup(name: "Primary host in zone", availability_zone: :'ap-southeast-2')
+		end
+
+		it "should have an AWS cloud provider" do
+			test_host.cloud_provider.should be_a Politburo::Resource::Cloud::AWSProvider
+		end
+
 		it "should run the envfile correctly" do
+			test_host.should_not be_nil
 			cli.run.should be_true
 		end
 	end

@@ -30,7 +30,7 @@ module Politburo
 			end
 
 			def cloud_provider
-				Politburo::Resource::Cloud::Provider.for(provider, provider_config)
+				Politburo::Resource::Cloud::Providers.for(self)
 			end
 		end
 	end
