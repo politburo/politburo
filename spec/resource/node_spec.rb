@@ -59,7 +59,7 @@ describe Politburo::Resource::Node do
     end
 
     it "should use the cloud_provider to ask for the server for this node" do
-      cloud_provider.should_receive(:server_for).with(node).and_return(:cloud_server)
+      cloud_provider.should_receive(:find_server_for).with(node).and_return(:cloud_server)
 
       node.cloud_server.should be :cloud_server
     end

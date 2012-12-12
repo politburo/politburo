@@ -34,7 +34,7 @@ module Politburo
 			end
 
 			def cloud_server
-				cloud_provider.server_for(self)
+				cloud_provider.find_server_for(self)
 			end
 			
 		end

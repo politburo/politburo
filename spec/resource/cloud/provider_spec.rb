@@ -15,6 +15,29 @@ describe Politburo::Resource::Cloud::Provider do
     end
   end
 
+  context "#find_or_create_server_for" do
+    let(:node) { double("fake node") }
+
+    context "when server doesn't yet exist" do
+      it "should create it" do
+        provider.should_receive(:find_server_for).with(:a_node).and_return(nil)
+        provider.should_receive(:create_server_for).with(:a_node).and_return(:a_server)
+
+        provider.find_or_create_server_for(:a_node)
+      end
+    end
+
+    context "when server exists" do
+      it "should create it" do
+        provider.should_receive(:find_server_for).with(:a_node).and_return(:a_server)
+        provider.should_not_receive(:create_server_for)
+
+        provider.find_or_create_server_for(:a_node)
+      end
+    end
+
+  end
+
   context "class methods" do
 
     context "#for" do

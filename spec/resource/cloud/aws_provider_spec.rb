@@ -7,7 +7,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
     provider.stub(:compute_instance).and_return(compute_instance)
   end
 
-  context "#server_for" do
+  context "#find_server_for" do
     let(:node) { double("fake node", :full_name => 'full name')}
 
     let(:matching_server) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'full name'}) }
@@ -22,7 +22,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
       it "should enumerate all the servers and find the one that has a politburo:full_name tag that matches the resource" do
         compute_instance.should_receive(:servers).and_return(servers)
-        provider.server_for(node).should be matching_server
+        provider.find_server_for(node).should be matching_server
       end
     end
 
@@ -31,7 +31,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
       it "should raise an error if more than one server was found" do
         compute_instance.should_receive(:servers).and_return(servers)
-        lambda { provider.server_for(node) }.should raise_error /More than one cloud server tagged with the full name: 'full name'. Matching servers: \[.*\]/
+        lambda { provider.find_server_for(node) }.should raise_error /More than one cloud server tagged with the full name: 'full name'. Matching servers: \[.*\]/
       end
 
     end
@@ -41,11 +41,38 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
       it "should return nil" do
         compute_instance.should_receive(:servers).and_return(servers)
-        provider.server_for(node).should be_nil
+        provider.find_server_for(node).should be_nil
       end
 
     end
 
+  end
+
+  context "#create_server_for" do
+    let(:node) { double("fake node", :name => 'name', :full_name => 'full name')}
+    let(:servers) { double("fake servers container") }
+    let(:server) { double("fake created server") }
+
+    before :each do
+      provider.compute_instance.stub(:servers).and_return(servers)      
+      servers.stub(:create).with(anything).and_return(server)      
+      server.stub(:wait_for).and_yield()
+      server.stub(:ready?).and_return(true)
+    end
+
+    it "should use the compute instance to create the server" do
+      provider.compute_instance.should_receive(:servers).and_return(servers)
+      servers.should_receive(:create).with(anything).and_return(server)      
+
+      provider.create_server_for(node)
+    end
+
+    it "should wait until the server is ready" do
+      server.should_receive(:wait_for).and_yield()
+      server.should_receive(:ready?).and_return(true)
+
+      provider.create_server_for(node)
+    end    
   end
 
   context "class methods" do
