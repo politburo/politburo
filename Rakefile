@@ -22,7 +22,7 @@ namespace :cover_me do
     raise "Couldn't figure out coverage" if match.nil?
 
     coverage = match[1].to_f
-    coverage_threshold = 99.75
+    coverage_threshold = 99.77
 
     colored_coverage_s = "#{coverage}%".send(coverage < coverage_threshold ? :red : :green)
 

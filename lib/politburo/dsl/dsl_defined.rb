@@ -22,7 +22,6 @@ module Politburo
 			def [](attribute_name)
 				attribute_name_sym = attribute_name.to_sym
 				return nil unless self.respond_to?(attribute_name_sym)
-
 				self.send(attribute_name_sym)
 			end
 
