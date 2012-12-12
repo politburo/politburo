@@ -19,6 +19,13 @@ module Politburo
 				validation_errors.empty?
 			end
 
+			def [](attribute_name)
+				attribute_name_sym = attribute_name.to_sym
+				return nil unless self.respond_to?(attribute_name_sym)
+
+				self.send(attribute_name_sym)
+			end
+
 			def update_attributes(attributes)
 				attributes.each_pair do | attr_name, attr_value |
 					setter_sym = "#{attr_name.to_s}=".to_sym

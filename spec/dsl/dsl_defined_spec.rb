@@ -27,6 +27,30 @@ describe Politburo::DSL::DslDefined do
 		DslDefinedObj.validations.should_not be_empty
 	end
 
+	context "#[]" do
+
+		context "with an existing attribute accessor" do
+
+			it "should return the value" do
+				dsl_defined_obj[:name].should be dsl_defined_obj.name
+			end
+
+			it "should have indifferent access with string or symbol" do
+				dsl_defined_obj["name"].should be dsl_defined_obj[:name]
+			end
+
+		end
+
+		context "with a non-existance attribute accessor" do
+
+			it "should return nil" do
+				dsl_defined_obj[:non_existant_property].should be_nil
+			end
+
+		end
+
+	end
+
 	context "#context" do
 		let (:context) { dsl_defined_obj.context }
 
