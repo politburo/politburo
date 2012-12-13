@@ -38,6 +38,58 @@ describe Politburo::Resource::Cloud::Provider do
 
   end
 
+  context "#flavor_for" do
+    let(:node) { double("fake node") }
+
+    before :each do
+      provider.stub(:default_flavor).and_return(:default_flavor)
+      node.stub(:[]).with(:flavor).and_return(nil)
+    end
+
+    context "when node has flavor set" do
+      it "should return the node's flavor" do
+        node.should_receive(:[]).with(:flavor).and_return(:node_flavor)
+        provider.should_not_receive(:default_flavor)
+
+        provider.flavor_for(node).should be :node_flavor
+      end
+    end
+
+    context "when node has no flavor set" do
+      it "should use the default flavor" do
+        node.should_receive(:[]).with(:flavor).and_return(nil)
+        provider.should_receive(:default_flavor).and_return(:default_flavor)
+        provider.flavor_for(node).should be :default_flavor
+      end
+    end
+  end
+
+  context "#image_for" do
+    let(:node) { double("fake node") }
+
+    before :each do
+      provider.stub(:default_image).and_return(:default_image)
+      node.stub(:[]).with(:image).and_return(nil)
+    end
+
+    context "when node has image set" do
+      it "should return the node's image" do
+        node.should_receive(:[]).with(:image).and_return(:node_image)
+        provider.should_not_receive(:default_image)
+
+        provider.image_for(node).should be :node_image
+      end
+    end
+
+    context "when node has no image set" do
+      it "should use the default image" do
+        node.should_receive(:[]).with(:image).and_return(nil)
+        provider.should_receive(:default_image).and_return(:default_image)
+        provider.image_for(node).should be :default_image
+      end
+    end
+  end
+
   context "class methods" do
 
     context "#for" do

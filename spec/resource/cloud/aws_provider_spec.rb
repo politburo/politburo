@@ -55,7 +55,8 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
     before :each do
       provider.compute_instance.stub(:servers).and_return(servers)      
-      servers.stub(:create).with(anything).and_return(server)      
+      provider.stub(:flavor_for).and_return(:cookies_and_cream)
+      servers.stub(:create).with(kind_of(Hash)).and_return(server)
       server.stub(:wait_for).and_yield()
       server.stub(:ready?).and_return(true)
     end
@@ -67,12 +68,27 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.create_server_for(node)
     end
 
+    it "should use #flavor_for to set the flavor for the server" do
+      provider.should_receive(:flavor_for).and_return(:cookies_and_cream)
+
+      servers.should_receive(:create) do | properties | 
+        properties[:flavor_id].should be :cookies_and_cream
+        server 
+      end
+
+      provider.create_server_for(node)
+    end
+
     it "should wait until the server is ready" do
       server.should_receive(:wait_for).and_yield()
       server.should_receive(:ready?).and_return(true)
 
       provider.create_server_for(node)
     end    
+  end
+
+  context "#default_flavor" do
+    it { provider.default_flavor.should eq "m1.small" }
   end
 
   context "class methods" do

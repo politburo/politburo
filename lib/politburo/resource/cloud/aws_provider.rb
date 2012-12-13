@@ -18,10 +18,13 @@ module Politburo
         end
 
         def create_server_for(node)
-          server = compute_instance.servers.create(flavor_id: 1, image_id: 3, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
+          server = compute_instance.servers.create(flavor_id: flavor_for(node), image_id: 3, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
           server.wait_for { server.ready? }
         end
 
+        def default_flavor
+          "m1.small"
+        end
       end
     end
   end

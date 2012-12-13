@@ -18,6 +18,14 @@ module Politburo
           find_server_for(node) || create_server_for(node)
         end
 
+        def flavor_for(node)
+          node[:flavor] || default_flavor
+        end
+
+        def image_for(node)
+          node[:image] || default_image
+        end
+
         def self.mutex
           @mutex ||= Mutex.new
         end
