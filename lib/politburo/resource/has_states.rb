@@ -28,7 +28,7 @@ module Politburo
 			end
 
 			def state(name)
-				found = states.find_all { | state | Searchable.matches(state, :name => name) } 
+				found = states.find_all { | state | Searchable.matches?(state, :name => name) } 
 				raise "No state: #{name} found on '#{self.name}'" if found.empty?
 				raise "More than one state found with name: #{name} on '#{self.name}'. #{found.map(&:inspect).join(", ")}" if (found.length > 1)
 

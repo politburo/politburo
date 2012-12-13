@@ -3,36 +3,69 @@ require 'ostruct'
 
 describe Politburo::Resource::Searchable do
 
-	class SearchableTestObj < OpenStruct
-		include Politburo::Resource::Searchable
+	context "#matches?" do
+		let(:obj) { double("object to compare to", field_a: 'field a value', field_b: 'field b value') }
 
-		attr_reader :children
-
-		def initialize(children = nil, attrs = {})
-			super(attrs)
-			@children = children
+		it "should match exact strings" do
+			Politburo::Resource::Searchable.should be_matches(obj, field_a: 'field a value')
+			Politburo::Resource::Searchable.should be_matches(obj, field_b: 'field b value')
+			Politburo::Resource::Searchable.should be_matches(obj, field_a: 'field a value', field_b: 'field b value')
 		end
 
-		def contained_searchables
-			children
+		it "should not match unmatching strings" do
+			Politburo::Resource::Searchable.should_not be_matches(obj, field_a: 'field x value')
+			Politburo::Resource::Searchable.should_not be_matches(obj, field_b: 'field x value')
+			Politburo::Resource::Searchable.should_not be_matches(obj, field_a: 'field x value', field_b: 'field b value')
 		end
 
-	end	
+		it "should match with lambdas" do
+			Politburo::Resource::Searchable.should be_matches(obj, field_a: lambda do | object, name, value | 
+				object.should be obj
+				name.should eq :field_a
 
-	let(:leaf_1) { SearchableTestObj.new(nil, { name: 'leaf 1', index: 1, type: 'leaf' }) }
-	let(:leaf_2) { SearchableTestObj.new(nil, { name: 'leaf 2', index: 2, type: 'leaf' }) }
-	let(:leaf_3) { SearchableTestObj.new(nil, { name: 'leaf 3', index: 3, type: 'leaf' }) }
-	let(:leaf_4) { SearchableTestObj.new(nil, { name: 'leaf 4', index: 4, type: 'leaf' }) }
-	let(:leaf_5) { SearchableTestObj.new(nil, { name: 'leaf 5', index: 5, type: 'leaf' }) }
-	let(:leaf_6) { SearchableTestObj.new(nil, { name: 'leaf 6', index: 6, type: 'leaf' }) }
-	let(:leaf_7) { OpenStruct.new({ children: nil, name: 'non searchable leaf', index: 7, type: 'leaf' }) }
+				value == 'field a value'
+			end)
 
-	let(:midlevel_1) { SearchableTestObj.new( [ leaf_3, leaf_4 ], { index: 1, type: 'midlevel', special: nil }) }
-	let(:midlevel_2) { SearchableTestObj.new( [ leaf_5, leaf_6, leaf_7 ], { index: 2, type: 'midlevel', special: true }) }
+			Politburo::Resource::Searchable.should_not be_matches(obj, field_b: lambda { | object, name, value | value != 'field b value' } )
+		end
 
-	let(:root) { SearchableTestObj.new( [ midlevel_1, leaf_1, midlevel_2, leaf_2 ]) }
+		it "should match regular expressions" do
+			Politburo::Resource::Searchable.should be_matches(obj, field_a: /field . value/)
+			Politburo::Resource::Searchable.should_not be_matches(obj, field_a: /field [^a] value/)
+		end
+
+	end
 
 	context "#find_all_by_attributes" do
+
+		class SearchableTestObj < OpenStruct
+			include Politburo::Resource::Searchable
+
+			attr_reader :children
+
+			def initialize(children = nil, attrs = {})
+				super(attrs)
+				@children = children
+			end
+
+			def contained_searchables
+				children
+			end
+
+		end	
+
+		let(:leaf_1) { SearchableTestObj.new(nil, { name: 'leaf 1', index: 1, type: 'leaf' }) }
+		let(:leaf_2) { SearchableTestObj.new(nil, { name: 'leaf 2', index: 2, type: 'leaf' }) }
+		let(:leaf_3) { SearchableTestObj.new(nil, { name: 'leaf 3', index: 3, type: 'leaf' }) }
+		let(:leaf_4) { SearchableTestObj.new(nil, { name: 'leaf 4', index: 4, type: 'leaf' }) }
+		let(:leaf_5) { SearchableTestObj.new(nil, { name: 'leaf 5', index: 5, type: 'leaf' }) }
+		let(:leaf_6) { SearchableTestObj.new(nil, { name: 'leaf 6', index: 6, type: 'leaf' }) }
+		let(:leaf_7) { OpenStruct.new({ children: nil, name: 'non searchable leaf', index: 7, type: 'leaf' }) }
+
+		let(:midlevel_1) { SearchableTestObj.new( [ leaf_3, leaf_4 ], { index: 1, type: 'midlevel', special: nil }) }
+		let(:midlevel_2) { SearchableTestObj.new( [ leaf_5, leaf_6, leaf_7 ], { index: 2, type: 'midlevel', special: true }) }
+
+		let(:root) { SearchableTestObj.new( [ midlevel_1, leaf_1, midlevel_2, leaf_2 ]) }
 
 		it "should recursively find the correct resource by single attributes" do
 			found = root.find_all_by_attributes(name: 'leaf 4')
@@ -58,7 +91,7 @@ describe Politburo::Resource::Searchable do
 		end
 
 		it "should recursively find the correct resource with matcher lambdas" do
-			found = root.find_all_by_attributes(anything_goes: lambda { | obj, value | obj.type.eql?('midlevel') && obj.special.nil? })
+			found = root.find_all_by_attributes(anything_goes: lambda { | obj, attr_name, value | obj.type.eql?('midlevel') && obj.special.nil? })
 			found.should_not be_empty
 			found.length.should == 1
 
