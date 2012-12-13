@@ -18,8 +18,33 @@ module Politburo
         end
 
         def create_server_for(node)
-          server = compute_instance.servers.create(flavor_id: flavor_for(node), image_id: 3, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
+          server = compute_instance.servers.create(flavor_id: flavor_for(node), image_id: find_image(image_for(node)).id, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
           server.wait_for { server.ready? }
+        end
+
+        def images
+          @images ||= compute_instance.images
+        end
+
+        def find_image(image_selector)
+          if image_selector.is_a?(String) or image_selector.is_a?(Symbol)
+            attrs = {id: image_selector.to_s } 
+          elsif image_selector.is_a?(Regexp)
+            attrs = {name: image_selector } 
+          else
+            attrs = image_selector
+          end
+
+          images = find_images_by_attributes(attrs)
+
+          raise "Could not find an image that matches the attributes: #{attrs}." if images.empty?
+          raise "Ambiguous image identifier. More than one image matches the attributes: #{attrs}. Matches: #{images.inspect}" if images.size > 1
+
+          images.first
+        end
+
+        def find_images_by_attributes(attributes)
+          images.select { | image | Politburo::Resource::Searchable.matches?(image, attributes) }
         end
 
         def default_flavor

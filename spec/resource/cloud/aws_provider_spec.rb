@@ -52,10 +52,14 @@ describe Politburo::Resource::Cloud::AWSProvider do
     let(:node) { double("fake node", :name => 'name', :full_name => 'full name')}
     let(:servers) { double("fake servers container") }
     let(:server) { double("fake created server") }
+    let(:image) { double("fake image", :id => 'ami-00000') }
 
     before :each do
       provider.compute_instance.stub(:servers).and_return(servers)      
       provider.stub(:flavor_for).and_return(:cookies_and_cream)
+      provider.stub(:image_for).and_return(:image_selector)
+      provider.stub(:find_image).with(:image_selector).and_return(image)
+
       servers.stub(:create).with(kind_of(Hash)).and_return(server)
       server.stub(:wait_for).and_yield()
       server.stub(:ready?).and_return(true)
@@ -79,12 +83,95 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.create_server_for(node)
     end
 
+    it "should use #image_for to find the flavor for the server" do
+      provider.should_receive(:image_for).and_return(:image_selector)
+      provider.should_receive(:find_image).with(:image_selector).and_return(image)
+      image.should_receive(:id).and_return('ami-00000')
+
+      servers.should_receive(:create) do | properties | 
+        properties[:image_id].should eq 'ami-00000'
+        server 
+      end
+
+      provider.create_server_for(node)
+    end
+
     it "should wait until the server is ready" do
       server.should_receive(:wait_for).and_yield()
       server.should_receive(:ready?).and_return(true)
 
       provider.create_server_for(node)
     end    
+  end
+
+  context "#images" do
+    let(:images) { double("fake images list") }
+
+    it "should cache the compute instances images list" do
+      compute_instance.should_receive(:images).and_return(images)
+
+      provider.images.should be images
+      provider.images.should be images # Still the same
+    end
+  end
+
+  context "#find_image" do
+
+    context "when a symbol is provided" do
+      it "should assume it is a image id" do
+        provider.should_receive(:find_images_by_attributes).with(id: "ami-00000").and_return([ :image ])
+        provider.find_image(:'ami-00000').should be :image
+      end
+    end
+
+    context "when a string is provided" do
+      it "should assume it is a image id" do
+        provider.should_receive(:find_images_by_attributes).with(id: "ami-00000").and_return([ :image ])
+        provider.find_image('ami-00000').should be :image
+      end
+    end
+
+    context "when a regular expression is provided" do
+      it "should use it to match by name" do
+        provider.should_receive(:find_images_by_attributes).with(name: /name regexp/).and_return([ :image ])
+        provider.find_image(/name regexp/).should be :image
+      end
+    end
+
+    context "when a hash is provided" do
+      it "should use it as matching argument" do
+        provider.should_receive(:find_images_by_attributes).with({ find: 'by attributes' }).and_return([ :image ])
+        provider.find_image(find: 'by attributes').should be :image
+      end
+    end
+
+    context "when no images are found" do
+      it "should raise an error" do
+        provider.should_receive(:find_images_by_attributes).with(anything).and_return([])
+        lambda { provider.find_image('non existant image') }.should raise_error "Could not find an image that matches the attributes: {:id=>\"non existant image\"}."
+      end
+    end
+
+    context "when more than one image is found" do
+      it "should return nil" do
+        provider.should_receive(:find_images_by_attributes).with(anything).and_return([:image, :image, :image])
+        lambda { provider.find_image(/matches many images/) }.should raise_error "Ambiguous image identifier. More than one image matches the attributes: {:name=>/matches many images/}. Matches: [:image, :image, :image]"
+      end
+    end
+  end
+
+  context "#find_images_by_attributes" do
+    let(:images) { [ :matching_image, :non_matching_image, :another_matching_image ] }
+
+    it "should iterate over images and attempt matching to attributes, collecting the matches" do
+      provider.should_receive(:images).and_return(images)
+
+      Politburo::Resource::Searchable.should_receive(:matches?).with(:matching_image, :attributes).and_return true
+      Politburo::Resource::Searchable.should_receive(:matches?).with(:non_matching_image, :attributes).and_return false
+      Politburo::Resource::Searchable.should_receive(:matches?).with(:another_matching_image, :attributes).and_return true
+
+      provider.find_images_by_attributes(:attributes).should eq [ :matching_image, :another_matching_image ]
+    end
   end
 
   context "#default_flavor" do
