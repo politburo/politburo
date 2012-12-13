@@ -20,6 +20,7 @@ module Politburo
         def create_server_for(node)
           server = compute_instance.servers.create(flavor_id: flavor_for(node), image_id: find_image(image_for(node)).id, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
           server.wait_for { server.ready? }
+          server
         end
 
         def images
@@ -49,6 +50,10 @@ module Politburo
 
         def default_flavor
           "m1.small"
+        end
+
+        def default_image
+          { name: /ubuntu\/images\/ebs\/ubuntu-oneiric-11.10-amd64-server-20120918/, architecture: 'x86_64', root_device_type: 'ebs', owner_id: '099720109477' }
         end
       end
     end

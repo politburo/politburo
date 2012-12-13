@@ -69,7 +69,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.compute_instance.should_receive(:servers).and_return(servers)
       servers.should_receive(:create).with(anything).and_return(server)      
 
-      provider.create_server_for(node)
+      provider.create_server_for(node).should be server
     end
 
     it "should use #flavor_for to set the flavor for the server" do
@@ -80,7 +80,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
         server 
       end
 
-      provider.create_server_for(node)
+      provider.create_server_for(node).should be server
     end
 
     it "should use #image_for to find the flavor for the server" do
@@ -93,14 +93,14 @@ describe Politburo::Resource::Cloud::AWSProvider do
         server 
       end
 
-      provider.create_server_for(node)
+      provider.create_server_for(node).should be server
     end
 
     it "should wait until the server is ready" do
       server.should_receive(:wait_for).and_yield()
       server.should_receive(:ready?).and_return(true)
 
-      provider.create_server_for(node)
+      provider.create_server_for(node).should be server
     end    
   end
 
@@ -176,6 +176,10 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
   context "#default_flavor" do
     it { provider.default_flavor.should eq "m1.small" }
+  end
+
+  context "#default_image" do
+    it { provider.default_image.should be_a Hash }
   end
 
   context "class methods" do
