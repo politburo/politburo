@@ -96,6 +96,11 @@
 					end
 				end
 
+				def attr_writer_with_default(name_sym, &block)
+					attr_reader_with_default(name_sym, block)
+					attr_writer(name_sym)
+				end
+
 				private
 
 				def add_validation(name_sym, validation_lambda)

@@ -176,4 +176,17 @@ describe Politburo::DSL::DslDefined do
 		end
 	end
 
+	context "#attr_accessor_with_default" do
+		let(:klass) { Class.new { include Politburo::DSL::DslDefined } }
+
+		it "should call attr_reader_with_default and attr_writer appropriately" do
+			klass.should_receive(:attr_reader_with_default).with(:attr_name, kind_of(Proc))
+			klass.should_receive(:attr_writer).with(:attr_name)
+
+			klass.instance_eval do 
+				attr_writer_with_default(:attr_name) { 'default' }
+			end
+		end
+	end
+
 end
