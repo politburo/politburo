@@ -49,7 +49,8 @@ describe Politburo::Resource::Cloud::AWSProvider do
   end
 
   context "#create_server_for" do
-    let(:node) { double("fake node", :name => 'name', :full_name => 'full name')}
+    let(:logger) { double("fake logger", :info => true, :debug => true)}
+    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger)}
     let(:servers) { double("fake servers container") }
     let(:server) { double("fake created server") }
     let(:image) { double("fake image", :id => 'ami-00000') }

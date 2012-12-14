@@ -18,7 +18,13 @@ module Politburo
         end
 
         def create_server_for(node)
-          server = compute_instance.servers.create(flavor_id: flavor_for(node), image_id: find_image(image_for(node)).id, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name })
+          image_selector = image_for(node)
+          node.logger.debug("Looking for image based on selector: '#{image_selector}'")
+          image = find_image(image_selector)
+          server_attrs = { flavor_id: flavor_for(node), image_id: image.id, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name } }
+          node.logger.info("Creating server with attributes: #{server_attrs}")
+          server = compute_instance.servers.create(server_attrs)
+          node.logger.debug("Waiting for server to become ready...")
           server.wait_for { server.ready? }
           server
         end

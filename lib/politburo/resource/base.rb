@@ -15,7 +15,7 @@ module Politburo
 			attr_accessor_with_default(:log_formatter) do
         task = self
 				lambda do |severity, datetime, progname, msg|
-            "#{datetime.to_s} #{severity.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{self.name.white}\t#{msg}\n"
+            "#{datetime.to_s} #{self.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
         end
 			end
 
