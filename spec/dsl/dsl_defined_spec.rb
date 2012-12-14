@@ -15,6 +15,8 @@ describe Politburo::DSL::DslDefined do
 
 		attr_reader_with_default(:log_level) { :default_level }
 		attr_writer :log_level
+
+		attr_accessor_with_default(:another_log_level) { :default_level }
 	end
 
 	let(:dsl_defined_obj) do
@@ -180,13 +182,24 @@ describe Politburo::DSL::DslDefined do
 		let(:klass) { Class.new { include Politburo::DSL::DslDefined } }
 
 		it "should call attr_reader_with_default and attr_writer appropriately" do
-			klass.should_receive(:attr_reader_with_default).with(:attr_name, kind_of(Proc))
+			klass.should_receive(:attr_reader_with_default).with(:attr_name)
+
 			klass.should_receive(:attr_writer).with(:attr_name)
 
 			klass.instance_eval do 
-				attr_writer_with_default(:attr_name) { 'default' }
+				attr_accessor_with_default(:attr_name) { 'default' }
 			end
 		end
+
+		it "should revert to default if not set" do
+			dsl_defined_obj.another_log_level.should be :default_level
+		end
+
+		it "should read set value when set" do
+			dsl_defined_obj.another_log_level = :override
+			dsl_defined_obj.another_log_level.should be :override
+		end
+
 	end
 
 end

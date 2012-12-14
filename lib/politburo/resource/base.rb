@@ -11,6 +11,8 @@ module Politburo
 			attr_accessor :name
 			attr_accessor :description
 
+			attr_accessor_with_default(:log_level) { Logger::INFO }
+
 			requires :name
 
 			has_state :defined

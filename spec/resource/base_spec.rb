@@ -26,6 +26,10 @@ describe Politburo::Resource::Base do
 		resource.should_not be_valid
 	end
 
+	it "should have a default log level" do
+		resource.log_level.should be Logger::INFO
+	end
+
 	it "should be searchable" do
 		resource.should be_a Politburo::Resource::Searchable
 	end
