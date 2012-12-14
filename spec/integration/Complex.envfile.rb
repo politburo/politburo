@@ -1,6 +1,6 @@
 environment(name: "Complex integration test environment", provider: :aws) do
 
-  import 'redbeard:webnode'
+  import 'redbeard:webnode#SHA1'
 
   # This defines the database master + slaves
   facet(name: "Database", cardinality: 3) do

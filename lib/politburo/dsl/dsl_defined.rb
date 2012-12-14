@@ -92,7 +92,7 @@
 
 					value_proc = block
 					define_method(name_sym) do
-						instance_variable_get("@#{name_sym}".to_sym) || value_proc.call
+						instance_variable_get("@#{name_sym}".to_sym) || instance_eval(&value_proc)
 					end
 				end
 

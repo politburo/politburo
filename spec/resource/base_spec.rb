@@ -30,6 +30,17 @@ describe Politburo::Resource::Base do
 		resource.log_level.should be Logger::INFO
 	end
 
+	it "should have a logger" do
+		resource.logger.should_not be_nil
+	end
+
+	it "should use the log formatter" do
+		resource.logger_output = StringIO.new
+		resource.logger.info("This message should go through the log formatter")
+
+		resource.logger_output.string.should =~ /.*\tThis message should go through the log formatter/
+	end
+
 	it "should be searchable" do
 		resource.should be_a Politburo::Resource::Searchable
 	end
