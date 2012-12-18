@@ -13,7 +13,12 @@ module Politburo
 
           value_proc = block
           define_method(name_sym) do
-            instance_variable_get("@#{name_sym}".to_sym) || instance_eval(&value_proc)
+            value = instance_variable_get("@#{name_sym}".to_sym)
+            unless value
+              value = instance_eval(&value_proc)
+              instance_variable_set("@#{name_sym}", value) 
+            end
+            value
           end
         end
 

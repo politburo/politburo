@@ -32,6 +32,8 @@ describe Politburo::Support::AccessorWithDefault do
 
     it "should revert to default if not set" do
       has_accessor.log_level.should be :default_level
+
+      has_accessor.instance_eval { @log_level }.should_not be_nil
     end
 
     it "should read set value when set" do

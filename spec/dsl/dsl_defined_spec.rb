@@ -147,4 +147,25 @@ describe Politburo::DSL::DslDefined do
 
 	end
 
+	context "logging" do
+		it "should have a log" do
+			dsl_defined_obj.should be_a Politburo::Support::HasLogger
+		end
+
+		let(:parent_resource) { double(:fake_parent, log_level: Logger::DEBUG, logger_output: :fake_output) }
+
+		before :each do
+			dsl_defined_obj.stub(:parent_resource).and_return(parent_resource)
+		end
+
+		it "should be able to inherit the log level" do
+			dsl_defined_obj.log_level.should be Logger::DEBUG
+		end
+
+		it "should be able to inherit the log output" do
+			dsl_defined_obj.logger_output.should be :fake_output
+		end
+
+	end
+
 end

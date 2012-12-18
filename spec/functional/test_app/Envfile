@@ -1,4 +1,4 @@
-environment(name: 'simple', description: "Simple integration test environment", 
+environment(name: 'simple', description: "Simple integration test environment", log_level: Logger::DEBUG,
   provider: :simple,
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } 
   ) do

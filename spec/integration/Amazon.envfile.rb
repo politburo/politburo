@@ -1,4 +1,5 @@
-environment(name: 'Amazon', description: "Amazon integration test environment", provider: :aws, 
+environment(name: 'Amazon', description: "Amazon integration test environment",
+  provider: :aws, 
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
 
   { "US West" => :'us-west-1', "US East" => :'us-east-1', "APAC Sydney" => :'ap-southeast-2' }.each_pair do 

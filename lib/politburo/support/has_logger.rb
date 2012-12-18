@@ -7,12 +7,11 @@ module Politburo
       end
 
       attr_accessor_with_default(:log_level) { Logger::INFO }
+      attr_accessor_with_default(:logger_output) { $stdout }
 
       attr_accessor_with_default(:log_formatter) do
         lambda { |severity, datetime, progname, msg| "#{datetime.to_s} #{severity.to_s.colorize( self.severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n" }
       end
-
-      attr_accessor_with_default(:logger_output) { $stdout }
 
       attr_reader_with_default(:logger) do
         logger = Logger.new(self.logger_output)

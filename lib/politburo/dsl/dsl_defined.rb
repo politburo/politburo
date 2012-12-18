@@ -3,6 +3,12 @@
 	module DSL
 
 		module DslDefined
+			include Politburo::Support::AccessorWithDefault
+			include Politburo::Support::HasLogger
+
+      attr_accessor_with_default(:log_level) { ((!parent_resource.nil?) and parent_resource.log_level) || Logger::INFO }
+      attr_accessor_with_default(:logger_output) { ((!parent_resource.nil?) and parent_resource.logger_output) || $stdout } 
+
 			def self.included(base)
 				base.extend(ClassMethods)
 			end
@@ -65,8 +71,13 @@
 				def inherits(name_sym_)
 					name_sym = name_sym_.to_sym
 
+					attr_reader name_sym unless (method_defined?(name_sym))
+
+					original_name_sym = "original_#{name_sym}".to_sym
+					alias_method original_name_sym, name_sym
+
 					define_method(name_sym) do
-						instance_variable_get("@#{name_sym}".to_sym) || parent_resource.send(name_sym)
+						self.send(original_name_sym) || parent_resource.send(name_sym)
 					end
 
 					attr_writer(name_sym)

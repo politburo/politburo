@@ -2,11 +2,9 @@ module Politburo
 	module Resource
 		class Base
 			include Enumerable
-			include Politburo::Support::AccessorWithDefault
 			include Politburo::DSL::DslDefined
 			include Politburo::Resource::Searchable
 			include Politburo::Resource::HasStates
-			include Politburo::Support::HasLogger
 
 			attr_accessor :parent_resource
 			attr_accessor :name
