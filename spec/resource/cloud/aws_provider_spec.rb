@@ -10,15 +10,16 @@ describe Politburo::Resource::Cloud::AWSProvider do
   context "#find_server_for" do
     let(:node) { double("fake node", :full_name => 'full name')}
 
-    let(:matching_server) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'full name'}) }
-    let(:non_matching_server) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'a different full name'}) }
+    let(:matching_server) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'full name'}, :state => 'not terminated') }
+    let(:matching_server_that_was_terminated) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'full name'}, :state => 'terminated') }
+    let(:non_matching_server) { double("fake server", :tags => { "another tag" => "tag value", "politburo:full_name" => 'a different full name'}, :state => 'not terminated') }
 
     before :each do
       compute_instance.stub(:servers).and_return(servers)
     end
 
     context "with one matching server" do
-      let(:servers) { [ non_matching_server, non_matching_server, matching_server, non_matching_server ]}
+      let(:servers) { [ non_matching_server, non_matching_server, matching_server, non_matching_server, matching_server_that_was_terminated ]}
 
       it "should enumerate all the servers and find the one that has a politburo:full_name tag that matches the resource" do
         compute_instance.should_receive(:servers).and_return(servers)
@@ -27,7 +28,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
     end
 
     context "with more than one matching server" do
-      let(:servers) { [ matching_server, non_matching_server, matching_server, non_matching_server ]}
+      let(:servers) { [ matching_server, non_matching_server, matching_server, non_matching_server, matching_server_that_was_terminated  ]}
 
       it "should raise an error if more than one server was found" do
         compute_instance.should_receive(:servers).and_return(servers)
@@ -37,7 +38,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
     end
 
     context "with no matching servers" do
-    let(:servers) { [ non_matching_server, non_matching_server, non_matching_server, non_matching_server ]}
+    let(:servers) { [ non_matching_server, non_matching_server, non_matching_server, non_matching_server, matching_server_that_was_terminated  ]}
 
       it "should return nil" do
         compute_instance.should_receive(:servers).and_return(servers)
@@ -91,6 +92,15 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
       servers.should_receive(:create) do | properties | 
         properties[:image_id].should eq 'ami-00000'
+        server 
+      end
+
+      provider.create_server_for(node).should be server
+    end
+
+    it "should use #full_name to set the full name and name of the server" do
+      servers.should_receive(:create) do | properties | 
+        properties[:tags].should eq({'politburo:full_name' => 'full name', 'Name' => 'full name' })
         server 
       end
 

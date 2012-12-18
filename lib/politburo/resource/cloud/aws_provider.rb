@@ -9,7 +9,7 @@ module Politburo
 
         def find_server_for(node)
           matching_servers = compute_instance.servers.select do | s | 
-            not s.tags.select { | k,v | k == "politburo:full_name" and v == node.full_name }.empty?
+            (s.state != "terminated") and (not s.tags.select { | k,v | k == "politburo:full_name" and v == node.full_name }.empty?)
           end          
 
           return nil if matching_servers.empty?
@@ -21,7 +21,7 @@ module Politburo
           image_selector = image_for(node)
           node.logger.debug("Looking for image based on selector: '#{image_selector}'")
           image = find_image(image_selector)
-          server_attrs = { flavor_id: flavor_for(node), image_id: image.id, name: "#{node.name}", tags: { "politburo:full_name" => node.full_name } }
+          server_attrs = { flavor_id: flavor_for(node), image_id: image.id, tags: { "politburo:full_name" => node.full_name, 'Name' => node.full_name } }
           node.logger.info("Creating server with attributes: #{server_attrs}")
           server = compute_instance.servers.create(server_attrs)
           node.logger.debug("Waiting for server to become ready...")
