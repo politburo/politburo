@@ -14,7 +14,8 @@ module Politburo
 
 			has_state :defined
 
-			has_state :starting => :defined
+			has_state :created => :defined
+			has_state :starting => :created
 			has_state :started => :starting
 			has_state :configuring => :started
 			has_state :configured => :configuring

@@ -90,6 +90,7 @@ describe Politburo::Resource::Base do
 			expected_order = <<EXPECTED_ORDER
 Parent resource
 Parent resource#defined
+Parent resource#created
 Parent resource#starting
 Parent resource#started
 Parent resource#configuring
@@ -100,6 +101,7 @@ Parent resource#stopped
 Parent resource#terminated
 Parent resource:Child resource
 Parent resource:Child resource#defined
+Parent resource:Child resource#created
 Parent resource:Child resource#starting
 Parent resource:Child resource#started
 Parent resource:Child resource#configuring
@@ -110,6 +112,7 @@ Parent resource:Child resource#stopped
 Parent resource:Child resource#terminated
 Parent resource:Child resource:Sub Resource 1
 Parent resource:Child resource:Sub Resource 1#defined
+Parent resource:Child resource:Sub Resource 1#created
 Parent resource:Child resource:Sub Resource 1#starting
 Parent resource:Child resource:Sub Resource 1#started
 Parent resource:Child resource:Sub Resource 1#configuring
@@ -120,6 +123,7 @@ Parent resource:Child resource:Sub Resource 1#stopped
 Parent resource:Child resource:Sub Resource 1#terminated
 Parent resource:Child resource:Sub Resource 2
 Parent resource:Child resource:Sub Resource 2#defined
+Parent resource:Child resource:Sub Resource 2#created
 Parent resource:Child resource:Sub Resource 2#starting
 Parent resource:Child resource:Sub Resource 2#started
 Parent resource:Child resource:Sub Resource 2#configuring
@@ -149,7 +153,7 @@ EXPECTED_ORDER
 			end
 
 			it "should include both child resources and state resources" do
-				resource.contained_searchables.length.should == 11
+				resource.contained_searchables.length.should == 12
 			end
 
 			it "should include all child resources" do
