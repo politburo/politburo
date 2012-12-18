@@ -32,6 +32,21 @@ describe Politburo::Dependencies::Task do
     end
   end
 
+  context "logging" do
+    it "should have a log" do
+      task.should be_a Politburo::Support::HasLogger
+    end
+
+    it "should have a different default log formatter" do
+      task.log_formatter.call(Logger::ERROR, Time.now, "my prog", "error message").should include task.name
+    end
+
+    
+    it "should colorize the severity of the log message" do
+      task.log_formatter.call(:error, Time.now, "Test prog", "Message").should include "error".red
+    end
+  end
+
   context "#paths" do
     before :each do
       task.paths << :path1
@@ -155,14 +170,6 @@ describe Politburo::Dependencies::Task do
 
       task.should be_available_for_queueing
     end
-  end
-
-  context "#log_format" do
-    
-    it "should colorize the severity of the log message" do
-      task.log_format(:error, Time.now, "Test prog", "Message").should include "error".red
-    end
-
   end
 
   context "#step" do

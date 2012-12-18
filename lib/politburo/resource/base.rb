@@ -53,9 +53,8 @@ module Politburo
 			end
 
 			def log_formatter
-				base = self
-				@logger_format ||= lambda do |severity, datetime, progname, msg|
-            "#{datetime.to_s} #{base.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
+				@log_formatter ||= lambda do |severity, datetime, progname, msg|
+            "#{datetime.to_s} #{self.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
         end
 			end
 

@@ -1,6 +1,8 @@
 module Politburo
   module Dependencies
     module Task
+      include Politburo::Support::HasLogger
+
       def self.included(base)
         base.extend(ClassMethods)
       end
@@ -131,28 +133,10 @@ module Politburo
           task
       end
 
-      def log_format(severity, datetime, progname, msg)
-        "#{datetime.to_s} #{severity.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{self.name.white}\t#{msg}\n"
-      end
-
-      def logger
-        @logger ||= begin 
-          logger = Logger.new($stdout)
-          task = self
-          logger.level = Logger::INFO
-          logger.formatter = proc do |severity, datetime, progname, msg|
-            task.log_format(severity, datetime, progname, msg)
-          end
-          logger
+      def log_formatter
+        @log_formatter ||= lambda do |severity, datetime, progname, msg|
+          "#{datetime.to_s} #{severity.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{self.name.white}\t#{msg}\n"
         end
-      end
-
-      def severity_color()
-        {
-          debug: 37,
-          info: 36,
-          warn: 33,
-          error: 31, }
       end
 
       module ClassMethods
