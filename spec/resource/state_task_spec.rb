@@ -34,6 +34,16 @@ describe Politburo::Resource::StateTask do
     end
   end
 
+  context "logging" do
+    it "should have a log" do
+      resource.should be_a Politburo::Support::HasLogger
+    end
+
+    it "should have a different default log formatter" do
+      resource.log_formatter.call(Logger::ERROR, Time.now, "my prog", "error message").should include resource.full_name
+    end
+  end
+
   context "#stdout_console" do
     let (:console) { double("fake console") }
 
