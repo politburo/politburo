@@ -18,7 +18,8 @@ module Politburo
 
 				#require 'pry'
 				#state(:created).pry
-				state(:created).add_dependency_on(Politburo::Tasks::CreateTask.new(name: "Create #{self.full_name}", resource_state: state(:created)))
+				state(:created).add_dependency_on(Politburo::Tasks::CreateTask.new(name: "Create node #{self.full_name}", resource_state: state(:created)))
+				state(:starting).add_dependency_on(Politburo::Tasks::StartTask.new(name: "Start node #{self.full_name}", resource_state: state(:starting)))
 			end
 
 			def create_session
@@ -38,7 +39,7 @@ module Politburo
 			end
 
 			def cloud_server
-				cloud_provider.find_server_for(self)
+				@cloud_server.nil? ? ( @cloud_server = cloud_provider.find_server_for(self) ) : (@cloud_server = @cloud_server.reload )
 			end
 			
 		end

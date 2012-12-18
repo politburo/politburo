@@ -7,6 +7,22 @@ describe Politburo::Resource::Node do
 		Politburo::Resource::Node.new(parent_resource: parent_resource, name: "Node resource")
 	end
 
+  context "#initialize" do
+
+
+    it "should add a dependency on a creation task to the create state" do
+      node.state(:created).dependencies.should_not be_empty      
+      node.state(:created).tasks.should_not be_empty      
+      node.state(:created).tasks.first.should be_a Politburo::Tasks::CreateTask
+    end
+
+    it "should add a dependency on a start task to the start state" do
+      node.state(:starting).dependencies.should_not be_empty      
+      node.state(:starting).tasks.should_not be_empty
+      node.state(:starting).tasks.first.should be_a Politburo::Tasks::StartTask
+    end
+  end
+
   context "#provider" do
 
     it "should inherit provider" do

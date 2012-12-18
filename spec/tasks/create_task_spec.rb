@@ -6,7 +6,7 @@ describe Politburo::Tasks::CreateTask do
   let(:state) { node.state(:started) }
   let(:task) { Politburo::Tasks::CreateTask.new(name: 'Create', resource_state: state) }
 
-  let(:cloud_server) { double("cloud server") }
+  let(:cloud_server) { double("cloud server", dns_name: 'dns.amazon.com') }
 
   before :each do
     node.stub(:cloud_provider).and_return(provider)

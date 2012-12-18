@@ -1,1 +1,1 @@
---format=documentation --colour -r spec_helper
+--format=documentation --colour --tag ~skip -r spec_helper
