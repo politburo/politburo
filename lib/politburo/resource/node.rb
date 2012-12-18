@@ -15,6 +15,10 @@ module Politburo
 
 			def initialize(parent_resource)
 				super(parent_resource)
+
+				#require 'pry'
+				#state(:created).pry
+				state(:created).add_dependency_on(Politburo::Tasks::CreateTask.new(name: "Create #{self.full_name}", resource_state: state(:created)))
 			end
 
 			def create_session

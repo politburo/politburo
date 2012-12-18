@@ -63,8 +63,6 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.stub(:find_image).with(:image_selector).and_return(image)
 
       servers.stub(:create).with(kind_of(Hash)).and_return(server)
-      server.stub(:wait_for).and_yield()
-      server.stub(:ready?).and_return(true)
     end
 
     it "should use the compute instance to create the server" do
@@ -107,12 +105,6 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.create_server_for(node).should be server
     end
 
-    it "should wait until the server is ready" do
-      server.should_receive(:wait_for).and_yield()
-      server.should_receive(:ready?).and_return(true)
-
-      provider.create_server_for(node).should be server
-    end    
   end
 
   context "#images" do

@@ -4,7 +4,9 @@ describe Politburo::Tasks::CreateTask do
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
   let(:state) { node.state(:started) }
-  let(:task) { Politburo::Tasks::CreateTask.new(name: 'Start', resource_state: state) }
+  let(:task) { Politburo::Tasks::CreateTask.new(name: 'Create', resource_state: state) }
+
+  let(:cloud_server) { double("cloud server") }
 
   before :each do
     node.stub(:cloud_provider).and_return(provider)
@@ -19,48 +21,24 @@ describe Politburo::Tasks::CreateTask do
     end
 
     context "when the server has been created" do
-      let(:cloud_server) { double("cloud server") }
 
       before :each do
-        node.should_receive(:cloud_server).twice.and_return(cloud_server)
+        node.should_receive(:cloud_server).and_return(cloud_server)
       end
 
-      context "and started" do
-
-        it "should return true" do
-          cloud_server.should_receive(:ready?).and_return(true)
-
-          task.should be_met
-        end
-
-      end
-
-      context "not yet started" do
-        it "should return false" do
-          cloud_server.should_receive(:ready?).and_return(false)
-
-          task.should_not be_met
-        end
-
+      it "should return true" do
+        task.should be_met
       end
     end
+    
   end
 
   context "#meet" do
-    context "when the server has not been created yet" do
+
+    it "should use find or create server to return the server" do
+      provider.should_receive(:find_or_create_server_for).with(node).and_return(cloud_server)
+
+      task.meet
     end
-
-    context "when the server has been created" do
-      let(:cloud_server) { double("cloud server") }
-
-      before :each do
-      end
-
-      context "and started" do
-      end
-
-      context "not yet started" do
-      end
-    end    
   end
 end

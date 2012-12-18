@@ -3,9 +3,12 @@ module Politburo
     class CreateTask < Politburo::Resource::StateTask
 
       def met?
-        resource.cloud_server and resource.cloud_server.ready?
+        resource.cloud_server
       end
 
+      def meet
+        resource.cloud_provider.find_or_create_server_for(resource)
+      end
     end
   end
 end

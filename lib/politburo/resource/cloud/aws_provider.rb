@@ -24,9 +24,6 @@ module Politburo
           server_attrs = { flavor_id: flavor_for(node), image_id: image.id, tags: { "politburo:full_name" => node.full_name, 'Name' => node.full_name } }
           node.logger.info("Creating server with attributes: #{server_attrs}")
           server = compute_instance.servers.create(server_attrs)
-          node.logger.debug("Waiting for server to become ready...")
-          server.wait_for { server.ready? }
-          server
         end
 
         def images
