@@ -3,7 +3,10 @@ module Politburo
     class CreateTask < Politburo::Resource::StateTask
 
       def met?
-        resource.cloud_server
+        logger.info("Searching for existing server for node...")
+        server = resource.cloud_server
+        logger.debug("Identified existing server: #{server.inspect}") if (server)
+        server
       end
 
       def meet
