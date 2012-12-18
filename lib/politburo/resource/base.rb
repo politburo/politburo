@@ -2,31 +2,15 @@ module Politburo
 	module Resource
 		class Base
 			include Enumerable
+			include Politburo::Support::AccessorWithDefault
 			include Politburo::DSL::DslDefined
 			include Politburo::Resource::Searchable
 			include Politburo::Resource::HasStates
+			include Politburo::Support::HasLogger
 
 			attr_accessor :parent_resource
 			attr_accessor :name
 			attr_accessor :description
-
-			attr_accessor_with_default(:log_level) { Logger::INFO }
-
-			attr_accessor_with_default(:log_formatter) do
-        task = self
-				lambda do |severity, datetime, progname, msg|
-            "#{datetime.to_s} #{self.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
-        end
-			end
-
-			attr_accessor_with_default(:logger_output) { $stdout }
-
-			attr_reader_with_default(:logger) do
-				logger = Logger.new(self.logger_output)
-        logger.level = self.log_level
-        logger.formatter = self.log_formatter
-        logger
-			end
 
 			requires :name
 
@@ -68,6 +52,13 @@ module Politburo
 				# To be overriden by subclasses
 			end
 
+			def log_formatter
+				base = self
+				@logger_format ||= lambda do |severity, datetime, progname, msg|
+            "#{datetime.to_s} #{base.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
+        end
+			end
+
 			def each(&block)
 				block.call(self)
 				states.each(&block)
@@ -78,13 +69,6 @@ module Politburo
 				state(:ready).add_dependency_on(target)
 			end
 
-      def severity_color()
-        {
-          debug: 37,
-          info: 36,
-          warn: 33,
-          error: 31, }
-      end			
 		end
 
 	end

@@ -26,21 +26,6 @@ describe Politburo::Resource::Base do
 		resource.should_not be_valid
 	end
 
-	it "should have a default log level" do
-		resource.log_level.should be Logger::INFO
-	end
-
-	it "should have a logger" do
-		resource.logger.should_not be_nil
-	end
-
-	it "should use the log formatter" do
-		resource.logger_output = StringIO.new
-		resource.logger.info("This message should go through the log formatter")
-
-		resource.logger_output.string.should =~ /.*\tThis message should go through the log formatter/
-	end
-
 	it "should be searchable" do
 		resource.should be_a Politburo::Resource::Searchable
 	end
@@ -201,4 +186,13 @@ EXPECTED_ORDER
 		end
 	end
 
+	context "logging" do
+		it "should have a log" do
+			resource.should be_a Politburo::Support::HasLogger
+		end
+
+		it "should have a different default log formatter" do
+			resource.log_formatter.call(Logger::ERROR, Time.now, "my prog", "error message").should include resource.full_name
+		end
+	end
 end
