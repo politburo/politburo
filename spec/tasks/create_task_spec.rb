@@ -1,10 +1,10 @@
-describe Politburo::Tasks::StartTask do
+describe Politburo::Tasks::CreateTask do
 
   let(:provider) { double("cloud provider") }
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
   let(:state) { node.state(:started) }
-  let(:task) { Politburo::Tasks::StartTask.new(name: 'Start', resource_state: state) }
+  let(:task) { Politburo::Tasks::CreateTask.new(name: 'Start', resource_state: state) }
 
   before :each do
     node.stub(:cloud_provider).and_return(provider)
