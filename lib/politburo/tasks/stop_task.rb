@@ -23,7 +23,7 @@ module Politburo
           server.stop
         end
 
-        logger.info("Waiting for server: #{server.display_name.cyan} to stop...")
+        logger.info("Waiting for server #{server.display_name.cyan} to stop...")
         server.wait_for { state == "stopped" }
       end
     end
