@@ -64,7 +64,14 @@ module Politburo
 			end
 
 			def add_dependency_on(target)
-				state(:ready).add_dependency_on(target)
+				if target.respond_to?(:states)
+					states.each do | source_state |
+						source_state.add_dependency_on(target.state(source_state.name))
+					end
+				else
+					ready_state = state(:ready)
+					ready_state.add_dependency_on(target)
+				end
 			end
 
 		end

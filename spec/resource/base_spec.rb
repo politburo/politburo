@@ -67,10 +67,47 @@ describe Politburo::Resource::Base do
 		end
 
 		context "#add_dependency_on" do
+			let(:source) { Politburo::Resource::Base.new(name: 'Source') }
+			let(:target) { double("target of dependency") }
 			
-			it "should delegate to ready state's add_dependency_on with the target" do
-				resource.state(:ready).should_receive(:add_dependency_on).with( sub_resource_1.state(:configured) )
-				resource.add_dependency_on(sub_resource_1.state(:configured))
+ 			context "when the target does not have states" do
+
+				let (:ready_state) { double("ready_state") }
+
+				it "should delegate to ready state's add_dependency_on with the target" do
+					target.should_receive(:respond_to?).with(:states).and_return(false)
+					source.should_receive(:state).with(:ready) { ready_state }
+					ready_state.should_receive(:add_dependency_on) do | arg |
+						arg.should be target
+					end
+
+					source.add_dependency_on(target)
+				end
+			end
+
+			context "when the target has states," do
+				before :each do
+					target.should_receive(:respond_to?).with(:states).and_return(true)
+				end
+
+				let(:source_states) { Array.new(3) { | i | double("source state #{i}", name: "state_#{i}") } }
+
+				it "should iterate over the source's states and add a dependency on the target state of the same name" do
+					source.should_receive(:states).and_return(source_states)
+
+					source_states.each do | source_state |
+						target_state = double("Target's state: '#{source_state.name}'")
+
+						target.should_receive(:state).with(source_state.name).and_return(target_state)
+
+						source_state.should_receive(:add_dependency_on) do | dep_target |
+								dep_target.should be target_state
+						end
+					end
+
+					source.add_dependency_on(target)
+				end
+
 			end
 		end
 

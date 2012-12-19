@@ -21,6 +21,12 @@ describe Politburo::Resource::Node do
       node.state(:starting).tasks.should_not be_empty
       node.state(:starting).tasks.first.should be_a Politburo::Tasks::StartTask
     end
+
+    it "should add a dependency on a start task to the start state" do
+      node.state(:stopped).dependencies.should_not be_empty      
+      node.state(:stopped).tasks.should_not be_empty
+      node.state(:stopped).tasks.first.should be_a Politburo::Tasks::StopTask
+    end
   end
 
   context "#provider" do

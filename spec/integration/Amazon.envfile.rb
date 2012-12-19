@@ -1,4 +1,4 @@
-environment(name: 'Amazon', description: "Amazon integration test environment",
+environment(name: 'Amazon', description: "Amazon integration test environment", log_level: 1,
   provider: :aws, 
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
 

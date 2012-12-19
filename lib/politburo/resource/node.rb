@@ -20,6 +20,7 @@ module Politburo
 				#state(:created).pry
 				state(:created).add_dependency_on(Politburo::Tasks::CreateTask.new(name: "Create node #{self.full_name}", resource_state: state(:created)))
 				state(:starting).add_dependency_on(Politburo::Tasks::StartTask.new(name: "Start node #{self.full_name}", resource_state: state(:starting)))
+				state(:stopped).add_dependency_on(Politburo::Tasks::StopTask.new(name: "Stop node #{self.full_name}", resource_state: state(:stopped)))
 			end
 
 			def create_session

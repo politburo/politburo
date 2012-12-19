@@ -3,8 +3,8 @@ module Politburo
     class StartTask < Politburo::Resource::StateTask
 
       def met?
-        @server = resource.cloud_server
-        @server and @server.ready?
+        server = resource.cloud_server
+        server and server.ready?
       end
 
       def meet
