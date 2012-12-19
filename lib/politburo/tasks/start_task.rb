@@ -8,20 +8,21 @@ module Politburo
       end
 
       def meet
-        if (resource.cloud_server.state == "stopping")
-          resource.logger.info("Server is still stopping, will wait for it to fully stop before attempting to start it up again...")
-          resource.cloud_server.wait_for { state != "stopping" }
+        server = resource.cloud_server
+        if (server.state == "stopping")
+          logger.info("Server #{server.display_name.cyan} is still stopping, will wait for it to fully stop before attempting to start it up again...")
+          server.wait_for { state != "stopping" }
         end
 
-        if (resource.cloud_server.state == "stopped")
-          resource.logger.info("Server was stopped, requesting start now...")
-          resource.cloud_server.start 
+        if (server.state == "stopped")
+          logger.info("Server #{server.display_name.cyan} was stopped, requesting start now...")
+          server.start 
         end
 
-        resource.logger.info("Waiting for server to become available...")
-        result = resource.cloud_server.wait_for { ready? }
+        logger.info("Waiting for server #{server.display_name.cyan} to become available...")
+        result = server.wait_for { ready? }
 
-        resource.logger.info("Server is now available. Took #{result[:duration]} second(s).")
+        logger.info("Server is now available. Took #{result[:duration]} second(s).")
         true
       end
     end

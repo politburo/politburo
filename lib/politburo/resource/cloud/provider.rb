@@ -11,7 +11,15 @@ module Politburo
         end
 
         def compute_instance
-          @compute_instance ||= Fog::Compute.new(config)
+          @compute_instance ||= begin 
+            compute = Fog::Compute.new(config)
+
+            Fog::Compute::Server.class_eval do
+              include Politburo::Resource::Cloud::Server
+            end
+            
+            compute
+          end
         end
 
         def find_or_create_server_for(node)

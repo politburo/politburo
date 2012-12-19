@@ -5,10 +5,10 @@ module Politburo
       def met?
         server = resource.cloud_server
         if server.nil?
-          resource.logger.info("No server, so nothing to stop.")
+          logger.info("No server, so nothing to stop.")
           return true
-        elsif  %w(stopped stopping).include?(server.state)
-          resource.logger.info("Server #{server.id.cyan} already #{server.state}.")
+        elsif  %w(stopped).include?(server.state)
+          logger.info("Server #{server.display_name.cyan} is #{server.state}.")
           return true
         end
 
@@ -18,8 +18,12 @@ module Politburo
       def meet
         server = resource.cloud_server
         
-        resource.logger.info("Stopping server: #{server.dns_name.nil? ? server.id.cyan : server.dns_name.cyan}")
-        server.stop
+        if (server.state != "stopped")
+          logger.info("Stopping server: #{server.display_name.cyan}...")
+          server.stop
+        end
+
+        logger.info("Waiting for server: #{server.display_name.cyan} to stop...")
         server.wait_for { state == "stopped" }
       end
     end
