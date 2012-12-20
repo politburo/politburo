@@ -51,7 +51,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
   context "#create_server_for" do
     let(:logger) { double("fake logger", :info => true, :debug => true)}
-    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger)}
+    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger, :server_creation_overrides => nil)}
     let(:servers) { double("fake servers container") }
     let(:server) { double("fake created server") }
     let(:image) { double("fake image", :id => 'ami-00000') }
@@ -105,6 +105,16 @@ describe Politburo::Resource::Cloud::AWSProvider do
       provider.create_server_for(node).should be server
     end
 
+    it "should merge in the node's server_creation_overrides" do
+      node.should_receive(:server_creation_overrides).and_return(availability_zone: 'us-west-1c')
+
+      servers.should_receive(:create) do | properties | 
+        properties[:availability_zone].should eq 'us-west-1c'
+        server
+      end
+
+      provider.create_server_for(node).should be server      
+    end
   end
 
   context "#images" do

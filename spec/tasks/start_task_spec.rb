@@ -10,6 +10,7 @@ describe Politburo::Tasks::StartTask do
 
   before :each do
     node.stub(:cloud_provider).and_return(provider)
+    cloud_server.stub(:reload).and_return(cloud_server)
   end
 
   context "#met?" do

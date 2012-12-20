@@ -9,7 +9,6 @@ describe Politburo::Resource::Node do
 
   context "#initialize" do
 
-
     it "should add a dependency on a creation task to the create state" do
       node.state(:created).dependencies.should_not be_empty      
       node.state(:created).tasks.should_not be_empty      
@@ -79,6 +78,7 @@ describe Politburo::Resource::Node do
       node.cloud_provider.should be :cloud_provider
     end
   end
+
   context "#cloud_server" do
     let(:cloud_provider) { double("fake cloud provider") }
 
@@ -91,6 +91,15 @@ describe Politburo::Resource::Node do
 
       node.cloud_server.should be :cloud_server
     end
+  end
+
+  context "#server_creation_overrides" do
+
+    it "should have an accessor for this property" do
+      node.server_creation_overrides = { :availability_zone => 'us-west-1c'}
+      node.server_creation_overrides.should eq ({ :availability_zone => 'us-west-1c'})
+    end
+
   end
 
   context "#session" do
