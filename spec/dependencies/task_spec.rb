@@ -172,6 +172,15 @@ describe Politburo::Dependencies::Task do
     end
   end
 
+  context "#verify_met?" do
+
+    it "by default, it should call met?" do
+      task.should_receive(:met?).and_return(false)
+
+      task.verify_met?.should be false
+    end
+  end
+
   context "#step" do
 
     before :each do

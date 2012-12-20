@@ -21,10 +21,8 @@ module Politburo
         if (server.state != "stopped")
           logger.info("Stopping server: #{server.display_name.cyan}...")
           server.stop
-        else
-          logger.info("Waiting for server #{server.display_name.cyan} to stop...")
         end
-        
+
         server.wait_for { state == "stopped" }
       end
     end
