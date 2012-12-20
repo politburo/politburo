@@ -51,12 +51,12 @@ describe Politburo::Resource::Node do
 
   end
 
-  context "#availability_zone" do
+  context "#region" do
 
-    it "should inherit availability_zone" do
-      parent_resource.should_receive(:availability_zone).and_return(:us_west_1)
+    it "should inherit region" do
+      parent_resource.should_receive(:region).and_return(:us_west_1)
 
-      node.availability_zone.should be :us_west_1
+      node.region.should be :us_west_1
     end
 
   end

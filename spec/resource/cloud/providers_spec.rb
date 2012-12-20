@@ -13,7 +13,7 @@ describe Politburo::Resource::Cloud::Providers do
 
       let(:provider_type) { :fakecloud }
       let(:provider_config) { { configuration: 'of some sort'} }
-      let(:resource) { double("fake resource", :provider => provider_type, :provider_config => provider_config, :availability_zone => 'az-0')}
+      let(:resource) { double("fake resource", :provider => provider_type, :provider_config => provider_config, :region => 'az-0')}
       let(:provider_instance) { Politburo::Resource::Cloud::Providers.for(resource) }
 
       let(:fake_cloud_provider_class) do

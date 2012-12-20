@@ -188,7 +188,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
   context "class methods" do
 
     let(:provider_config) { { configuration: 'of some sort'} }
-    let(:resource) { double("fake resource", :provider_config => provider_config, :availability_zone => 'az-0')}
+    let(:resource) { double("fake resource", :provider_config => provider_config, :region => 'az-0')}
 
     context "#for" do
       let(:provider_instance) { Politburo::Resource::Cloud::AWSProvider.for(resource) }
@@ -209,7 +209,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
 
     context "#config_for" do
 
-      it "should merge the resource's availability_zone and provider_config" do
+      it "should merge the resource's region and provider_config" do
         Politburo::Resource::Cloud::AWSProvider.config_for(resource).should eq({ :provider => 'AWS', :region => 'az-0', :configuration => 'of some sort' })
       end
 

@@ -8,7 +8,7 @@ module Politburo
 
 			inherits :provider
 			inherits :provider_config
-			inherits :availability_zone
+			inherits :region
 
 			requires :provider
 			requires :parent_resource

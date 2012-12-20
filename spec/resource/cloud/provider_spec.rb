@@ -95,7 +95,7 @@ describe Politburo::Resource::Cloud::Provider do
     context "#for" do
 
       let(:provider_config) { { configuration: 'of some sort'} }
-      let(:resource) { double("fake resource", :provider_config => provider_config, :availability_zone => 'az-0')}
+      let(:resource) { double("fake resource", :provider_config => provider_config, :region => 'az-0')}
       let(:provider_instance) { Politburo::Resource::Cloud::Provider.for(resource) }
 
       before :each do

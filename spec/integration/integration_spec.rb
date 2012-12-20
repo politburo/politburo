@@ -13,7 +13,7 @@ describe "End to end test", :end_to_end => true do
 		end
 
 		let(:test_host) do
-			cli.root.context.lookup(name: "Primary host in zone", availability_zone: 'ap-southeast-2')
+			cli.root.context.lookup(name: "Primary host in zone", region: 'ap-southeast-2')
 		end
 
 		context "#ready" do
