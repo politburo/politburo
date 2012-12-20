@@ -2,11 +2,15 @@ module Politburo
   module Tasks
     class CreateTask < Politburo::Resource::StateTask
 
-      def met?
-        logger.info("Searching for existing server for node...")
+      def met?(verification = false)
+        logger.info("Searching for existing server for node...") unless verification
         server = resource.cloud_server
-        logger.info("Identified existing server: #{server.display_name.cyan}") if (server)
+        logger.info("Identified existing server: #{server.display_name.cyan}") if (server) and (!verification)
         server
+      end
+
+      def verify_met?
+        met?(true)
       end
 
       def meet

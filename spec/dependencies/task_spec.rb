@@ -290,7 +290,7 @@ describe Politburo::Dependencies::Task do
       end
 
       it "should verify is met, and if it isn't, it should be marked as failed" do
-        task.should_receive(:met?).and_return(false)
+        task.should_receive(:verify_met?).and_return(false)
         task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Task 'test-task' failed as its criteria hasn't been met after executing."

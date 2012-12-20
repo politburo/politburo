@@ -23,7 +23,7 @@ module Politburo
           server.destroy
         end
 
-        logger.info("Waiting for server #{server.display_name.cyan} to terminate...")
+        logger.debug("Waiting for server #{server.display_name.cyan} to terminate...")
         server.wait_for { state == "terminated" }
       end
     end

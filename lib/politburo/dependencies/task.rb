@@ -83,6 +83,10 @@ module Politburo
         satisfied? and all_prerequisites_satisfied?
       end
 
+      def verify_met?
+        met?
+      end
+
       def step
         task = self
 
@@ -110,7 +114,7 @@ module Politburo
               if !task.meet
                 task.state = :failed
                 task.cause_of_failure = RuntimeError.new("Task '#{task.name}' failed as calling #meet() indicated failure by returning nil or false.")
-              elsif (task.met?)
+              elsif (task.verify_met?)
                 task.state = :satisfied
               else
                 task.state = :failed

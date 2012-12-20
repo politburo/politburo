@@ -17,11 +17,11 @@ module Politburo
         if (server.state == "stopped")
           logger.info("Server #{server.display_name.cyan} was stopped, requesting start now...")
           server.start 
+        else
+          logger.info("Waiting for server #{server.display_name.cyan} to become available...")
         end
 
-        logger.info("Waiting for server #{server.display_name.cyan} to become available...")
         result = server.wait_for { ready? }
-
         logger.info("Server #{server.reload.display_name.cyan} is now available. Took #{result[:duration]} second(s).")
         true
       end
