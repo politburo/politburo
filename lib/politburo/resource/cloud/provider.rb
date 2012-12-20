@@ -1,4 +1,5 @@
 require 'fog'
+require 'fog/compute/models/server'
 
 module Politburo
   module Resource

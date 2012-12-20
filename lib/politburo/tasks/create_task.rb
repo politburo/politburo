@@ -10,7 +10,9 @@ module Politburo
       end
 
       def meet
-        resource.cloud_provider.find_or_create_server_for(resource)
+        server = resource.cloud_provider.find_or_create_server_for(resource)
+        logger.info("\tCreated new server: #{server.display_name.cyan}") if (server)
+        server        
       end
     end
   end

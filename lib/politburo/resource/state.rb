@@ -36,6 +36,10 @@ module Politburo
 				@tasks ||= Set.new
 			end
 
+			def state_dependencies
+				dependencies.select { | dep | dep.is_a?(State) }
+			end
+
 			def release
 				# To be overriden by subclasses
 			end

@@ -2,7 +2,9 @@ require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
 require_relative 'lib/politburo/support/colorize'
 
-RSpec::Core::RakeTask.new(:spec)
+RSpec::Core::RakeTask.new(:spec) do | spec |
+  spec.rspec_opts = %w(--options .rspec-with-end-to-end)
+end
 
 task :default => "cover_me:report"
 
@@ -36,6 +38,12 @@ task :test do
   Rake::Task['cover_me:report'].invoke
 end
 
-task :spec do
+task :clean do
+  puts "Cleaning up coverage data..."
+  FileUtils.rm_rf('coverage')
+  FileUtils.rm_rf('coverage.data')
+end
+
+task :spec => :clean do
   Rake::Task['cover_me:report'].invoke
 end

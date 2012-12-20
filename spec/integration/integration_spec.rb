@@ -1,6 +1,6 @@
 require 'politburo'
 
-describe "End to end test" do
+describe "End to end test", :end_to_end => true do
 
   let (:cli) { Politburo::CLI.create(arguments) }
 
@@ -32,15 +32,15 @@ describe "End to end test" do
 			end
 		end
 
-		context "#stopped" do
-			let(:state_to_achieve) { "stopped" }
+		context "#terminated" do
+			let(:state_to_achieve) { "terminated" }
 
 			it "should run the envfile correctly" do
 				test_host.should_not be_nil
 				cli.run.should be_true
 
 				test_host.cloud_server.should_not be_nil
-				test_host.cloud_server.state.should == "stopped"
+				test_host.cloud_server.state.should == "terminated"
 			end
 		end
 

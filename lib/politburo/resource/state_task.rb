@@ -43,7 +43,7 @@ module Politburo
       end
 
       def prerequisites
-        dependencies.map(&:to_task)
+        Set.new(resource_state.state_dependencies.map(&:to_task) + dependencies.map(&:to_task))
       end
 
       def as_dependency 

@@ -66,6 +66,26 @@ describe Politburo::Resource::State do
 		end
 	end
 
+	context "#state_dependencies" do
+		let(:non_state_dependency) { double("non state dep") }
+
+		before :each do
+			state.dependencies.should be_empty
+			state.add_dependency_on(another_state)
+			state.add_dependency_on(resource)
+
+			non_state_dependency.stub(:as_dependency).and_return(non_state_dependency)
+			non_state_dependency.stub(:to_task).and_return(non_state_dependency)
+
+			state.add_dependency_on(non_state_dependency)
+		end
+
+		it "should return the dependencies of the state that are also states" do
+			state.state_dependencies.should == [ another_state, resource.state(:ready) ]
+		end
+	end
+
+
 	context "#full_name" do
 
 		it "should be constructed of the resource full name and the state name" do
