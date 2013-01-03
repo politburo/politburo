@@ -26,6 +26,12 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
 
     facet(name: name, region: region) do
       node(name: "Primary host in zone", server_creation_overrides: options) do
+        # state(:configured) {
+        #   remote_task(
+        #     name: 'install ruby',
+        #     command: 'sudo apt-get install ruby', 
+        #     met_test_command: 'which ruby') { }
+        # }
       end
     end
   end

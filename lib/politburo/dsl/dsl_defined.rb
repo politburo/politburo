@@ -77,7 +77,7 @@
 					alias_method original_name_sym, name_sym
 
 					define_method(name_sym) do
-						self.send(original_name_sym) || parent_resource.send(name_sym)
+						self.send(original_name_sym) || (parent_resource.nil? ? nil : parent_resource.send(name_sym))
 					end
 
 					attr_writer(name_sym)

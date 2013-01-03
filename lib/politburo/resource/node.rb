@@ -8,6 +8,8 @@ module Politburo
 
 			attr_accessor :server_creation_overrides
 
+			inherits :user
+
 			inherits :provider
 			inherits :provider_config
 			inherits :region

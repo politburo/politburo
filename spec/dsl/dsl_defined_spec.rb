@@ -128,7 +128,7 @@ describe Politburo::DSL::DslDefined do
 		let (:parent_resource) { double("parent resource") }
 
 		it "should define an instance getter that delegates to the parent resource if doesn't have a value" do
-			dsl_defined_obj.should_receive(:parent_resource).and_return(parent_resource)
+			dsl_defined_obj.should_receive(:parent_resource).twice.and_return(parent_resource)
 			parent_resource.should_receive(:provider).and_return(:parent_provider)
 
 			dsl_defined_obj.provider.should be :parent_provider

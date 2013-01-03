@@ -60,6 +60,16 @@ describe Politburo::Resource::Node do
 
   end
 
+  context "#user" do
+
+    it "should inherit user" do
+      parent_resource.should_receive(:user).and_return(:username)
+
+      node.user.should be :username
+    end
+
+  end
+
   context "#provider_config" do
 
     it "should inherit provider_config" do
