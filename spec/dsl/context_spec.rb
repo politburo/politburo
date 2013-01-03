@@ -46,14 +46,14 @@ describe Politburo::DSL::Context do
 			let (:context) { double("root context") }
 
 			before :each do
-				Politburo::Resource::Base.stub(:new).with(name: "").and_return(root)
+				Politburo::Resource::Root.stub(:new).with(name: "").and_return(root)
 				root.stub(:context).and_return(context)
 				context.stub(:define).with("string eval").and_return(root)
 				context.stub(:validate!)
 			end
 
 			it "should create a new root resource" do
-				Politburo::Resource::Base.should_receive(:new).with(name: "").and_return(root)
+				Politburo::Resource::Root.should_receive(:new).with(name: "").and_return(root)
 
 				Politburo::DSL.define("string eval") { "a block" }
 			end

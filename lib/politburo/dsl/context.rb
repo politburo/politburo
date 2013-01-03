@@ -111,7 +111,7 @@ module Politburo
 		end
 
 		def self.define(definition = nil, &block)
-			root_resource = Politburo::Resource::Base.new(name: "")
+			root_resource = Politburo::Resource::Root.new(name: "")
 			root_context = root_resource.context
 			root_context.define(definition, &block)
 			root_context.send(:validate!)
