@@ -8,7 +8,7 @@ describe Politburo::DSL::Context do
 			environment(name: "environment", provider: :aws) do
 				node(name: "node", provider: "m1.large") {}
 				node(name: "another node", provider: "m1.large") do
-					depends_on node(name: "node").state(:configured)
+					depends_on node(name: "node") { self.description= "node description" }.state(:configured)
 				end
 				node(name: "yet another node", provider: "m1.large") do
 					state(:configured) do
@@ -100,6 +100,9 @@ describe Politburo::DSL::Context do
 				yet_another_node.state(:configured).should be_dependent_on remote_task
 			end
 
+			it "should allow to modify the resource while finding it" do
+				node.description.should eq "node description"
+			end
 		end
 
 	end
@@ -280,8 +283,15 @@ describe Politburo::DSL::Context do
 			it "should delegate to the underlying receiver with all arguments" do
 				receiver.should_receive(:some_method_that_doesnt_exit).with(:param_a, :param_b)
 
-				context.some_method_that_doesnt_exit(:param_a, :param_b)
+				context.define { some_method_that_doesnt_exit(:param_a, :param_b) }
 			end
+
+			it "should delegate to the underlying receiver with all arguments" do
+				receiver.should_receive(:description=).with(:value)
+
+				context.description= :value
+			end
+
 		end
 	end
 end

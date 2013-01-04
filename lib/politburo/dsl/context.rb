@@ -34,15 +34,15 @@ module Politburo
 			end
 
 			def environment(attributes, &block)
-				define_or_lookup_receiver(::Politburo::Resource::Environment, attributes, &block)
+				find_or_create_resource(::Politburo::Resource::Environment, attributes, &block)
 			end
 
 			def node(attributes, &block)
-				define_or_lookup_receiver(::Politburo::Resource::Node, attributes, &block)
+				find_or_create_resource(::Politburo::Resource::Node, attributes, &block)
 			end
 
 			def facet(attributes, &block)
-				define_or_lookup_receiver(::Politburo::Resource::Facet, attributes, &block)
+				find_or_create_resource(::Politburo::Resource::Facet, attributes, &block)
 			end
 
 			def state(attributes, &block)
@@ -50,7 +50,7 @@ module Politburo
 			end
 
 			def remote_task(attributes, &block)
-				define_or_lookup_receiver(::Politburo::Tasks::RemoteTask, attributes, &block)
+				find_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block)
 			end
 
 			def depends_on(dependent_context)
@@ -115,16 +115,6 @@ module Politburo
 
 			def create_receiver(new_receiver_class, attributes)
 				new_receiver_class.new(attributes.merge(parent_resource: receiver)).context
-			end
-
-			def define_or_lookup_receiver(new_receiver_class, attributes, &block)
-				if (block_given?)
-					# Definition
-					create_and_define_resource(new_receiver_class, attributes, &block)
-				else
-					# Lookup
-					lookup_receiver(new_receiver_class, attributes, &block)
-				end
 			end
 
 			def lookup_receiver(new_receiver_class, name_or_attributes, &block)
