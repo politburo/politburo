@@ -132,11 +132,12 @@ describe Politburo::DSL::Context do
 
 		context "#lookup" do
 
-			let(:context_for_environment) { Politburo::DSL::Context.new(environment) }
-			let(:context_for_node) { Politburo::DSL::Context.new(node) }
+			let(:context_for_environment) { environment.context }
+			let(:context_for_node) { node.context }
 
-			it "should lookup first within a resource hierarchy" do
-				context_for_node.lookup(:class => Politburo::Resource::Node).receiver.should == node
+			it "should use find_one_by_attributes" do
+				context_for_node.should_receive(:find_one_by_attributes).with(class: Politburo::Resource::Node).and_return(context_for_node)
+				context_for_node.lookup(class: Politburo::Resource::Node).receiver.should be node
 			end
 
 			it "should lookup in parent's hierarchy next" do
@@ -147,6 +148,37 @@ describe Politburo::DSL::Context do
 				context_for_node.lookup(name: 'a node from another galaxy').receiver.should == another_environment_node
 			end
 
+			it "should raise error if found none" do
+				lambda { context_for_environment.lookup(name: 'Does not exist') }.should raise_error('Could not find receiver by attributes: {:name=>"Does not exist"}.')
+			end
+
+		end
+
+		context "#find_one_by_attributes" do
+
+			let(:context_for_environment) { environment.context }
+			let(:context_for_node) { node.context }
+
+			it "should lookup first within a resource hierarchy" do
+				context_for_node.find_one_by_attributes(class: Politburo::Resource::Node).receiver.should be node
+			end
+
+			it "should lookup in parent's hierarchy next" do
+				context_for_node.find_one_by_attributes(name: 'another node').receiver.should be another_node
+			end
+
+			it "should travel up to the root if neccessary" do
+				context_for_node.find_one_by_attributes(name: 'a node from another galaxy').receiver.should be another_environment_node
+			end
+
+			it "should raise error if found more than one" do
+				lambda { context_for_environment.find_one_by_attributes(class: Politburo::Resource::Node) }.should raise_error("Ambiguous receiver for attributes: {:class=>Politburo::Resource::Node}. Found: \"node\", \"another node\", \"yet another node\".")
+			end
+
+
+			it "should return nil if found none" do
+				context_for_environment.find_one_by_attributes(name: 'Does not exist').should be nil
+			end			
 		end
 
 		context "#method_missing" do

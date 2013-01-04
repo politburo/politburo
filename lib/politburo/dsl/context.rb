@@ -59,12 +59,21 @@ module Politburo
 			end
 
 			def lookup(find_attrs)
+				context = find_one_by_attributes(find_attrs)
+				raise "Could not find receiver by attributes: #{find_attrs}." if (context.nil?) 
+				context
+			end
+
+			def find_one_by_attributes(find_attrs)
 				receivers = receiver.find_all_by_attributes(find_attrs)
 				receivers.merge(receiver.parent_resource.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
-				receivers.merge(receiver.root.find_all_by_attributes(find_attrs)) if (receivers.empty?) and (!receiver.parent_resource.nil?)
-				raise "Could not find receiver by attributes: #{find_attrs.inspect}." if (receivers.empty?) 
-				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Founds: #{receivers.inspect}" if (receivers.size > 1) 
-				receivers.first.context			
+				if (receivers.empty?) and (!receiver.parent_resource.nil?)
+					receivers.merge(receiver.root.find_all_by_attributes(find_attrs)) 
+				end
+				return nil if receivers.empty?
+
+				raise "Ambiguous receiver for attributes: #{find_attrs}. Found: \"#{receivers.map(&:name).join("\", \"")}\"." if (receivers.size > 1) 
+				receivers.first.context
 			end
 
 			protected
@@ -74,6 +83,26 @@ module Politburo
 		  end
 
 			private
+
+			def find_attributes(new_receiver_class, name_or_attributes)
+				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
+				attributes.merge(:class => new_receiver_class)
+			end
+
+			def find_or_create_receiver(new_receiver_class, attributes, &block)
+				receivers = find_by_attributes(find_attributes(new_receiver_class, name_or_attributes))
+				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Found: #{receivers.inspect}" if (receivers.size > 1) 
+
+				return define_new_receiver(new_receiver_class, attributes, &block) if (receivers.empty?)
+
+				context = receivers.first.context
+
+				if (block_given?)
+					context.define(&block)
+				end
+
+				return context
+			end
 
 			def define_or_lookup_receiver(new_receiver_class, attributes, &block)
 				if (block_given?)
@@ -86,9 +115,7 @@ module Politburo
 			end
 
 			def lookup_receiver(new_receiver_class, name_or_attributes, &block)
-				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
-				find_attrs = attributes.merge(:class => new_receiver_class)
-				context = lookup(find_attrs)
+				context = lookup(find_attributes(new_receiver_class, name_or_attributes))
 				receiver = context.receiver
 
 				if (block_given?)
