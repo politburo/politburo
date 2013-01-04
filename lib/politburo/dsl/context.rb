@@ -53,9 +53,9 @@ module Politburo
 				define_or_lookup_receiver(::Politburo::Tasks::RemoteTask, attributes, &block)
 			end
 
-			def depends_on(state_context)
-				receiver.add_dependency_on(state_context.receiver)
-				state_context
+			def depends_on(dependent_context)
+				receiver.add_dependency_on(dependent_context.receiver)
+				dependent_context
 			end
 
 			def lookup(find_attrs)
@@ -76,38 +76,51 @@ module Politburo
 				receivers.first.context
 			end
 
+			def find_or_create_resource(new_receiver_class, attributes, &block)
+				find_and_define_resource(new_receiver_class, attributes, &block) || create_and_define_resource(new_receiver_class, attributes, &block)
+			end
+
+			def create_and_define_resource(new_receiver_class, attributes, &block)
+				context = create_receiver(new_receiver_class, attributes)
+				raise "No block given for defining a new receiver." unless block_given?
+
+				context.define(&block)
+
+				depends_on(context)
+
+				context
+			end
+
+			def find_and_define_resource(new_receiver_class, name_or_attributes, &block)
+				context = find_one_by_attributes(find_attributes(new_receiver_class, name_or_attributes))
+				return nil if context.nil?
+
+				if (block_given?)
+					context.define(&block)
+				end
+
+				context				
+			end
+
 			protected
 
 		  def validate!()
 		    receiver.each { | r | r.validate! }
 		  end
 
-			private
-
 			def find_attributes(new_receiver_class, name_or_attributes)
 				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
 				attributes.merge(:class => new_receiver_class)
 			end
 
-			def find_or_create_receiver(new_receiver_class, attributes, &block)
-				receivers = find_by_attributes(find_attributes(new_receiver_class, name_or_attributes))
-				raise "Ambiguous receiver for attributes: #{find_attrs.inspect}. Found: #{receivers.inspect}" if (receivers.size > 1) 
-
-				return define_new_receiver(new_receiver_class, attributes, &block) if (receivers.empty?)
-
-				context = receivers.first.context
-
-				if (block_given?)
-					context.define(&block)
-				end
-
-				return context
+			def create_receiver(new_receiver_class, attributes)
+				new_receiver_class.new(attributes.merge(parent_resource: receiver)).context
 			end
 
 			def define_or_lookup_receiver(new_receiver_class, attributes, &block)
 				if (block_given?)
 					# Definition
-					define_new_receiver(new_receiver_class, attributes, &block)
+					create_and_define_resource(new_receiver_class, attributes, &block)
 				else
 					# Lookup
 					lookup_receiver(new_receiver_class, attributes, &block)
@@ -116,21 +129,9 @@ module Politburo
 
 			def lookup_receiver(new_receiver_class, name_or_attributes, &block)
 				context = lookup(find_attributes(new_receiver_class, name_or_attributes))
-				receiver = context.receiver
-
 				if (block_given?)
 					context.define(&block)
 				end
-
-				context
-			end
-
-			def define_new_receiver(new_receiver_class, attributes, &block)
-				new_receiver = new_receiver_class.new(attributes.merge(parent_resource: receiver))
-				context = new_receiver.context
-				context.define(&block)
-
-				receiver.add_dependency_on(new_receiver)
 
 				context
 			end

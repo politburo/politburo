@@ -181,6 +181,100 @@ describe Politburo::DSL::Context do
 			end			
 		end
 
+		context "#find_or_create_resource" do
+			let(:context) { node.context }
+
+			before :each do
+				context.stub(:find_and_define_resource).with(:class, :attributes)
+			end
+
+			it "should attempt to find an existing receiver" do
+				context.should_receive(:find_and_define_resource).with(:class, :attributes).and_return(:existing_receiver)
+
+				context.find_or_create_resource(:class, :attributes) {}
+			end
+
+			context "when an existing receiver doesn't exist" do
+
+				it "should attempt to create a new one" do
+					context.should_receive(:find_and_define_resource).with(:class, :attributes).and_return(nil)
+					context.should_receive(:create_and_define_resource).with(:class, :attributes).and_return(:new_receiver)
+					context.find_or_create_resource(:class, :attributes).should be :new_receiver
+				end
+
+			end
+		end
+
+		context "#create_and_define_resource" do
+			let(:context) { node.context }
+			let(:new_receiver) { double("new receiver") }
+			let(:new_receiver_context) { double("new receiver context", receiver: new_receiver) }
+
+			before :each do
+				context.stub(:create_receiver).with(:class, :attributes).and_return(new_receiver_context)
+				new_receiver_context.stub(:define).and_yield
+				node.stub(:add_dependency_on).with(new_receiver)
+			end
+
+			it "should create a new receiver" do
+				context.should_receive(:create_receiver).with(:class, :attributes).and_return(new_receiver_context)
+
+				(context.create_and_define_resource(:class, :attributes) {}).should be new_receiver_context
+			end
+
+			it "should raise an error if no block was given" do
+				lambda {context.create_and_define_resource(:class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new receiver."
+			end
+
+			it "should call define on the context" do
+				new_receiver_context.should_receive(:define).and_yield
+
+				(context.create_and_define_resource(:class, :attributes) { }).should be new_receiver_context
+			end
+
+			it "should add a dependency on the new receiver" do
+				node.should_receive(:add_dependency_on).with(new_receiver)
+
+				(context.create_and_define_resource(:class, :attributes) {}).should be new_receiver_context
+			end
+		end
+
+		context "#find_and_define_resource" do
+			let(:context) { node.context }
+			let(:existing_resource) { double("existing resource") }
+			let(:existing_resource_context) { double("existing resource context", receiver: existing_resource) }
+
+			before :each do
+				context.stub(:find_attributes).with(:class, :attributes).and_return(:find_attrs)
+				context.stub(:find_one_by_attributes).with(:find_attrs).and_return(nil)
+			end
+
+			it "should use find_attributes to construct the attributes to use for finding the resource" do
+				context.should_receive(:find_attributes).with(:class, :attributes).and_return(:find_attrs)
+
+				context.find_and_define_resource(:class, :attributes).should be nil
+			end
+
+			it "should attempt to find resource by attributes" do
+				context.should_receive(:find_one_by_attributes).with(:find_attrs).and_return(nil)
+
+				context.find_and_define_resource(:class, :attributes).should be nil
+			end
+
+			context "when resource is found" do
+				before :each do
+					context.stub(:find_one_by_attributes).with(:find_attrs).and_return(existing_resource_context)
+				end
+
+				it "should call define on its context" do
+					existing_resource_context.should_receive(:define).and_yield
+
+					context.find_and_define_resource(:class, :attributes) {} .should be existing_resource_context
+				end
+			end
+
+		end
+
 		context "#method_missing" do
 
 			it "should delegate to the underlying receiver with all arguments" do
