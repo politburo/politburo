@@ -39,7 +39,7 @@ module Politburo
 					if match_to.is_a?(Proc)
 						return false unless match_to.call(obj, attr_name, value)
 					elsif match_to.is_a?(Regexp)
-						return false unless match_to.match(value)
+						return false unless match_to.match(value.to_s)
 					else
 						return false unless match_to.eql?(value) or match_to.to_s.eql?(value.to_s)
 					end

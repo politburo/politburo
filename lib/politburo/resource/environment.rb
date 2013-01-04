@@ -31,9 +31,8 @@ module Politburo
       def remote_task(attributes, &block)
         find_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block)
       end
-      
-    end
 
+    end
 
 	end
 end
