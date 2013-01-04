@@ -12,6 +12,8 @@ describe Politburo::Resource::State do
 		state.should be_a Politburo::Resource::HasDependencies
 	end
 
+  it("should have its own context class") { state.context_class.should be Politburo::Resource::StateContext }
+
 	it "should require a name" do
 		state.should be_valid
 

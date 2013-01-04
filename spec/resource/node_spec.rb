@@ -7,6 +7,8 @@ describe Politburo::Resource::Node do
 		Politburo::Resource::Node.new(parent_resource: parent_resource, name: "Node resource")
 	end
 
+  it("should have its own context class") { node.context_class.should be Politburo::Resource::NodeContext }
+
   context "#initialize" do
 
     it "should add a dependency on a creation task to the create state" do

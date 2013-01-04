@@ -7,6 +7,8 @@ describe Politburo::Resource::Facet do
     Politburo::Resource::Facet.new(parent_resource: parent_resource, name: "Facet resource")
   end
 
+  it("should have its own context class") { facet.context_class.should be Politburo::Resource::FacetContext }
+
   context "#provider" do
 
     it "should inherit provider" do

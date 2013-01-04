@@ -33,26 +33,6 @@ module Politburo
 				@receiver.send(method, *args)
 			end
 
-			def environment(attributes, &block)
-				find_or_create_resource(::Politburo::Resource::Environment, attributes, &block)
-			end
-
-			def node(attributes, &block)
-				find_or_create_resource(::Politburo::Resource::Node, attributes, &block)
-			end
-
-			def facet(attributes, &block)
-				find_or_create_resource(::Politburo::Resource::Facet, attributes, &block)
-			end
-
-			def state(attributes, &block)
-				lookup_and_define_resource(::Politburo::Resource::State, attributes, &block)
-			end
-
-			def remote_task(attributes, &block)
-				find_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block)
-			end
-
 			def depends_on(dependent_context)
 				receiver.add_dependency_on(dependent_context.receiver)
 				dependent_context

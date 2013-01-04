@@ -54,9 +54,11 @@ describe Politburo::DSL::DslDefined do
 
 	context "#context" do
 		let (:context) { dsl_defined_obj.context }
+		let (:context_class) { double("context class")}
 
 		it "should lazily instantiante and return a context with this dsl defined object as the receiver" do
-			Politburo::DSL::Context.should_receive(:new).with(dsl_defined_obj).and_return(:context_obj)
+			dsl_defined_obj.should_receive(:context_class).and_return(context_class)
+			context_class.should_receive(:new).with(dsl_defined_obj).and_return(:context_obj)
 
 			dsl_defined_obj.context.should_not be_nil
 			dsl_defined_obj.context.should be context

@@ -48,7 +48,15 @@ module Politburo
 				@cloud_server.nil? ? ( @cloud_server = cloud_provider.find_server_for(self) ) : (@cloud_server = @cloud_server.reload )
 			end
 			
-		end
-	end
+      def context_class
+        NodeContext
+      end
+
+    end
+
+    class NodeContext < Politburo::Resource::FacetContext
+    end
+
+  end
 end
 

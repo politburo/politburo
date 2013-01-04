@@ -24,8 +24,8 @@ module Politburo
 				self.resource
 			end
 
-			def context
-				@context ||= StateContext.new(self)
+			def context_class
+				StateContext
 			end
 
 			def contained_searchables
@@ -58,9 +58,6 @@ module Politburo
 
 			attr_writer :resource
 
-		end
-
-		class StateContext < Politburo::DSL::Context
 		end
 
 	end

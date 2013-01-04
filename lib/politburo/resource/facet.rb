@@ -12,7 +12,15 @@ module Politburo
         super(parent_resource)
       end
 
+      def context_class
+        FacetContext
+      end
+
     end
+
+    class FacetContext < Politburo::Resource::EnvironmentContext
+    end
+
   end
 end
 
