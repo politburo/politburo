@@ -46,7 +46,7 @@ module Politburo
 			end
 
 			def state(attributes, &block)
-				lookup_receiver(::Politburo::Resource::State, attributes, &block)
+				lookup_and_define_resource(::Politburo::Resource::State, attributes, &block)
 			end
 
 			def remote_task(attributes, &block)
@@ -102,6 +102,15 @@ module Politburo
 				context				
 			end
 
+			def lookup_and_define_resource(new_receiver_class, name_or_attributes, &block)
+				context = lookup(find_attributes(new_receiver_class, name_or_attributes))
+				if (block_given?)
+					context.define(&block)
+				end
+
+				context
+			end
+
 			protected
 
 		  def validate!()
@@ -115,15 +124,6 @@ module Politburo
 
 			def create_receiver(new_receiver_class, attributes)
 				new_receiver_class.new(attributes.merge(parent_resource: receiver)).context
-			end
-
-			def lookup_receiver(new_receiver_class, name_or_attributes, &block)
-				context = lookup(find_attributes(new_receiver_class, name_or_attributes))
-				if (block_given?)
-					context.define(&block)
-				end
-
-				context
 			end
 
 		end

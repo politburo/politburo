@@ -278,6 +278,40 @@ describe Politburo::DSL::Context do
 
 		end
 
+
+		context "#lookup_and_define_resource" do
+			let(:context) { node.context }
+			let(:existing_resource) { double("existing resource") }
+			let(:existing_resource_context) { double("existing resource context", receiver: existing_resource) }
+
+			before :each do
+				context.stub(:find_attributes).with(:class, :attributes).and_return(:find_attrs)
+				context.stub(:lookup).with(:find_attrs).and_return(existing_resource_context)
+			end
+
+			it "should use find_attributes to construct the attributes to use for finding the resource" do
+				context.should_receive(:find_attributes).with(:class, :attributes).and_return(:find_attrs)
+
+				context.lookup_and_define_resource(:class, :attributes).should be existing_resource_context
+			end
+
+			it "should attempt to find resource by attributes" do
+				context.should_receive(:lookup).with(:find_attrs).and_return(existing_resource_context)
+
+				context.lookup_and_define_resource(:class, :attributes).should be existing_resource_context
+			end
+
+			context "when resource is found" do
+
+				it "should call define on its context" do
+					existing_resource_context.should_receive(:define).and_yield
+
+					context.lookup_and_define_resource(:class, :attributes) {} .should be existing_resource_context
+				end
+			end
+
+		end
+
 		context "#method_missing" do
 
 			it "should delegate to the underlying receiver with all arguments" do
