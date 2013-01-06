@@ -1,13 +1,13 @@
 require 'fog'
 
 module Politburo
-  module Resource
+  module Plugins
     module Cloud
       class Providers
 
         def self.provider_types
           {
-            aws: Politburo::Resource::Cloud::AWSProvider
+            aws: Politburo::Plugins::Cloud::AWSProvider
           }
         end
 

@@ -1,5 +1,5 @@
-describe Politburo::Resource::Cloud::Server do 
-  let(:klass) { Class.new { include Politburo::Resource::Cloud::Server }}
+describe Politburo::Plugins::Cloud::Server do 
+  let(:klass) { Class.new { include Politburo::Plugins::Cloud::Server }}
 
   let(:server) { klass.new() }
 

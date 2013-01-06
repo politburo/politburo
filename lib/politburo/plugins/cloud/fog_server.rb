@@ -1,10 +1,7 @@
 # Monkey patch to provide a display name to servers irrespectively of provider
 module Politburo
-
-  module Resource
-
+  module Plugins
     module Cloud
-
       module Server
 
         def display_name
@@ -21,7 +18,5 @@ module Politburo
 
       end
     end
-
   end
-
 end

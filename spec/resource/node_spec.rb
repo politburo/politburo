@@ -85,7 +85,7 @@ describe Politburo::Resource::Node do
   context "#cloud_provider" do
 
     it "should use the Provider class to ask for the provider from the pool, based on the type and config" do
-      Politburo::Resource::Cloud::Providers.should_receive(:for).with(node).and_return(:cloud_provider)
+      Politburo::Plugins::Cloud::Providers.should_receive(:for).with(node).and_return(:cloud_provider)
 
       node.cloud_provider.should be :cloud_provider
     end

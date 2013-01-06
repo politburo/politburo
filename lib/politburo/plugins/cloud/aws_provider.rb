@@ -1,5 +1,5 @@
 module Politburo
-  module Resource
+  module Plugins
     module Cloud
       class AWSProvider < Provider
 

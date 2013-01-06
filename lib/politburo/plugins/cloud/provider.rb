@@ -2,7 +2,7 @@ require 'fog'
 require 'fog/compute/models/server'
 
 module Politburo
-  module Resource
+  module Plugins
     module Cloud
       class Provider
         attr_reader :config
@@ -16,7 +16,7 @@ module Politburo
             compute = Fog::Compute.new(config)
 
             Fog::Compute::Server.class_eval do
-              include Politburo::Resource::Cloud::Server
+              include Politburo::Plugins::Cloud::Server
             end
             
             compute

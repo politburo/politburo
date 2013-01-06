@@ -1,6 +1,6 @@
-describe Politburo::Resource::Cloud::AWSProvider do
+describe Politburo::Plugins::Cloud::AWSProvider do
   let(:config) { { :fake_config => 'something' } }
-  let(:provider) { Politburo::Resource::Cloud::AWSProvider.new(config) }
+  let(:provider) { Politburo::Plugins::Cloud::AWSProvider.new(config) }
   let(:compute_instance) { double("fake compute instance")}
 
   before :each do
@@ -201,18 +201,18 @@ describe Politburo::Resource::Cloud::AWSProvider do
     let(:resource) { double("fake resource", :provider_config => provider_config, :region => 'az-0')}
 
     context "#for" do
-      let(:provider_instance) { Politburo::Resource::Cloud::AWSProvider.for(resource) }
+      let(:provider_instance) { Politburo::Plugins::Cloud::AWSProvider.for(resource) }
 
       before :each do
-        Politburo::Resource::Cloud::AWSProvider.stub(:config_for).with(resource).and_return(:a_config_for_the_resource)
+        Politburo::Plugins::Cloud::AWSProvider.stub(:config_for).with(resource).and_return(:a_config_for_the_resource)
       end
 
       it "should use the resource to build a configuration and pool the instance require for it" do
-        Politburo::Resource::Cloud::AWSProvider.should_receive(:config_for).with(resource).and_return(:a_config_for_the_resource)
-        Politburo::Resource::Cloud::AWSProvider.should_receive(:new).with(:a_config_for_the_resource) { double("a new provider instance" )}
+        Politburo::Plugins::Cloud::AWSProvider.should_receive(:config_for).with(resource).and_return(:a_config_for_the_resource)
+        Politburo::Plugins::Cloud::AWSProvider.should_receive(:new).with(:a_config_for_the_resource) { double("a new provider instance" )}
 
         provider_instance.should_not be_nil
-        Politburo::Resource::Cloud::AWSProvider.for(resource).should be provider_instance
+        Politburo::Plugins::Cloud::AWSProvider.for(resource).should be provider_instance
       end
 
     end
@@ -220,7 +220,7 @@ describe Politburo::Resource::Cloud::AWSProvider do
     context "#config_for" do
 
       it "should merge the resource's region and provider_config" do
-        Politburo::Resource::Cloud::AWSProvider.config_for(resource).should eq({ :provider => 'AWS', :region => 'az-0', :configuration => 'of some sort' })
+        Politburo::Plugins::Cloud::AWSProvider.config_for(resource).should eq({ :provider => 'AWS', :region => 'az-0', :configuration => 'of some sort' })
       end
 
     end

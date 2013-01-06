@@ -24,7 +24,7 @@ describe "End to end test", :end_to_end => true do
 			let(:state_to_achieve) { "ready" }
 
 			it "should have an AWS cloud provider" do
-				test_host.cloud_provider.should be_a Politburo::Resource::Cloud::AWSProvider
+				test_host.cloud_provider.should be_a Politburo::Plugins::Cloud::AWSProvider
 			end
 
 			it "should run the envfile correctly" do
