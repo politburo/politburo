@@ -9,6 +9,11 @@ module Politburo
       def context_class
         RootContext
       end
+
+      def apply_plugins
+        find_all_by_attributes(class: lambda { | obj, attr_name, value | obj.respond_to?(:apply) } ).map(&:apply)
+      end
+
     end
 
     class RootContext < Politburo::DSL::Context

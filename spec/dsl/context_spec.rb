@@ -40,43 +40,6 @@ describe Politburo::DSL::Context do
 	let(:another_environment_node) { another_environment.find_all_by_attributes(:class => Politburo::Resource::Node).first }
 	
 	context "::define" do
-		context "unit test" do
-
-			let (:root) { double("root resource") }
-			let (:context) { double("root context") }
-
-			before :each do
-				Politburo::Resource::Root.stub(:new).with(name: "").and_return(root)
-				root.stub(:context).and_return(context)
-				context.stub(:define).with("string eval").and_return(root)
-				context.stub(:validate!)
-			end
-
-			it "should create a new root resource" do
-				Politburo::Resource::Root.should_receive(:new).with(name: "").and_return(root)
-
-				Politburo::DSL.define("string eval") { "a block" }
-			end
-
-			it "should create a new root context" do
-				root.should_receive(:context).and_return(context)
-
-				Politburo::DSL.define("string eval") { "a block" }
-			end
-
-			it "should call define on the root context" do
-				context.should_receive(:define).with("string eval").and_return(root)
-
-				Politburo::DSL.define("string eval") { "a block" }
-			end
-
-			it "should call validate on the root context" do
-				context.should_receive(:validate!)
-
-				Politburo::DSL.define("string eval") { "a block" }
-			end
-
-		end
 
 		context "effects test" do
 			it "should allow you to define a resource hierarchy" do

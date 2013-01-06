@@ -7,4 +7,18 @@ describe Politburo::Resource::Root do
 
   it("should not have a parent resource") { root.parent_resource.should be nil }
   it("should be its own root") { root.root.should be root }
+
+  context "#apply_plugins" do
+    let(:plugin_one) { double("plugin 1") }
+    let(:plugin_two) { double("plugin 2") }
+
+    it "should iterate over every plugin and call its apply method" do
+      root.should_receive(:find_all_by_attributes).with(kind_of(Hash)).and_return([ plugin_one, plugin_two ])
+      plugin_one.should_receive(:apply)
+      plugin_two.should_receive(:apply)
+
+      root.apply_plugins
+    end
+
+  end
 end
