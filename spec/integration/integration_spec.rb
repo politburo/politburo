@@ -1,6 +1,6 @@
 require 'politburo'
 
-describe "End to end test", :end_to_end => true do
+describe "End to end test" do
 
   let (:cli) { Politburo::CLI.create(arguments) }
 
@@ -20,7 +20,21 @@ describe "End to end test", :end_to_end => true do
 			cli.root.context.lookup(name: "Primary host in zone", region: 'ap-southeast-2')
 		end
 
-		context "#ready" do
+		let(:number_of_hosts) { 8 }
+
+		context "#parsing" do
+			let(:state_to_achieve) { "defined" }
+
+			it "should run the envfile correctly" do
+				test_host.should_not be_nil
+				cli.run.should be_true
+
+				cli.root.find_all_by_attributes(class: /Node/).size.should be number_of_hosts
+			end
+		end
+
+
+		context "#ready", :end_to_end => true do
 			let(:state_to_achieve) { "ready" }
 
 			it "should have an AWS cloud provider" do
@@ -36,7 +50,7 @@ describe "End to end test", :end_to_end => true do
 			end
 		end
 
-		context "#terminated" do
+		context "#terminated", :end_to_end => true do
 			let(:state_to_achieve) { "terminated" }
 
 			it "should run the envfile correctly" do

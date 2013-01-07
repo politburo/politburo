@@ -56,8 +56,12 @@ module Politburo
 				receivers.first.context
 			end
 
-			def find_or_create_resource(new_receiver_class, attributes, &block)
-				find_and_define_resource(new_receiver_class, attributes, &block) || create_and_define_resource(new_receiver_class, attributes, &block)
+			def lookup_or_create_resource(new_receiver_class, attributes, &block)
+				if block_given?
+					create_and_define_resource(new_receiver_class, attributes, &block)
+				else
+					lookup_and_define_resource(new_receiver_class, attributes, &block)
+				end
 			end
 
 			def create_and_define_resource(new_receiver_class, attributes, &block)

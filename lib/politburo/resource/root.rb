@@ -19,13 +19,13 @@ module Politburo
     class RootContext < Politburo::DSL::Context
 
       def environment(attributes, &block)
-        find_or_create_resource(::Politburo::Resource::Environment, attributes, &block)
+        lookup_or_create_resource(::Politburo::Resource::Environment, attributes, &block)
       end
 
       def plugin(attributes, &block)
         klass = attributes.delete(:class)
         attributes[:name] = klass.to_s
-        find_or_create_resource(klass, attributes, &block)
+        lookup_or_create_resource(klass, attributes, &block)
       end
 
     end    

@@ -12,10 +12,6 @@ module Politburo
 
 			requires :parent_resource
 
-			def initialize(parent_resource)
-				super(parent_resource)
-			end
-
 			def create_session
 				Net::SSH.start(host, user)
 			end

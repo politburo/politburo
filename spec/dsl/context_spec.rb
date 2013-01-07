@@ -8,7 +8,7 @@ describe Politburo::DSL::Context do
 			environment(name: "environment", provider: :aws) do
 				node(name: "node", provider: "m1.large") {}
 				node(name: "another node", provider: "m1.large") do
-					depends_on node(name: "node") { self.description= "node description" }.state(:configured)
+					depends_on node(name: "node").state(:configured)
 				end
 				node(name: "yet another node", provider: "m1.large") do
 					state(:configured) do
@@ -64,9 +64,6 @@ describe Politburo::DSL::Context do
 				yet_another_node.state(:configured).should be_dependent_on remote_task
 			end
 
-			it "should allow to modify the resource while finding it" do
-				node.description.should eq "node description"
-			end
 		end
 
 	end
@@ -148,28 +145,31 @@ describe Politburo::DSL::Context do
 			end			
 		end
 
-		context "#find_or_create_resource" do
+		context "#lookup_or_create_resource" do
 			let(:context) { node.context }
 
 			before :each do
-				context.stub(:find_and_define_resource).with(:class, :attributes)
+				context.stub(:lookup_and_define_resource).with(:class, :attributes)
 			end
 
-			it "should attempt to find an existing receiver" do
-				context.should_receive(:find_and_define_resource).with(:class, :attributes).and_return(:existing_receiver)
-
-				context.find_or_create_resource(:class, :attributes) {}
-			end
-
-			context "when an existing receiver doesn't exist" do
-
+			context "when block is given" do
 				it "should attempt to create a new one" do
-					context.should_receive(:find_and_define_resource).with(:class, :attributes).and_return(nil)
+					context.should_not_receive(:lookup_and_define_resource)
 					context.should_receive(:create_and_define_resource).with(:class, :attributes).and_return(:new_receiver)
-					context.find_or_create_resource(:class, :attributes).should be :new_receiver
+
+					context.lookup_or_create_resource(:class, :attributes) {}.should be :new_receiver
 				end
 
 			end
+
+			context "when block is not given" do
+				it "should attempt to find an existing receiver" do
+					context.should_receive(:lookup_and_define_resource).with(:class, :attributes).and_return(:existing_receiver)
+
+					context.lookup_or_create_resource(:class, :attributes).should be :existing_receiver
+				end
+			end
+
 		end
 
 		context "#create_and_define_resource" do

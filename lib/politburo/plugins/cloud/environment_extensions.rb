@@ -6,3 +6,9 @@ Politburo::Resource::Environment.class_eval do
   requires :provider
   
 end
+
+Politburo::Resource::EnvironmentContext.class_eval do
+  def security_group(attributes, &block)
+    lookup_or_create_resource(::Politburo::Plugins::Cloud::SecurityGroup, attributes, &block)
+  end
+end

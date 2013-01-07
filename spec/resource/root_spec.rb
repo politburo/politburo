@@ -26,8 +26,8 @@ describe Politburo::Resource::Root do
 
     context "#plugin" do
 
-      it "should call find_or_create_resource with the specified plugin class" do
-        root.context.should_receive(:find_or_create_resource).with(:class, name: 'class')
+      it "should call lookup_or_create_resource with the specified plugin class" do
+        root.context.should_receive(:lookup_or_create_resource).with(:class, name: 'class')
         root.context.plugin(class: :class)
       end
 

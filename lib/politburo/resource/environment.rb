@@ -12,11 +12,11 @@ module Politburo
     class EnvironmentContext < Politburo::Resource::RootContext
 
       def node(attributes, &block)
-        find_or_create_resource(::Politburo::Resource::Node, attributes, &block)
+        lookup_or_create_resource(::Politburo::Resource::Node, attributes, &block)
       end
 
       def facet(attributes, &block)
-        find_or_create_resource(::Politburo::Resource::Facet, attributes, &block)
+        lookup_or_create_resource(::Politburo::Resource::Facet, attributes, &block)
       end
 
       def state(attributes, &block)
@@ -24,7 +24,7 @@ module Politburo
       end
 
       def remote_task(attributes, &block)
-        find_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block)
+        lookup_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block)
       end
 
     end

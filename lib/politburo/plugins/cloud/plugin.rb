@@ -16,8 +16,12 @@ module Politburo
           node.state(:starting).add_dependency_on(Politburo::Tasks::StartTask.new(name: "Start server", resource_state: node.state(:starting)))
           node.state(:stopped).add_dependency_on(Politburo::Tasks::StopTask.new(name: "Stop server", resource_state: node.state(:stopped)))
           node.state(:terminated).add_dependency_on(Politburo::Tasks::TerminateTask.new(name: "Terminate server", resource_state: node.state(:terminated)))
+
+          node.context.define do
+            security_group(parent_resource: self.parent_resource, name: "Default Security Group") { }
+          end
         end
-        
+
       end
 
       Politburo::DSL.default_plugins << Politburo::Plugins::Cloud::Plugin

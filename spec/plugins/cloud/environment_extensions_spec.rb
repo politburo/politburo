@@ -17,5 +17,14 @@ describe Politburo::Resource::Environment, "cloud extensions" do
     environment.provider_config.should be {}
   end
 
+  describe Politburo::Resource::EnvironmentContext, "cloud extensions" do
+
+    context "#security_group" do
+
+      it { environment.context.security_group(name: 'Security Group') {}.receiver.should be_a Politburo::Plugins::Cloud::SecurityGroup }
+
+    end
+    
+  end
 end
 

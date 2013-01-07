@@ -3,10 +3,6 @@ module Politburo
     class Facet < Base
       requires :parent_resource
 
-      def initialize(parent_resource)
-        super(parent_resource)
-      end
-
       def context_class
         FacetContext
       end
