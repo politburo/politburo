@@ -1,7 +1,7 @@
 module Politburo
   module Plugins
     module Cloud
-      class Plugin < Politburo::Plugins::Plugin
+      class Plugin < Politburo::Plugins::Base
 
         def apply
           logger.debug("Applying Cloud Plug-in...")

@@ -1,6 +1,6 @@
 module Politburo
   module Plugins
-    class Plugin < Politburo::Resource::Base
+    class Base < Politburo::Resource::Base
 
       def apply
       end
