@@ -9,33 +9,6 @@ describe Politburo::Resource::Node do
 
   it("should have its own context class") { node.context_class.should be Politburo::Resource::NodeContext }
 
-  context "#initialize" do
-
-    it "should add a dependency on a creation task to the create state" do
-      node.state(:created).dependencies.should_not be_empty      
-      node.state(:created).tasks.should_not be_empty      
-      node.state(:created).tasks.first.should be_a Politburo::Tasks::CreateTask
-    end
-
-    it "should add a dependency on a start task to the start state" do
-      node.state(:starting).dependencies.should_not be_empty      
-      node.state(:starting).tasks.should_not be_empty
-      node.state(:starting).tasks.first.should be_a Politburo::Tasks::StartTask
-    end
-
-    it "should add a dependency on a stop task to the stopped state" do
-      node.state(:stopped).dependencies.should_not be_empty      
-      node.state(:stopped).tasks.should_not be_empty
-      node.state(:stopped).tasks.first.should be_a Politburo::Tasks::StopTask
-    end
-
-    it "should add a dependency on a terminate task to the terminated state" do
-      node.state(:terminated).dependencies.should_not be_empty      
-      node.state(:terminated).tasks.should_not be_empty
-      node.state(:terminated).tasks.first.should be_a Politburo::Tasks::TerminateTask
-    end
-  end
-
   context "#user" do
 
     it "should inherit user" do
