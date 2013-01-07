@@ -3,4 +3,8 @@ describe Politburo::Plugins::Cloud::Plugin do
 
   it { plugin.should be_a Politburo::Plugins::Plugin }
 
+  it "should add itself to the default plugins" do
+    Politburo::DSL.default_plugins.should include Politburo::Plugins::Cloud::Plugin
+  end
+
 end

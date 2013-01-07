@@ -8,6 +8,11 @@ module Politburo
       root_resource = Politburo::Resource::Root.new(name: "")
       root_context = root_resource.context
       root_context.define(definition, &block)
+
+      default_plugins.each do | plugin_class |
+        root_context.plugin(class: plugin_class) {}
+      end
+
       root_resource.apply_plugins
       root_context.send(:validate!)
 

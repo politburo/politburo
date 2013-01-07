@@ -15,13 +15,15 @@ module Politburo
 
 					has_state_obj = self
 
-					# Add superclass' state definitions
-					if (self.class.superclass.respond_to?(:state_definitions))
-						self.class.superclass.state_definitions.each { | state_definition | has_state_obj.define_state(state_definition) }
+					klazz = self.class
+					until (klazz.nil?)
+						if (klazz.respond_to?(:state_definitions))
+							klazz.state_definitions.each { | state_definition | has_state_obj.define_state(state_definition) }
+						end
+
+						klazz = klazz.superclass
 					end
 
-					# Add this class' state definitions
-					self.class.state_definitions.each { | state_definition | has_state_obj.define_state(state_definition) }
 				end
 
 				@states

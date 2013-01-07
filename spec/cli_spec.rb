@@ -30,6 +30,8 @@ ENVFILE_CONTENTS
     let(:node) { cli.root.find_all_by_attributes(name: :node).first }
     let(:another_node) { cli.root.find_all_by_attributes(name: "another node").first }
     let(:yet_another_node) { cli.root.find_all_by_attributes(name: "yet another node").first }
+    let(:environment) { cli.root.find_all_by_attributes(name: 'environment').first }
+    let(:another_environment) { cli.root.find_all_by_attributes(name: 'another environment').first }
 
     before(:each) do
       Kernel.stub(:exit).with(anything)
@@ -42,7 +44,8 @@ ENVFILE_CONTENTS
     context "#root" do
       it "should parse the envfile contents into the root context" do
         cli.root.should_not be_nil
-        cli.root.children.size.should == 2
+        cli.root.children.should include environment
+        cli.root.children.should include another_environment
       end
 
     end

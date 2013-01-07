@@ -45,7 +45,8 @@ describe Politburo::DSL::Context do
 			it "should allow you to define a resource hierarchy" do
 				root_definition.name.should eql("")
 				root_definition.children.should_not be_empty
-				root_definition.children.length.should == 2
+				root_definition.children.should include(environment)
+				root_definition.children.should include(another_environment)
 			end
 
 			it "defined hierarchy, should define an implicit state dependency" do
