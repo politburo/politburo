@@ -57,6 +57,41 @@ describe Politburo::Plugins::Cloud::Plugin do
       node.state(:terminated).tasks.first.should be_a Politburo::Tasks::TerminateTask
     end
 
+    context "security_group" do
+      let(:parent_resource) { double("parent resource") }
+      let(:context) { node.context }
+
+      let(:security_group_attrs) { { class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region } }
+      let(:security_group) { double(security_group_attrs) }
+
+      before :each do
+        node.stub(:parent_resource).and_return(parent_resource)
+        node.stub(:region).and_return(:region)
+
+        parent_resource.stub(:find_all_by_attributes).with(security_group_attrs).and_return([ security_group ])
+      end
+
+      it "should attempt to find a matching security group" do
+        parent_resource.should_receive(:find_all_by_attributes).with(security_group_attrs).and_return([ security_group ])
+
+        plugin.apply_to_node(node)
+      end
+
+      it "when it already exists, it should do nothing further" do
+        context.should_not_receive(:security_group)
+
+        plugin.apply_to_node(node)
+      end
+
+      it "when it doesn't exist, it should create it" do
+        parent_resource.should_receive(:find_all_by_attributes).with(security_group_attrs).and_return([])
+        context.should_receive(:security_group).with(name: "Default Security Group", region: node.region)
+
+        plugin.apply_to_node(node)
+      end
+
+    end
+
   end
 
 end

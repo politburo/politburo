@@ -18,7 +18,9 @@ module Politburo
           node.state(:terminated).add_dependency_on(Politburo::Tasks::TerminateTask.new(name: "Terminate server", resource_state: node.state(:terminated)))
 
           node.context.define do
-            security_group(parent_resource: self.parent_resource, name: "Default Security Group") { }
+            if !parent_resource.nil? and parent_resource.find_all_by_attributes(class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region).empty?
+              security_group(name: "Default Security Group", region: node.region) { }
+            end
           end
         end
 
