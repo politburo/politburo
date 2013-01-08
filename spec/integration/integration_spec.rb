@@ -22,31 +22,34 @@ describe "End to end test" do
 
 		let(:number_of_hosts) { 8 }
 
-		context "#parsing" do
-			let(:state_to_achieve) { "defined" }
+		let(:run) { cli.run }
 
-			it "should run the envfile correctly" do
-				test_host.should_not be_nil
-				cli.run.should be_true
-
-				cli.root.find_all_by_attributes(class: /Node/).size.should be number_of_hosts
-				cli.root.find_all_by_attributes(class: /SecurityGroup/).size.should be number_of_hosts
-			end
+		before(:each) do
+			run.should be_true
+			test_host.should_not be_nil
+			test_host.cloud_provider.should be_a Politburo::Plugins::Cloud::AWSProvider
 		end
 
+		context "#defined" do
+			let(:state_to_achieve) { "defined" }
+
+			let(:nodes) { cli.root.find_all_by_attributes(class: /Node/) }
+			let(:security_groups) { cli.root.find_all_by_attributes(class: /SecurityGroup/) }
+
+			it "define the elements correctly" do
+				nodes.size.should be number_of_hosts
+
+				security_groups.size.should be number_of_hosts
+				security_groups.each do | security_group |
+					security_group.parent_resource.should be_a Politburo::Resource::Facet
+				end
+			end
+		end
 
 		context "#ready", :end_to_end => true do
 			let(:state_to_achieve) { "ready" }
 
-			it "should have an AWS cloud provider" do
-				test_host.cloud_provider.should be_a Politburo::Plugins::Cloud::AWSProvider
-			end
-
-			it "should run the envfile correctly" do
-				test_host.should_not be_nil
-				cli.run.should be_true
-
-				test_host.cloud_server.should_not be_nil
+			it "should start the cloud server correctly" do
 				test_host.cloud_server.state.should == "running"
 			end
 		end
@@ -54,11 +57,7 @@ describe "End to end test" do
 		context "#terminated", :end_to_end => true do
 			let(:state_to_achieve) { "terminated" }
 
-			it "should run the envfile correctly" do
-				test_host.should_not be_nil
-				cli.run.should be_true
-
-				test_host.cloud_server.should_not be_nil
+			it "should terminate the cloud server correctly" do
 				test_host.cloud_server.state.should == "terminated"
 			end
 		end
