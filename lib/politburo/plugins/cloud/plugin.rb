@@ -12,10 +12,12 @@ module Politburo
         end
 
         def apply_to_node(node)
-          node.state(:created).add_dependency_on(Politburo::Tasks::CreateTask.new(name: "Create server", resource_state: node.state(:created)))
-          node.state(:starting).add_dependency_on(Politburo::Tasks::StartTask.new(name: "Start server", resource_state: node.state(:starting)))
-          node.state(:stopped).add_dependency_on(Politburo::Tasks::StopTask.new(name: "Stop server", resource_state: node.state(:stopped)))
-          node.state(:terminated).add_dependency_on(Politburo::Tasks::TerminateTask.new(name: "Terminate server", resource_state: node.state(:terminated)))
+          node.context.define do
+            state(name: :created,    parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::CreateTask,    name: "Create server")    {} }
+            state(name: :starting,   parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::StartTask,     name: "Start server")     {} }
+            state(name: :stopped,    parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::StopTask,      name: "Stop server")      {} }
+            state(name: :terminated, parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::TerminateTask, name: "Terminate server") {} }
+          end
 
           raise "Node without parent" if node.parent_resource.nil?
 
