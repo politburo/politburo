@@ -17,11 +17,14 @@ module Politburo
           node.state(:stopped).add_dependency_on(Politburo::Tasks::StopTask.new(name: "Stop server", resource_state: node.state(:stopped)))
           node.state(:terminated).add_dependency_on(Politburo::Tasks::TerminateTask.new(name: "Terminate server", resource_state: node.state(:terminated)))
 
-          node.context.define do
-            if !parent_resource.nil? and parent_resource.find_all_by_attributes(class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region).empty?
+          raise "Node without parent" if node.parent_resource.nil?
+
+          node.parent_resource.context.define do
+            if find_all_by_attributes({ class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region }).empty?
               security_group(name: "Default Security Group", region: node.region) { }
-            end
+            end              
           end
+
         end
 
       end

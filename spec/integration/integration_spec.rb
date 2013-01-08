@@ -30,6 +30,7 @@ describe "End to end test" do
 				cli.run.should be_true
 
 				cli.root.find_all_by_attributes(class: /Node/).size.should be number_of_hosts
+				cli.root.find_all_by_attributes(class: /SecurityGroup/).size.should be number_of_hosts
 			end
 		end
 

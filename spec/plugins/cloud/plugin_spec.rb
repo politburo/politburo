@@ -23,7 +23,15 @@ describe Politburo::Plugins::Cloud::Plugin do
   end
 
   context "#apply_to_node" do
-    let(:node) { Politburo::Resource::Node.new(name: 'test node') }
+    let(:root) { 
+      Politburo::Resource::Root.new(name: "").context.define { 
+        environment(name: 'an environment', provider: :provider ) { 
+          node(name: 'a node', region: 'a region') {} 
+        } 
+      }
+    }
+
+    let(:node) { root.context.lookup(name: 'a node') }
 
     it "should add a dependency on a creation task to the create state" do
       plugin.apply_to_node(node)
@@ -58,36 +66,41 @@ describe Politburo::Plugins::Cloud::Plugin do
     end
 
     context "security_group" do
-      let(:parent_resource) { double("parent resource") }
-      let(:context) { node.context }
+      let(:parent_resource) { node.parent_resource }
+      let(:parent_context) { parent_resource.context }
 
-      let(:security_group_attrs) { { class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region } }
+      let(:security_group_attrs) { { class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: 'a region' } }
       let(:security_group) { double(security_group_attrs) }
 
-      before :each do
-        node.stub(:parent_resource).and_return(parent_resource)
-        node.stub(:region).and_return(:region)
 
-        parent_resource.stub(:find_all_by_attributes).with(security_group_attrs).and_return([ security_group ])
+      context "when it already exists" do
+
+        before :each do
+          parent_resource.context.define do
+            security_group(name: "Default Security Group", region: 'a region') {}
+          end
+        end
+
+        it "it should do nothing further" do
+          parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
+
+          plugin.apply_to_node(node)
+
+          parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
+        end
+
       end
 
-      it "should attempt to find a matching security group" do
-        parent_resource.should_receive(:find_all_by_attributes).with(security_group_attrs).and_return([ security_group ])
+      context "when it doesn't exist" do
 
-        plugin.apply_to_node(node)
-      end
+        it "when it doesn't exist, it should create it" do
+          parent_resource.find_all_by_attributes(security_group_attrs).should be_empty
 
-      it "when it already exists, it should do nothing further" do
-        context.should_not_receive(:security_group)
+          plugin.apply_to_node(node)
 
-        plugin.apply_to_node(node)
-      end
+          parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
+        end
 
-      it "when it doesn't exist, it should create it" do
-        parent_resource.should_receive(:find_all_by_attributes).with(security_group_attrs).and_return([])
-        context.should_receive(:security_group).with(name: "Default Security Group", region: node.region)
-
-        plugin.apply_to_node(node)
       end
 
     end
