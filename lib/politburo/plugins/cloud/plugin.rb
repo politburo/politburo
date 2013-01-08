@@ -13,10 +13,10 @@ module Politburo
 
         def apply_to_node(node)
           node.context.define do
-            state(name: :created,    parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::CreateTask,    name: "Create server")    {} }
-            state(name: :starting,   parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::StartTask,     name: "Start server")     {} }
-            state(name: :stopped,    parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::StopTask,      name: "Stop server")      {} }
-            state(name: :terminated, parent_resource: receiver) { create_and_define_resource(Politburo::Tasks::TerminateTask, name: "Terminate server") {} }
+            state(name: :created,    parent_resource: receiver) { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CreateTask,    name: "Create server")    {} }
+            state(name: :starting,   parent_resource: receiver) { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StartTask,     name: "Start server")     {} }
+            state(name: :stopped,    parent_resource: receiver) { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StopTask,      name: "Stop server")      {} }
+            state(name: :terminated, parent_resource: receiver) { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::TerminateTask, name: "Terminate server") {} }
           end
 
           raise "Node without parent" if node.parent_resource.nil?

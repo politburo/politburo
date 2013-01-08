@@ -1,10 +1,10 @@
-describe Politburo::Tasks::StartTask do
+describe Politburo::Plugins::Cloud::Tasks::StartTask do
 
   let(:provider) { double("cloud provider") }
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
   let(:state) { node.state(:started) }
-  let(:task) { Politburo::Tasks::StartTask.new(name: 'Start', resource_state: state) }
+  let(:task) { Politburo::Plugins::Cloud::Tasks::StartTask.new(name: 'Start', resource_state: state) }
 
   let(:cloud_server) { double("cloud server", display_name: 'server.display.name') }
 

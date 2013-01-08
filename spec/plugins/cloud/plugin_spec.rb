@@ -38,7 +38,7 @@ describe Politburo::Plugins::Cloud::Plugin do
 
       node.state(:created).dependencies.should_not be_empty      
       node.state(:created).tasks.should_not be_empty      
-      node.state(:created).tasks.first.should be_a Politburo::Tasks::CreateTask
+      node.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CreateTask
     end
 
     it "should add a dependency on a start task to the start state" do
@@ -46,7 +46,7 @@ describe Politburo::Plugins::Cloud::Plugin do
 
       node.state(:starting).dependencies.should_not be_empty      
       node.state(:starting).tasks.should_not be_empty
-      node.state(:starting).tasks.first.should be_a Politburo::Tasks::StartTask
+      node.state(:starting).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::StartTask
     end
 
     it "should add a dependency on a stop task to the stopped state" do
@@ -54,7 +54,7 @@ describe Politburo::Plugins::Cloud::Plugin do
 
       node.state(:stopped).dependencies.should_not be_empty      
       node.state(:stopped).tasks.should_not be_empty
-      node.state(:stopped).tasks.first.should be_a Politburo::Tasks::StopTask
+      node.state(:stopped).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::StopTask
     end
 
     it "should add a dependency on a terminate task to the terminated state" do
@@ -62,7 +62,7 @@ describe Politburo::Plugins::Cloud::Plugin do
 
       node.state(:terminated).dependencies.should_not be_empty      
       node.state(:terminated).tasks.should_not be_empty
-      node.state(:terminated).tasks.first.should be_a Politburo::Tasks::TerminateTask
+      node.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::TerminateTask
     end
 
     context "security_group" do
