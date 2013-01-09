@@ -20,6 +20,10 @@ describe "End to end test" do
 			cli.root.context.lookup(name: "Primary host in zone", region: 'ap-southeast-2')
 		end
 
+  	let(:security_group) do
+  		cli.root.context.lookup(class: Politburo::Plugins::Cloud::SecurityGroup, parent_resource: test_host.parent_resource)
+  	end
+
 		let(:number_of_hosts) { 8 }
 
 		let(:run) { cli.run }
@@ -34,7 +38,7 @@ describe "End to end test" do
 			let(:state_to_achieve) { "defined" }
 
 			let(:nodes) { cli.root.find_all_by_attributes(class: /Node/) }
-			let(:security_groups) { cli.root.find_all_by_attributes(class: /SecurityGroup/) }
+			let(:security_groups) { cli.root.find_all_by_attributes(class: Politburo::Plugins::Cloud::SecurityGroup) }
 
 			it "define the elements correctly" do
 				nodes.size.should be number_of_hosts
@@ -49,8 +53,9 @@ describe "End to end test" do
 		context "#ready", :end_to_end => true do
 			let(:state_to_achieve) { "ready" }
 
-			it "should start the cloud server correctly" do
+			it "should start the cloud server correctly and set up the security group for it" do
 				test_host.cloud_server.state.should == "running"
+				security_group.cloud_security_group.should_not be_nil
 			end
 		end
 

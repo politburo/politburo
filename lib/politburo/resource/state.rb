@@ -32,6 +32,10 @@ module Politburo
 				dependencies
 			end			
 
+			def children
+				tasks
+			end
+
 			def tasks
 				@tasks ||= Set.new
 			end

@@ -102,6 +102,22 @@
 					)
 				end
 
+				def explicitly_implied
+					@explicitly_implied ||= []
+				end
+
+				def implies(&block)
+					explicitly_implied << block
+				end
+
+				def implied
+					implied = []
+					implied.push(*superclass.explicitly_implied) if (!superclass.nil?) and (superclass.respond_to?(:explicitly_implied))
+					implied.push(*explicitly_implied)
+
+					implied
+				end
+
 				private
 
 				def add_validation(name_sym, validation_lambda)

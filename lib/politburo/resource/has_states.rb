@@ -18,7 +18,9 @@ module Politburo
 					klazz = self.class
 					until (klazz.nil?)
 						if (klazz.respond_to?(:state_definitions))
-							klazz.state_definitions.each { | state_definition | has_state_obj.define_state(state_definition) }
+							klazz.state_definitions.each do | state_definition | 
+								has_state_obj.define_state(state_definition)
+							end
 						end
 
 						klazz = klazz.superclass

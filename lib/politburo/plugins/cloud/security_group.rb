@@ -7,6 +7,17 @@ module Politburo
         inherits :region
 
         requires :provider
+
+        implies {
+          state(:created) { 
+            create_and_define_resource(Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask, name: "Create security group") {} 
+          } 
+        }
+
+        def cloud_security_group
+          cloud_provider.find_security_group_for(self)
+        end
+
       end
     end
   end

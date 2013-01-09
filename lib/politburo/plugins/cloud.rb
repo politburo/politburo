@@ -5,6 +5,7 @@ require_relative 'cloud/aws_provider'
 require_relative 'cloud/providers'
 
 # Resources
+require_relative 'cloud/base_extensions'
 require_relative 'cloud/node_extensions'
 require_relative 'cloud/facet_extensions'
 require_relative 'cloud/environment_extensions'

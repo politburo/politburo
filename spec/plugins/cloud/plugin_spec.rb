@@ -70,8 +70,8 @@ describe Politburo::Plugins::Cloud::Plugin do
       let(:parent_context) { parent_resource.context }
 
       let(:security_group_attrs) { { class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: 'a region' } }
-      let(:security_group) { double(security_group_attrs) }
 
+      let(:security_group) { parent_resource.find_all_by_attributes(security_group_attrs).first }
 
       context "when it already exists" do
 
@@ -89,6 +89,14 @@ describe Politburo::Plugins::Cloud::Plugin do
           parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
         end
 
+        it "should have a create task" do
+          plugin.apply_to_node(node)
+          
+          security_group.state(:created).dependencies.should_not be_empty
+          security_group.state(:created).tasks.should_not be_empty
+          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask
+        end
+
       end
 
       context "when it doesn't exist" do
@@ -101,7 +109,17 @@ describe Politburo::Plugins::Cloud::Plugin do
           parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
         end
 
+        it "should have a create task" do
+          plugin.apply_to_node(node)
+
+          security_group.state(:created).dependencies.should_not be_empty
+          security_group.state(:created).tasks.should_not be_empty
+          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask
+        end
+
       end
+
+
 
     end
 

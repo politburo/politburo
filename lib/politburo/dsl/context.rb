@@ -29,6 +29,10 @@ module Politburo
 
 			alias :evaluate :define
 
+      def state(attributes, &block)
+        lookup_and_define_resource(::Politburo::Resource::State, attributes, &block)
+      end
+
 			def method_missing(method, *args)
 				@receiver.send(method, *args)
 			end
@@ -69,8 +73,12 @@ module Politburo
 				raise "No block given for defining a new receiver." unless block_given?
 
 				context.define(&block)
+				new_receiver_class.implied.each do | implied_proc |
+					context.define(&implied_proc)
+				end
 
 				depends_on(context)
+				receiver.children << context.receiver
 
 				context
 			end

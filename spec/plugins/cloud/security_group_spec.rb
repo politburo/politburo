@@ -41,4 +41,15 @@ describe Politburo::Plugins::Cloud::SecurityGroup do
 
   end
   
+  context "cloud_security_group" do
+    let(:provider) { double("provider") }
+
+    it "should use the provider to return the appropriate security group" do
+      security_group.should_receive(:cloud_provider).and_return(provider)
+      provider.should_receive(:find_security_group_for).with(security_group).and_return(:cloud_security_group)
+
+      security_group.cloud_security_group.should be :cloud_security_group
+    end
+  end
+
 end

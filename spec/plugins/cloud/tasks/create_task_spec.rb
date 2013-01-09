@@ -33,6 +33,14 @@ describe Politburo::Plugins::Cloud::Tasks::CreateTask do
     
   end
 
+  context "#verify_met?" do
+    it "should delegate to met" do
+      task.should_receive(:met?).with(true)
+
+      task.verify_met?
+    end
+  end
+
   context "#meet" do
 
     it "should use find or create server to return the server" do

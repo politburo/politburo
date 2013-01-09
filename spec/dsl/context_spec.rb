@@ -174,36 +174,50 @@ describe Politburo::DSL::Context do
 
 		context "#create_and_define_resource" do
 			let(:context) { node.context }
+			let(:new_receiver_class) { double("class", implied: []) }
 			let(:new_receiver) { double("new receiver") }
 			let(:new_receiver_context) { double("new receiver context", receiver: new_receiver) }
 
 			before :each do
-				context.stub(:create_receiver).with(:class, :attributes).and_return(new_receiver_context)
+				context.stub(:create_receiver).with(new_receiver_class, :attributes).and_return(new_receiver_context)
 				new_receiver_context.stub(:define).and_yield
 				node.stub(:add_dependency_on).with(new_receiver)
 			end
 
 			it "should create a new receiver" do
-				context.should_receive(:create_receiver).with(:class, :attributes).and_return(new_receiver_context)
+				context.should_receive(:create_receiver).with(new_receiver_class, :attributes).and_return(new_receiver_context)
 
-				(context.create_and_define_resource(:class, :attributes) {}).should be new_receiver_context
+				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
 
 			it "should raise an error if no block was given" do
-				lambda {context.create_and_define_resource(:class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new receiver."
+				lambda {context.create_and_define_resource(new_receiver_class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new receiver."
 			end
 
 			it "should call define on the context" do
 				new_receiver_context.should_receive(:define).and_yield
 
-				(context.create_and_define_resource(:class, :attributes) { }).should be new_receiver_context
+				(context.create_and_define_resource(new_receiver_class, :attributes) { }).should be new_receiver_context
+			end
+
+			it "should call define with each of the implied blocks for the resource's class" do
+				new_receiver_class.should_receive(:implied).and_return([ lambda { raise "lambda was called" } ])
+
+				lambda { (context.create_and_define_resource(new_receiver_class, :attributes) { }) }.should raise_error "lambda was called"
 			end
 
 			it "should add a dependency on the new receiver" do
 				node.should_receive(:add_dependency_on).with(new_receiver)
 
-				(context.create_and_define_resource(:class, :attributes) {}).should be new_receiver_context
+				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
+
+			it "should make the new resource a child of the receiver" do
+				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
+
+				node.children.should include new_receiver
+			end
+
 		end
 
 		context "#find_and_define_resource" do

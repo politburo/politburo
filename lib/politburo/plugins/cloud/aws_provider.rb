@@ -26,6 +26,14 @@ module Politburo
           server = compute_instance.servers.create(server_attrs)
         end
 
+        def find_security_group_for(security_group_resource)
+          compute_instance.security_groups.get(security_group_resource.full_name)
+        end
+
+        def create_security_group_for(security_group_resource)
+          compute_instance.security_groups.create(name: security_group_resource.full_name, description: security_group_resource.full_name)
+        end
+
         def images
           @images ||= compute_instance.images
         end

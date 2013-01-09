@@ -117,6 +117,36 @@ describe Politburo::Plugins::Cloud::AWSProvider do
     end
   end
 
+  context "security groups" do
+    let(:security_group_resource) { double("security group resource", full_name: :security_group_resource_full_name) }
+    let(:security_group_collection) { double("security group collection") }
+    let(:cloud_security_group) { double("cloud security group") }
+
+    context "#find_security_group_for" do
+
+      it "should retrieve the cloud security group for the security group resource" do
+        compute_instance.should_receive(:security_groups).and_return(security_group_collection)
+        security_group_collection.should_receive(:get).with(:security_group_resource_full_name).and_return(cloud_security_group)
+
+        provider.find_security_group_for(security_group_resource).should be cloud_security_group
+      end
+
+    end
+
+    context "#create_security_group_for" do
+
+      it "should create the cloud security group for the security group resource" do
+        compute_instance.should_receive(:security_groups).and_return(security_group_collection)
+        security_group_collection.should_receive(:create).with(name: :security_group_resource_full_name, description: :security_group_resource_full_name).and_return(cloud_security_group)
+
+        provider.create_security_group_for(security_group_resource).should be cloud_security_group
+      end
+
+    end
+
+
+  end
+
   context "#images" do
     let(:images) { double("fake images list") }
 
