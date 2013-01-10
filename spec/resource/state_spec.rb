@@ -1,11 +1,11 @@
 describe Politburo::Resource::State do
 
 	let(:resource) { Politburo::Resource::Base.new(name: "Resource") }
-	let(:state) { Politburo::Resource::State.new(resource: resource, name: "state") }
-	let(:another_state) { Politburo::Resource::State.new(resource: resource, name: "another state") }
+	let(:state) { Politburo::Resource::State.new(parent_resource: resource, name: "state") }
+	let(:another_state) { Politburo::Resource::State.new(parent_resource: resource, name: "another state") }
 	
 	it "should initialize with the resource it belongs to" do
-		state.resource.should == resource
+		state.parent_resource.should == resource
 	end
 
 	it "should include HasDependencies" do
@@ -21,12 +21,24 @@ describe Politburo::Resource::State do
 		state.should_not be_valid
 	end
 
+	context "#inspect" do
+		it "should return a very basic view" do
+			state.inspect.should =~ /<Politburo::Resource::State:0x[a-f\d]* "Resource#state">/
+		end
+	end
+
+	context "#to_s" do
+		it "should return a very basic view" do
+			state.to_s.should =~ /<Politburo::Resource::State:0x[a-f\d]* "Resource#state">/
+		end
+	end
+
 	context "#parent_resource" do
 
 		it "should be the state's resource" do
 			state.parent_resource.should be resource
 			state.parent_resource = :fake
-			state.resource.should be :fake
+			state.parent_resource.should be :fake
 		end
 
 	end

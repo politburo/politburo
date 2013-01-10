@@ -5,7 +5,7 @@ describe Politburo::Tasks::RemoteTask do
 
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
-  let(:state) { Politburo::Resource::State.new(resource: node, name: "state") }
+  let(:state) { Politburo::Resource::State.new(parent_resource: node, name: "state") }
 
   let(:remote_command) { double("remote command", :kind_of? => true, :execution_result => {} ) }
   let(:remote_met_test_command) { double("remote met test command", :kind_of? => true, :execution_result => {}) }

@@ -51,6 +51,10 @@ module Politburo
 				"<#{self.class.to_s}:#{"0x%x" % self.__id__} \"#{full_name}\">"
 			end
 
+			def to_s
+				"<#{self.class.to_s}:#{"0x%x" % self.__id__} \"#{full_name}\">"
+			end
+
 			def log_formatter
 				@log_formatter ||= lambda do |severity, datetime, progname, msg|
             "#{datetime.to_s} #{self.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"

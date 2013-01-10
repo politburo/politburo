@@ -35,7 +35,7 @@ module Politburo
       end
 
       def resource
-        resource_state.resource
+        resource_state.parent_resource
       end
 
       def dependencies=(new_deps)

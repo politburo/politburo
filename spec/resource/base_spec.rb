@@ -42,6 +42,12 @@ describe Politburo::Resource::Base do
 		end
 	end
 
+	context "#to_s" do
+		it "should return a very basic view" do
+			resource.to_s.should =~ /<Politburo::Resource::Base:0x[a-f\d]* "Parent resource:Child resource">/
+		end
+	end
+
 	context "#children" do
 
 		it "should maintain a list of children" do

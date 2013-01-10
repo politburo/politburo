@@ -6,23 +6,14 @@ module Politburo
 			include ::Politburo::Resource::Searchable
 			include ::Politburo::Resource::HasDependencies
 
-			attr_reader :resource
 			attr_accessor :name
 
-			requires :resource
+			requires :parent_resource
 			requires :name
 
 			def initialize(attributes)
 				update_attributes(attributes)
-				resource.states << self
-			end
-
-			def parent_resource=(resource)
-				self.resource= resource
-			end
-
-			def parent_resource()
-				self.resource
+				parent_resource.states << self
 			end
 
 			def context_class
@@ -31,10 +22,18 @@ module Politburo
 
 			def contained_searchables
 				dependencies
-			end			
+			end
 
 			def tasks
 				children
+			end
+
+			def inspect
+				"<#{self.class.to_s}:#{"0x%x" % self.__id__} \"#{full_name}\">"
+			end
+
+			def to_s
+				"<#{self.class.to_s}:#{"0x%x" % self.__id__} \"#{full_name}\">"
 			end
 
 			def state_dependencies
@@ -54,10 +53,8 @@ module Politburo
 			end
 
 			def full_name()
-				"#{resource.full_name}##{name}"
+				"#{parent_resource.full_name}##{name}"
 			end
-
-			attr_writer :resource
 
 		end
 

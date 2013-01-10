@@ -32,15 +32,15 @@ module Politburo
 			end
 
 			def state(name)
-				found = states.find_all { | state | Searchable.matches?(state, :name => name) } 
+				found = states.find_all { | state | Searchable.matches?(state, name: name) } 
 				raise "No state: #{name} found on '#{self.name}'" if found.empty?
-				raise "More than one state found with name: #{name} on '#{self.name}'. #{found.map(&:inspect).join(", ")}" if (found.length > 1)
+				raise "More than one state found with name: #{name} on '#{self.to_s}'. #{found.map(&:inspect).join(", ")}" if (found.length > 1)
 
 				found.first
 			end
 
 			def find_states(attributes)
-				find_all_by_attributes(attributes.merge(:resource => self, :class => Politburo::Resource::State))
+				find_all_by_attributes(attributes.merge(:parent_resource => self, :class => Politburo::Resource::State))
 			end
 
 			def define_state(state_definition)
@@ -60,7 +60,7 @@ module Politburo
 				found = find_states(name: state_name)
 				raise "More than one existing state found with name: #{name}" if (found.length > 1)
 
-				state = found.first || Politburo::Resource::State.new(name: state_name, resource: self)
+				state = found.first || Politburo::Resource::State.new(name: state_name, parent_resource: self)
 
 				state.dependencies.push(*dependencies)
 

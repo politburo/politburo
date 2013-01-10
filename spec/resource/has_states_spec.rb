@@ -4,6 +4,10 @@ describe Politburo::Resource::HasStates do
 		include Politburo::DSL::DslDefined
 		include Politburo::Resource::HasStates
 
+		def full_name
+			"state obj"
+		end
+
 		def contained_searchables
 			states
 		end
@@ -14,11 +18,11 @@ describe Politburo::Resource::HasStates do
 	end
 
 	let(:ready_state) do
-		Politburo::Resource::State.new(name: 'ready', resource: state_obj)
+		Politburo::Resource::State.new(name: 'ready', parent_resource: state_obj)
 	end
 
 	let(:steady_state) do
-		steady = Politburo::Resource::State.new(name: :steady, resource: state_obj)
+		steady = Politburo::Resource::State.new(name: :steady, parent_resource: state_obj)
 
 		steady.dependencies << ready_state
 
@@ -28,6 +32,12 @@ describe Politburo::Resource::HasStates do
 	before :each do
 		state_obj.states << ready_state
 		state_obj.states << steady_state
+	end
+
+	context "#find_states" do
+		it "should return direct descendant states that match the specified attributes" do
+			state_obj.find_states(name: 'ready').should include ready_state
+		end
 	end
 
 	it "should maintain a list of states it can be in" do
@@ -87,11 +97,16 @@ describe Politburo::Resource::HasStates do
 				state_obj.state(:very_ready).should be_dependent_on state_obj.state(:go)
 			end
 		end
+
 		context "with an existing state name and multiple dependencies" do
 			before :each do
+				puts "Children 1: #{state_obj.states.to_a}"
 				state_obj.define_state :set
+				puts "Children 2: #{state_obj.states.to_a}"
 				state_obj.define_state :go
+				puts "Children 3: #{state_obj.states.to_a}"
 				state_obj.define_state :ready => [ :set, :go ]
+				puts "Children 4: #{state_obj.states.to_a}"
 			end
 
 			it "should add the state correctly" do
