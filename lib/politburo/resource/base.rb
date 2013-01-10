@@ -3,10 +3,10 @@ module Politburo
 		class Base
 			include Enumerable
 			include Politburo::DSL::DslDefined
+			include Politburo::Resource::HasHierarchy
 			include Politburo::Resource::Searchable
 			include Politburo::Resource::HasStates
 
-			attr_accessor :parent_resource
 			attr_accessor :name
 			attr_accessor :description
 
@@ -29,10 +29,6 @@ module Politburo
 			def initialize(attributes)
 				update_attributes(attributes)
 				parent_resource.children << self unless parent_resource.nil?
-			end
-
-			def children()
-				@children ||= Set.new
 			end
 
 			def full_name
