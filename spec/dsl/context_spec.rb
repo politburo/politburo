@@ -147,26 +147,42 @@ describe Politburo::DSL::Context do
 
 		context "#lookup_or_create_resource" do
 			let(:context) { node.context }
+			let(:attributes) { { attr: 'value' } }
 
 			before :each do
 				context.stub(:lookup_and_define_resource).with(:class, :attributes)
 			end
 
 			context "when block is given" do
-				it "should attempt to create a new one" do
-					context.should_not_receive(:lookup_and_define_resource)
-					context.should_receive(:create_and_define_resource).with(:class, :attributes).and_return(:new_receiver)
 
-					context.lookup_or_create_resource(:class, :attributes) {}.should be :new_receiver
+				context "when direct descendant matching attributes exists" do
+
+					it "should use the block to configure the existing state" do
+						context.should_receive(:find_and_define_resource).with(:class, attributes.merge(parent_resource: node)).and_return(:existing_receiver_context)
+						context.should_not_receive(:create_and_define_resource)
+
+						context.lookup_or_create_resource(:class, attributes) {}.should be :existing_receiver_context
+					end
+				end
+
+				context "when no direct descendant with matching attributes exist" do
+
+					it "should attempt to create a new one" do
+						context.should_receive(:find_and_define_resource).with(:class, attributes.merge(parent_resource: node)).and_return(nil)
+						context.should_not_receive(:lookup_and_define_resource)
+						context.should_receive(:create_and_define_resource).with(:class, attributes).and_return(:new_receiver_context)
+
+						context.lookup_or_create_resource(:class, attributes) {}.should be :new_receiver_context
+					end
 				end
 
 			end
 
 			context "when block is not given" do
 				it "should attempt to find an existing receiver" do
-					context.should_receive(:lookup_and_define_resource).with(:class, :attributes).and_return(:existing_receiver)
+					context.should_receive(:lookup_and_define_resource).with(:class, attributes).and_return(:existing_receiver_context)
 
-					context.lookup_or_create_resource(:class, :attributes).should be :existing_receiver
+					context.lookup_or_create_resource(:class, attributes).should be :existing_receiver_context
 				end
 			end
 

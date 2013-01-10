@@ -30,7 +30,7 @@ module Politburo
 			alias :evaluate :define
 
       def state(attributes, &block)
-        lookup_and_define_resource(::Politburo::Resource::State, attributes, &block)
+        lookup_or_create_resource(::Politburo::Resource::State, attributes, &block)
       end
 
 			def method_missing(method, *args)
@@ -60,9 +60,10 @@ module Politburo
 				receivers.first.context
 			end
 
-			def lookup_or_create_resource(new_receiver_class, attributes, &block)
+			def lookup_or_create_resource(new_receiver_class, name_or_attributes, &block)
+				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
 				if block_given?
-					create_and_define_resource(new_receiver_class, attributes, &block)
+					find_and_define_resource(new_receiver_class, attributes.merge(parent_resource: receiver), &block) || create_and_define_resource(new_receiver_class, attributes, &block)
 				else
 					lookup_and_define_resource(new_receiver_class, attributes, &block)
 				end
