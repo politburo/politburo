@@ -3,9 +3,11 @@ require 'politburo'
 describe Politburo::Resource::Node do
 
 	let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-	let(:node) do 
-		Politburo::Resource::Node.new(parent_resource: parent_resource, name: "Node resource")
-	end
+	let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
+
+  before :each do
+    parent_resource.add_child(node)
+  end
 
   it("should have its own context class") { node.context_class.should be Politburo::Resource::NodeContext }
 

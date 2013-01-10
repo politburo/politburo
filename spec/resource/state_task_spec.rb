@@ -1,8 +1,13 @@
 describe Politburo::Resource::StateTask do
 
   let(:resource) { Politburo::Resource::Base.new(name: "Resource") }
-  let(:state) { Politburo::Resource::State.new(parent_resource: resource, name: "state") }
-  let(:state_task) { Politburo::Resource::StateTask.new(parent_resource: state ) }
+  let(:state) { Politburo::Resource::State.new(name: "state") }
+  let(:state_task) { Politburo::Resource::StateTask.new(name: 'state task') }
+
+  before :each do
+    state.add_child(state_task)
+    resource.add_child(state)
+  end
 
   it "should initialize correctly" do
     state_task.resource_state.should be state

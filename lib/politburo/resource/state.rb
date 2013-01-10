@@ -13,7 +13,6 @@ module Politburo
 
 			def initialize(attributes)
 				update_attributes(attributes)
-				parent_resource.states << self
 			end
 
 			def context_class
@@ -45,7 +44,13 @@ module Politburo
 			end
 
 			def to_task
-				@task ||= Politburo::Resource::StateTask.new(parent_resource: self, dependencies: self.dependencies)
+				@task ||= begin
+					state_task = Politburo::Resource::StateTask.new(dependencies: self.dependencies)
+
+					add_child(state_task)
+
+					state_task
+				end
 			end
 
 			def as_dependency

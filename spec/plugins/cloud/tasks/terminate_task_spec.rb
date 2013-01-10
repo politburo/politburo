@@ -4,11 +4,12 @@ describe Politburo::Plugins::Cloud::Tasks::TerminateTask do
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
   let(:state) { node.state(:started) }
-  let(:task) { Politburo::Plugins::Cloud::Tasks::TerminateTask.new(name: 'Terminate', resource_state: state) }
+  let(:task) { Politburo::Plugins::Cloud::Tasks::TerminateTask.new(name: 'Terminate') }
 
   let(:cloud_server) { double("cloud server", display_name: 'dnsname.ec2.amazon.com') }
 
   before :each do
+    state.add_child(task)
     node.stub(:cloud_provider).and_return(provider)
   end
 

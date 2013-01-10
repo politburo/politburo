@@ -1,6 +1,10 @@
 describe Politburo::Resource::Environment, "cloud extensions" do
   let(:parent_resource) { Politburo::Resource::Base.new(name: 'Parent resource') }
-  let(:environment) { Politburo::Resource::Environment.new(parent_resource: parent_resource, name: "Environment resource") }
+  let(:environment) { Politburo::Resource::Environment.new(name: "Environment resource") }
+
+  before :each do
+    parent_resource.add_child(environment)
+  end
 
   it "should require an provider" do
     environment.provider = nil

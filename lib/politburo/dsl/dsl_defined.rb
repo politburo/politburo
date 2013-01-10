@@ -39,6 +39,7 @@
 			def update_attributes(attributes)
 				attributes.each_pair do | attr_name, attr_value |
 					setter_sym = "#{attr_name.to_s}=".to_sym
+					raise "parent_resource is not assignable from initializer. Use parent's add_child instead." if setter_sym == :parent_resource=
 					raise "#{self} does not have a setter for attribute '#{attr_name}'." unless self.respond_to?(setter_sym)
 					self.send(setter_sym, attr_value )
 				end

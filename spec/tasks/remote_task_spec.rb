@@ -5,12 +5,17 @@ describe Politburo::Tasks::RemoteTask do
 
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
-  let(:state) { Politburo::Resource::State.new(parent_resource: node, name: "state") }
+  let(:state) { Politburo::Resource::State.new(name: "state") }
 
   let(:remote_command) { double("remote command", :kind_of? => true, :execution_result => {} ) }
   let(:remote_met_test_command) { double("remote met test command", :kind_of? => true, :execution_result => {}) }
 
-  let(:task) { Politburo::Tasks::RemoteTask.new(name: 'Test Task', parent_resource: state, command: remote_command, met_test_command: remote_met_test_command) }
+  let(:task) { Politburo::Tasks::RemoteTask.new(name: 'Test Task', command: remote_command, met_test_command: remote_met_test_command) }
+
+  before :each do
+    node.add_child(state)
+    state.add_child(task)
+  end
 
   it "should initialize correctly" do
     task.should_not be_nil

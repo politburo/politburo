@@ -1,5 +1,6 @@
 require_relative 'resource/searchable'
 require_relative 'resource/has_dependencies'
+require_relative 'resource/belongs_to_hierarchy'
 require_relative 'resource/has_hierarchy'
 require_relative 'resource/state'
 require_relative 'resource/state_task'

@@ -18,11 +18,11 @@ describe Politburo::Resource::HasStates do
 	end
 
 	let(:ready_state) do
-		Politburo::Resource::State.new(name: 'ready', parent_resource: state_obj)
+		Politburo::Resource::State.new(name: 'ready')
 	end
 
 	let(:steady_state) do
-		steady = Politburo::Resource::State.new(name: :steady, parent_resource: state_obj)
+		steady = Politburo::Resource::State.new(name: :steady)
 
 		steady.dependencies << ready_state
 
@@ -32,6 +32,9 @@ describe Politburo::Resource::HasStates do
 	before :each do
 		state_obj.states << ready_state
 		state_obj.states << steady_state
+
+		state_obj.add_child(ready_state)
+		state_obj.add_child(steady_state)
 	end
 
 	context "#find_states" do

@@ -3,6 +3,7 @@ module Politburo
 	module Resource
 
 		module HasStates
+			include ::Politburo::Resource::HasHierarchy
 			include ::Politburo::Resource::Searchable
 
 			def self.included(base)
@@ -60,7 +61,14 @@ module Politburo
 				found = find_states(name: state_name)
 				raise "More than one existing state found with name: #{name}" if (found.length > 1)
 
-				state = found.first || Politburo::Resource::State.new(name: state_name, parent_resource: self)
+				state = found.first || begin 
+					state = Politburo::Resource::State.new(name: state_name)
+					
+					add_child(state)
+					states << state
+
+					state
+				end
 
 				state.dependencies.push(*dependencies)
 

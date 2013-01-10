@@ -69,16 +69,16 @@ module Politburo
 			end
 
 			def create_and_define_resource(new_receiver_class, attributes, &block)
-				context = create_receiver(new_receiver_class, attributes)
 				raise "No block given for defining a new receiver." unless block_given?
+				context = new_receiver_class.new(attributes).context
+
+				add_child(context.receiver)
+				receiver.add_dependency_on(context.receiver)
 
 				context.define(&block)
 				new_receiver_class.implied.each do | implied_proc |
 					context.define(&implied_proc)
 				end
-
-				depends_on(context)
-				receiver.children << context.receiver
 
 				context
 			end
@@ -115,7 +115,7 @@ module Politburo
 			end
 
 			def create_receiver(new_receiver_class, attributes)
-				new_receiver_class.new(attributes.merge(parent_resource: receiver)).context
+				
 			end
 
 		end

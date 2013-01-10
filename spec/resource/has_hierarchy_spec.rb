@@ -2,9 +2,6 @@ describe Politburo::Resource::HasHierarchy do
   let(:resource_class) {
     Class.new {
       include Politburo::Resource::HasHierarchy
-
-      def add_dependency_on(dep)
-      end
     }
   }
 
@@ -42,8 +39,6 @@ describe Politburo::Resource::HasHierarchy do
     end
 
     it "should add the child as a dependency" do
-      resource.should_receive(:add_dependency_on).with(sub_resource_1)
-
       resource.add_child(sub_resource_1)
 
       resource.children.should include sub_resource_1

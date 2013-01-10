@@ -179,13 +179,16 @@ describe Politburo::DSL::Context do
 			let(:new_receiver_context) { double("new receiver context", receiver: new_receiver) }
 
 			before :each do
-				context.stub(:create_receiver).with(new_receiver_class, :attributes).and_return(new_receiver_context)
+				new_receiver_class.stub(:new).with(:attributes).and_return(new_receiver)
+				new_receiver.stub(:context).and_return(new_receiver_context)
 				new_receiver_context.stub(:define).and_yield
+				node.stub(:add_child).with(new_receiver)
 				node.stub(:add_dependency_on).with(new_receiver)
 			end
 
 			it "should create a new receiver" do
-				context.should_receive(:create_receiver).with(new_receiver_class, :attributes).and_return(new_receiver_context)
+				new_receiver_class.should_receive(:new).with(:attributes).and_return(new_receiver)
+				new_receiver.should_receive(:context).and_return(new_receiver_context)
 
 				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
@@ -206,16 +209,16 @@ describe Politburo::DSL::Context do
 				lambda { (context.create_and_define_resource(new_receiver_class, :attributes) { }) }.should raise_error "lambda was called"
 			end
 
-			it "should add a dependency on the new receiver" do
-				node.should_receive(:add_dependency_on).with(new_receiver)
+			it "should add the new receiver as a child" do
+				node.should_receive(:add_child).with(new_receiver)
 
 				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
 
-			it "should make the new resource a child of the receiver" do
-				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
+			it "should add the new receiver as a depenency" do
+				node.should_receive(:add_dependency_on).with(new_receiver)
 
-				node.children.should include new_receiver
+				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
 
 		end

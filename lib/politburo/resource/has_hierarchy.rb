@@ -3,12 +3,12 @@ module Politburo
   module Resource
 
     module HasHierarchy
+      include Enumerable
+      include Politburo::Resource::BelongsToHierarchy
       
       def self.included(base)
         base.extend(ClassMethods)
       end
-
-      attr_accessor :parent_resource
 
       def children()
         @children ||= Set.new
@@ -16,8 +16,12 @@ module Politburo
 
       def add_child(child_resource)
         child_resource.parent_resource = self
-        add_dependency_on(child_resource)
         children << child_resource
+      end
+
+      def each(&block)
+        block.call(self)
+        children.each { | c | c.each(&block) } 
       end
 
       module ClassMethods

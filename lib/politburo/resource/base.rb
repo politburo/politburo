@@ -1,7 +1,6 @@
 module Politburo
 	module Resource
 		class Base
-			include Enumerable
 			include Politburo::DSL::DslDefined
 			include Politburo::Resource::HasHierarchy
 			include Politburo::Resource::Searchable
@@ -28,7 +27,6 @@ module Politburo
 
 			def initialize(attributes)
 				update_attributes(attributes)
-				parent_resource.children << self unless parent_resource.nil?
 			end
 
 			def full_name
@@ -40,7 +38,7 @@ module Politburo
 			end
 
 			def contained_searchables
-				Set.new().merge(children).merge(states)
+				children
 			end
 
 			def release
@@ -59,12 +57,6 @@ module Politburo
 				@log_formatter ||= lambda do |severity, datetime, progname, msg|
             "#{datetime.to_s} #{self.full_name.to_s.colorize( severity_color[severity.to_s.downcase.to_sym])}\t#{msg}\n"
         end
-			end
-
-			def each(&block)
-				block.call(self)
-				states.each(&block)
-				children.each { | c | c.each(&block) } 
 			end
 
 			def add_dependency_on(target)

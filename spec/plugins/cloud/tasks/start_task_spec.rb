@@ -4,12 +4,13 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
   let(:state) { node.state(:started) }
-  let(:task) { Politburo::Plugins::Cloud::Tasks::StartTask.new(name: 'Start', resource_state: state) }
+  let(:task) { Politburo::Plugins::Cloud::Tasks::StartTask.new(name: 'Start') }
 
   let(:cloud_server) { double("cloud server", display_name: 'server.display.name') }
 
   before :each do
     node.stub(:cloud_provider).and_return(provider)
+    state.add_child(task)
     cloud_server.stub(:reload).and_return(cloud_server)
   end
 

@@ -1,8 +1,10 @@
 describe Politburo::Plugins::Cloud::SecurityGroup do
 
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-  let(:security_group) do 
-     Politburo::Plugins::Cloud::SecurityGroup.new(parent_resource: parent_resource, name: "Security group resource")
+  let(:security_group) { Politburo::Plugins::Cloud::SecurityGroup.new(name: "Security group resource") }
+
+  before :each do
+    parent_resource.add_child(security_group)
   end
 
   context "#provider" do

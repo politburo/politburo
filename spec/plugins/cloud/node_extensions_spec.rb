@@ -1,8 +1,11 @@
 describe Politburo::Resource::Node, "cloud extensions" do
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-  let(:node) do 
-    Politburo::Resource::Node.new(parent_resource: parent_resource, name: "Node resource")
+  let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
+
+  before :each do
+    parent_resource.add_child(node)
   end
+
 
   context "#provider" do
 

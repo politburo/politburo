@@ -4,15 +4,21 @@ describe Politburo::Resource::Base do
 
 	let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
 	let(:resource) do 
-		Politburo::Resource::Base.new(parent_resource: parent_resource, name: "Child resource")
+		Politburo::Resource::Base.new(name: "Child resource")
 	end
 
 	let(:sub_resource_1) do
-		Politburo::Resource::Base.new(parent_resource: resource, name: "Sub Resource 1")
+		Politburo::Resource::Base.new(name: "Sub Resource 1")
 	end
 
 	let(:sub_resource_2) do
-		Politburo::Resource::Base.new(parent_resource: resource, name: "Sub Resource 2")
+		Politburo::Resource::Base.new(name: "Sub Resource 2")
+	end
+
+	before :each do
+		parent_resource.add_child(resource)
+		resource.add_child(sub_resource_1)
+		resource.add_child(sub_resource_2)
 	end
 
 	it "should initialize with parent" do
@@ -51,20 +57,10 @@ describe Politburo::Resource::Base do
 	context "#children" do
 
 		it "should maintain a list of children" do
-			parent_resource.children.should be_empty
-
-			resource.should_not be_nil
-
 			parent_resource.children.should_not be_empty
-			parent_resource.children.length.should == 1
-			parent_resource.children.first.should == resource
-
-			resource.children.should be_empty
-			sub_resource_1.should_not be_nil
-			sub_resource_2.should_not be_nil
+			parent_resource.children.should include resource
 
 			resource.children.should_not be_empty
-			resource.children.length.should == 2
 			resource.children.should include(sub_resource_1)
 			resource.children.should include(sub_resource_2)
 		end
@@ -127,38 +123,22 @@ describe Politburo::Resource::Base do
 
 	context "enumerable" do
 
-		it "#each should yield self first, then states, then sub-resources breadth first" do
-			sub_resource_1.should_not be_nil
-			sub_resource_2.should_not be_nil
+		before :each do
+			parent_resource.states
+			resource.states
+			sub_resource_1.states
+			sub_resource_2.states
+		end
 
+		it "#each should yield self first, child resources breadth first" do
 			each_a = parent_resource.to_a
 			each_a.should_not be_empty
 			each_a.first.should == parent_resource
-			each_a.last.should == sub_resource_2.state(:terminated)
+#			each_a.last.should == sub_resource_2.state(:terminated)
 
 			expected_order = <<EXPECTED_ORDER
 Parent resource
-Parent resource#defined
-Parent resource#created
-Parent resource#starting
-Parent resource#started
-Parent resource#configuring
-Parent resource#configured
-Parent resource#ready
-Parent resource#stopping
-Parent resource#stopped
-Parent resource#terminated
 Parent resource:Child resource
-Parent resource:Child resource#defined
-Parent resource:Child resource#created
-Parent resource:Child resource#starting
-Parent resource:Child resource#started
-Parent resource:Child resource#configuring
-Parent resource:Child resource#configured
-Parent resource:Child resource#ready
-Parent resource:Child resource#stopping
-Parent resource:Child resource#stopped
-Parent resource:Child resource#terminated
 Parent resource:Child resource:Sub Resource 1
 Parent resource:Child resource:Sub Resource 1#defined
 Parent resource:Child resource:Sub Resource 1#created
@@ -181,9 +161,30 @@ Parent resource:Child resource:Sub Resource 2#ready
 Parent resource:Child resource:Sub Resource 2#stopping
 Parent resource:Child resource:Sub Resource 2#stopped
 Parent resource:Child resource:Sub Resource 2#terminated
+Parent resource:Child resource#defined
+Parent resource:Child resource#created
+Parent resource:Child resource#starting
+Parent resource:Child resource#started
+Parent resource:Child resource#configuring
+Parent resource:Child resource#configured
+Parent resource:Child resource#ready
+Parent resource:Child resource#stopping
+Parent resource:Child resource#stopped
+Parent resource:Child resource#terminated
+Parent resource#defined
+Parent resource#created
+Parent resource#starting
+Parent resource#started
+Parent resource#configuring
+Parent resource#configured
+Parent resource#ready
+Parent resource#stopping
+Parent resource#stopped
+Parent resource#terminated
 EXPECTED_ORDER
 
-			each_a.map(&:full_name).join("\n").strip.should == expected_order.strip
+			actual_order = each_a.map(&:full_name).join("\n")
+			actual_order.strip.should == expected_order.strip
 		end
 
 	end
@@ -199,6 +200,7 @@ EXPECTED_ORDER
 				sub_resource_1.should_not be_nil
 				sub_resource_2.should_not be_nil
 				resource.children.should_not be_empty
+				resource.states.should_not be_empty
 			end
 
 			it "should include both child resources and state resources" do

@@ -3,31 +3,22 @@ module Politburo
     class StateTask
       include Politburo::Dependencies::Task
       include Politburo::DSL::DslDefined
+      include Politburo::Resource::BelongsToHierarchy
       include Politburo::Resource::HasDependencies
       include Politburo::Resource::Searchable
 
-      attr_accessor :resource_state
       attr_accessor :prerequisites
 
       attr_writer :name
 
-      requires :resource_state
       requires :prerequisites
 
       def initialize(attributes)
         update_attributes(attributes)
-
-        resource_state.tasks << self
-
-        validate!
       end
 
-      def parent_resource=(resource)
-        self.resource_state= resource
-      end
-
-      def parent_resource()
-        self.resource_state
+      def resource_state
+        parent_resource
       end
 
       def name 
@@ -36,6 +27,9 @@ module Politburo
 
       def resource
         resource_state.parent_resource
+      end
+
+      def release
       end
 
       def dependencies=(new_deps)
