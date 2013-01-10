@@ -2,6 +2,7 @@ module Politburo
 	module Resource
 		class State
 			include ::Politburo::DSL::DslDefined
+			include ::Politburo::Resource::HasHierarchy
 			include ::Politburo::Resource::Searchable
 			include ::Politburo::Resource::HasDependencies
 
@@ -32,12 +33,8 @@ module Politburo
 				dependencies
 			end			
 
-			def children
-				tasks
-			end
-
 			def tasks
-				@tasks ||= Set.new
+				children
 			end
 
 			def state_dependencies
