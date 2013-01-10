@@ -40,7 +40,7 @@ module Politburo
 			end
 
 			def find_states(attributes)
-				find_all_by_attributes(attributes.merge(:parent_resource => self, :class => Politburo::Resource::State))
+				find_direct_children_by_attributes(attributes.merge(:parent_resource => self, :class => Politburo::Resource::State))
 			end
 
 			def define_state(state_definition)

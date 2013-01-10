@@ -100,13 +100,9 @@ describe Politburo::Resource::HasStates do
 
 		context "with an existing state name and multiple dependencies" do
 			before :each do
-				puts "Children 1: #{state_obj.states.to_a}"
 				state_obj.define_state :set
-				puts "Children 2: #{state_obj.states.to_a}"
 				state_obj.define_state :go
-				puts "Children 3: #{state_obj.states.to_a}"
 				state_obj.define_state :ready => [ :set, :go ]
-				puts "Children 4: #{state_obj.states.to_a}"
 			end
 
 			it "should add the state correctly" do
