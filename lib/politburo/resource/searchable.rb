@@ -24,6 +24,10 @@ module Politburo
 				found
 			end
 
+			def find_direct_children_by_attributes(attributes)
+				contained_searchables.nil? ? Set.new : Set.new(contained_searchables.select { | contained | contained if Searchable.matches?(contained, attributes) })
+			end
+
 			def root()
 				parent_resource.nil? ? self : parent_resource.root
 			end
