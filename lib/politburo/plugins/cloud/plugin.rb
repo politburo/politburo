@@ -21,9 +21,7 @@ module Politburo
           raise "Node without parent" if node.parent_resource.nil?
 
           node.parent_resource.context.define do
-            if find_all_by_attributes({ class: Politburo::Plugins::Cloud::SecurityGroup, name: "Default Security Group", region: node.region }).empty?
-              security_group(name: "Default Security Group", region: node.region) { }
-            end              
+            security_group(name: "Default Security Group", region: node.region) { }
           end
 
         end
