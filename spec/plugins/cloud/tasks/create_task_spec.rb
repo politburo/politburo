@@ -3,7 +3,7 @@ describe Politburo::Plugins::Cloud::Tasks::CreateTask do
   let(:provider) { double("cloud provider") }
   let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
 
-  let(:state) { node.state(:started) }
+  let(:state) { node.context.define { state(:started) {} }.state(:started) }
   let(:task) { Politburo::Plugins::Cloud::Tasks::CreateTask.new(name: 'Create') }
 
   let(:cloud_server) { double("cloud server", display_name: 'server.display.name') }

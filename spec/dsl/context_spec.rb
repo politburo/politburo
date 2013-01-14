@@ -136,7 +136,7 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should raise error if found more than one" do
-				lambda { context_for_environment.find_one_by_attributes(class: Politburo::Resource::Node) }.should raise_error("Ambiguous receiver for attributes: {:class=>Politburo::Resource::Node}. Found: \"node\", \"another node\", \"yet another node\".")
+				lambda { context_for_environment.find_one_by_attributes(class: Politburo::Resource::Node) }.should raise_error('Ambiguous receiver for attributes: {:class=>Politburo::Resource::Node}. Found: "environment:node", "environment:another node", "environment:yet another node".')
 			end
 
 

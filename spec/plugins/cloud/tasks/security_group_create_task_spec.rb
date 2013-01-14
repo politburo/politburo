@@ -4,7 +4,7 @@ describe Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask do
   let(:security_group) { Politburo::Plugins::Cloud::SecurityGroup.new(name: "Security group resource") }
   let(:cloud_security_group) { double("cloud security group", group_id: 'sg-90210') }
 
-  let(:state) { security_group.state(:started) }
+  let(:state) { security_group.context.define { state(:started) {} }.state(:started) }
   let(:task) { Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask.new(name: 'Create security group') }
 
   before :each do

@@ -1,8 +1,15 @@
 describe Politburo::Resource::State do
 
-	let(:resource) { Politburo::Resource::Base.new(name: "Resource") }
-	let(:state) { Politburo::Resource::State.new(name: "state") }
-	let(:another_state) { Politburo::Resource::State.new(name: "another state") }
+	let(:resource) { 
+		Politburo::Resource::Base.new(name: "Resource").context.define {
+			state(:ready) {}
+			state(:state) {}
+			state(:another_state) {}
+		} 
+	}
+
+  let(:state) { resource.state(:state) }
+  let(:another_state) { resource.state(:another_state) }
 
 	before :each do
 		resource.add_child(state)

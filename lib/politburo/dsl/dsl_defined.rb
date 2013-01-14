@@ -51,8 +51,21 @@
 
 			module ClassMethods
 
+				def explicit_validations
+					@explicit_validations ||= {}
+				end
+
 				def validations
-					@validations ||= {}
+					validations = {}
+					if (!superclass.nil?) and (superclass.respond_to?(:explicit_validations))
+						validations = superclass.explicit_validations.clone
+					end
+					
+					explicit_validations.each_pair do | attr, validations_for_attr |
+						validations[attr] = validations_for_attr + (validations[attr] || [])
+					end
+
+					validations
 				end
 
 				def validation_errors_for(instance)
@@ -90,17 +103,18 @@
 				end
 
 				def requires(name_sym)
-					add_validation(name_sym, lambda do | name_sym, instance | 
+					validates(name_sym) do | name_sym, instance | 
 						value = nil
 						begin
 							value = instance.send(name_sym.to_sym)
+							value
 						rescue => e
 							# Any errors will result in value being blank
 						ensure
 							raise "'#{name_sym.to_s}' is required" if value.nil?
 						end
 					end
-					)
+					
 				end
 
 				def explicitly_implied
@@ -119,11 +133,9 @@
 					implied
 				end
 
-				private
-
-				def add_validation(name_sym, validation_lambda)
-					validations[name_sym.to_sym] ||= []
-					validations[name_sym.to_sym] << validation_lambda
+				def validates(name_sym, &validation_lambda)
+					explicit_validations[name_sym.to_sym] ||= []
+					explicit_validations[name_sym.to_sym] << validation_lambda
 				end
 			end
 

@@ -29,16 +29,8 @@ module Politburo
 				update_attributes(attributes)
 			end
 
-			def full_name
-				parent_resource.nil? ? name : (parent_resource.name.empty? ? name : "#{parent_resource.full_name}:#{name}")
-			end
-
 			def as_dependency
 				state(:ready)
-			end
-
-			def contained_searchables
-				children
 			end
 
 			def release

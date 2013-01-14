@@ -19,10 +19,6 @@ module Politburo
 				StateContext
 			end
 
-			def contained_searchables
-				dependencies
-			end
-
 			def tasks
 				children
 			end

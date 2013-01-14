@@ -10,6 +10,10 @@ module Politburo
         base.extend(ClassMethods)
       end
 
+      def contained_searchables
+        children
+      end
+
       def children()
         @children ||= Set.new
       end

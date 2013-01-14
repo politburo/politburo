@@ -2,21 +2,22 @@ require 'politburo'
 
 describe Politburo::DSL::DslDefined do
 	
-	class DslDefinedObj
-		include Politburo::DSL::DslDefined
+	let(:dsl_defined_class) {
+		Class.new() {
+			include Politburo::DSL::DslDefined
 
-		requires :name
-		requires :description
+			requires :name
+			requires :description
 
-		inherits :provider
+			inherits :provider
 
-		attr_accessor :name
-		attr_accessor :description
-
-	end
+			attr_accessor :name
+			attr_accessor :description
+		}	
+	}
 
 	let(:dsl_defined_obj) do
-		obj = DslDefinedObj.new()
+		obj = dsl_defined_class.new()
 
 		obj.name = "Name"
 		obj.description = "Description here"
@@ -24,8 +25,8 @@ describe Politburo::DSL::DslDefined do
 	end
 
 	it "should have a list of validation labmdas" do
-		DslDefinedObj.validations.should_not be_nil
-		DslDefinedObj.validations.should_not be_empty
+		dsl_defined_class.validations.should_not be_nil
+		dsl_defined_class.validations.should_not be_empty
 	end
 
 	context "#[]" do
@@ -66,63 +67,128 @@ describe Politburo::DSL::DslDefined do
 
 	end
 
-	context "#valid?" do
-		it "should return false when validation errors exist for the obj" do
-			dsl_defined_obj.description = nil
+	context "validations" do
 
-			dsl_defined_obj.validation_errors.should_not be_empty
-			dsl_defined_obj.should_not be_valid
+		context "#valid?" do
+			it "should return false when validation errors exist for the obj" do
+				dsl_defined_obj.description = nil
+
+				dsl_defined_obj.validation_errors.should_not be_empty
+				dsl_defined_obj.should_not be_valid
+			end
+
+			it "should return true when the obj has no validation errors" do
+				dsl_defined_obj.validation_errors.should be_empty
+				dsl_defined_obj.should be_valid
+			end
 		end
 
-		it "should return true when the obj has no validation errors" do
-			dsl_defined_obj.validation_errors.should be_empty
-			dsl_defined_obj.should be_valid
+		context "#validation_errors" do
+
+			it "should return a hash of errors raised while validating" do
+				dsl_defined_obj.name = nil
+
+				validation_errors = dsl_defined_obj.validation_errors
+
+				validation_errors.should_not be_empty
+				validation_errors.size.should == 1
+
+				validation_errors_for_name = validation_errors[:name]
+				validation_errors_for_name.should_not be_empty
+				validation_errors_for_name.size.should == 1
+
+				validation_errors_for_name.first.should be_a RuntimeError
+				validation_errors_for_name.first.message.should eql("'name' is required")
+			end
 		end
-	end
 
-	context "#validation_errors" do
+		context "#validate!" do
 
-		it "should return a hash of errors raised while validating" do
-			dsl_defined_obj.name = nil
+			before(:each) { dsl_defined_obj.name = nil }
 
-			validation_errors = dsl_defined_obj.validation_errors
+			it { lambda { dsl_defined_obj.validate! }.should raise_error "Validation error(s): 'name' is required" }
 
-			validation_errors.should_not be_empty
-			validation_errors.size.should == 1
-
-			validation_errors_for_name = validation_errors[:name]
-			validation_errors_for_name.should_not be_empty
-			validation_errors_for_name.size.should == 1
-
-			validation_errors_for_name.first.should be_a RuntimeError
-			validation_errors_for_name.first.message.should eql("'name' is required")
 		end
-	end
 
-	context "#validate!" do
+		context "#validation_errors_for" do
 
-		before(:each) { dsl_defined_obj.name = nil }
+			it "should return a hash of errors raised while validating" do
+				dsl_defined_obj.name = nil
 
-		it { lambda { dsl_defined_obj.validate! }.should raise_error "Validation error(s): 'name' is required" }
+				validation_errors = dsl_defined_class.validation_errors_for(dsl_defined_obj)
 
-	end
+				validation_errors.should_not be_empty
+				validation_errors.size.should == 1
 
-	context "#validation_errors_for" do
+				validation_errors_for_name = validation_errors[:name]
+				validation_errors_for_name.should_not be_empty
+				validation_errors_for_name.size.should == 1
 
-		it "should return a hash of errors raised while validating" do
-			dsl_defined_obj.name = nil
+				validation_errors_for_name.first.should be_a RuntimeError
+				validation_errors_for_name.first.message.should eql("'name' is required")
+			end
+		end
 
-			validation_errors = DslDefinedObj.validation_errors_for(dsl_defined_obj)
+		context "validations" do
 
-			validation_errors.should_not be_empty
-			validation_errors.size.should == 1
+			let(:dsl_defined_class_a) { 
+				Class.new() { 
+					include Politburo::DSL::DslDefined 
 
-			validation_errors_for_name = validation_errors[:name]
-			validation_errors_for_name.should_not be_empty
-			validation_errors_for_name.size.should == 1
+					requires :attr_a
+				} 
+			}
 
-			validation_errors_for_name.first.should be_a RuntimeError
-			validation_errors_for_name.first.message.should eql("'name' is required")
+			let(:dsl_defined_class_b) { 
+				Class.new(dsl_defined_class_a) {
+					include Politburo::DSL::DslDefined 
+
+					requires :attr_b
+					validates(:attr_a) { does_stuff }
+				} 
+			}
+
+			context "::explicit_validations" do
+
+				it "should be a class specific list of validations for this class only" do
+					dsl_defined_class_a.explicit_validations.should_not be_empty
+					dsl_defined_class_a.explicit_validations[:attr_a].should_not be_empty
+					dsl_defined_class_a.explicit_validations[:attr_a].size.should == 1
+
+					dsl_defined_class_b.explicit_validations.should_not be_empty
+					dsl_defined_class_b.explicit_validations[:attr_b].should_not be_empty
+					dsl_defined_class_b.explicit_validations[:attr_b].size.should == 1
+
+					dsl_defined_class_b.explicit_validations[:attr_a].should_not be_empty
+					dsl_defined_class_b.explicit_validations[:attr_a].size.should == 1
+				end
+			end
+
+			context "::validates" do
+				it "should add to explicit_validations" do
+					dsl_defined_class_b.validates(:attr_a) { stuff to_validate }
+					dsl_defined_class_b.explicit_validations[:attr_a].should_not be_empty
+					dsl_defined_class_b.explicit_validations[:attr_a].size.should == 2
+				end
+
+			end
+
+			context "::validations" do
+
+				it "should aggregate all validations from superclasses down, starting with superclasses" do
+					dsl_defined_class_a.validations.should eq dsl_defined_class_a.explicit_validations
+
+					dsl_defined_class_b.validations.should_not be_empty
+
+					dsl_defined_class_b.validations[:attr_b].should_not be_empty
+					dsl_defined_class_b.validations[:attr_b].size.should == 1
+					dsl_defined_class_b.validations[:attr_a].should_not be_empty
+					dsl_defined_class_b.validations[:attr_a].size.should == 2
+				end
+
+			end
+
+
 		end
 	end
 

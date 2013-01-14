@@ -15,6 +15,10 @@ module Politburo
         block.call(self)
       end
 
+      def full_name
+        parent_resource.nil? ? name : (parent_resource.name.empty? ? name : "#{parent_resource.full_name}:#{name}")
+      end
+
       module ClassMethods
       end
     end

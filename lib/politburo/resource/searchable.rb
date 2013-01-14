@@ -32,10 +32,6 @@ module Politburo
 				parent_resource.nil? ? self : parent_resource.root
 			end
 
-			def contained_searchables
-				Set.new()
-			end
-
 			def self.matches?(obj, attributes)
 				attributes.each_pair do | attr_name, match_to |
 					value = obj.respond_to?(attr_name.to_sym) ? obj.send(attr_name.to_sym) : nil

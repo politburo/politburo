@@ -56,7 +56,7 @@ module Politburo
 				end
 				return nil if receivers.empty?
 
-				raise "Ambiguous receiver for attributes: #{find_attrs}. Found: \"#{receivers.map(&:name).join("\", \"")}\"." if (receivers.size > 1) 
+				raise "Ambiguous receiver for attributes: #{find_attrs}. Found: \"#{receivers.map(&:full_name).join("\", \"")}\"." if (receivers.size > 1) 
 				receivers.first.context
 			end
 
@@ -74,11 +74,14 @@ module Politburo
 				context = new_receiver_class.new(attributes).context
 
 				add_child(context.receiver)
-				receiver.add_dependency_on(context.receiver)
-
-				context.define(&block)
 				new_receiver_class.implied.each do | implied_proc |
 					context.define(&implied_proc)
+				end
+
+				context.define(&block)
+
+				unless (context.receiver.is_a?(Politburo::Resource::State))
+					receiver.add_dependency_on(context.receiver)
 				end
 
 				context

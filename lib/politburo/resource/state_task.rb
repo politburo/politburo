@@ -29,6 +29,10 @@ module Politburo
         resource_state.parent_resource
       end
 
+      def contained_searchables
+        Set.new
+      end
+
       def release
       end
 

@@ -2,24 +2,23 @@ require 'politburo'
 
 describe Politburo::Resource::Base do
 
-	let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-	let(:resource) do 
-		Politburo::Resource::Base.new(name: "Child resource")
-	end
+	let(:root_definition) {
+		Politburo::DSL.define { 
+			environment(name: "Parent resource", provider: :simple) {
+				facet(name: "Child resource") {
+					node(name: 'Sub Resource 1') {}
+					node(name: 'Sub Resource 2') {}
+				}
+			}
+		}
+	}
 
-	let(:sub_resource_1) do
-		Politburo::Resource::Base.new(name: "Sub Resource 1")
-	end
+	let(:parent_resource) { root_definition.find_all_by_attributes(name: 'Parent resource').first }
+	let(:resource) { root_definition.find_all_by_attributes(name: "Child resource").first }
 
-	let(:sub_resource_2) do
-		Politburo::Resource::Base.new(name: "Sub Resource 2")
-	end
-
-	before :each do
-		parent_resource.add_child(resource)
-		resource.add_child(sub_resource_1)
-		resource.add_child(sub_resource_2)
-	end
+	let(:sub_resource_1) { root_definition.find_all_by_attributes(name: "Sub Resource 1").first }
+	let(:sub_resource_2) { root_definition.find_all_by_attributes(name: "Sub Resource 2").first }
+	
 
 	it "should initialize with parent" do
 		resource.parent_resource.should == parent_resource
@@ -29,6 +28,7 @@ describe Politburo::Resource::Base do
 
 	it "should require a name" do
 		resource.name = nil
+		resource.name.should be_nil
 		resource.should_not be_valid
 	end
 
@@ -44,13 +44,13 @@ describe Politburo::Resource::Base do
 
 	context "#inspect" do
 		it "should return a very basic view" do
-			resource.inspect.should =~ /<Politburo::Resource::Base:0x[a-f\d]* "Parent resource:Child resource">/
+			resource.inspect.should =~ /<Politburo::Resource::Facet:0x[a-f\d]* "Parent resource:Child resource">/
 		end
 	end
 
 	context "#to_s" do
 		it "should return a very basic view" do
-			resource.to_s.should =~ /<Politburo::Resource::Base:0x[a-f\d]* "Parent resource:Child resource">/
+			resource.to_s.should =~ /<Politburo::Resource::Facet:0x[a-f\d]* "Parent resource:Child resource">/
 		end
 	end
 
@@ -138,39 +138,6 @@ describe Politburo::Resource::Base do
 
 			expected_order = <<EXPECTED_ORDER
 Parent resource
-Parent resource:Child resource
-Parent resource:Child resource:Sub Resource 1
-Parent resource:Child resource:Sub Resource 1#defined
-Parent resource:Child resource:Sub Resource 1#created
-Parent resource:Child resource:Sub Resource 1#starting
-Parent resource:Child resource:Sub Resource 1#started
-Parent resource:Child resource:Sub Resource 1#configuring
-Parent resource:Child resource:Sub Resource 1#configured
-Parent resource:Child resource:Sub Resource 1#ready
-Parent resource:Child resource:Sub Resource 1#stopping
-Parent resource:Child resource:Sub Resource 1#stopped
-Parent resource:Child resource:Sub Resource 1#terminated
-Parent resource:Child resource:Sub Resource 2
-Parent resource:Child resource:Sub Resource 2#defined
-Parent resource:Child resource:Sub Resource 2#created
-Parent resource:Child resource:Sub Resource 2#starting
-Parent resource:Child resource:Sub Resource 2#started
-Parent resource:Child resource:Sub Resource 2#configuring
-Parent resource:Child resource:Sub Resource 2#configured
-Parent resource:Child resource:Sub Resource 2#ready
-Parent resource:Child resource:Sub Resource 2#stopping
-Parent resource:Child resource:Sub Resource 2#stopped
-Parent resource:Child resource:Sub Resource 2#terminated
-Parent resource:Child resource#defined
-Parent resource:Child resource#created
-Parent resource:Child resource#starting
-Parent resource:Child resource#started
-Parent resource:Child resource#configuring
-Parent resource:Child resource#configured
-Parent resource:Child resource#ready
-Parent resource:Child resource#stopping
-Parent resource:Child resource#stopped
-Parent resource:Child resource#terminated
 Parent resource#defined
 Parent resource#created
 Parent resource#starting
@@ -181,6 +148,68 @@ Parent resource#ready
 Parent resource#stopping
 Parent resource#stopped
 Parent resource#terminated
+Parent resource:Child resource
+Parent resource:Child resource#defined
+Parent resource:Child resource#created
+Parent resource:Child resource#starting
+Parent resource:Child resource#started
+Parent resource:Child resource#configuring
+Parent resource:Child resource#configured
+Parent resource:Child resource#ready
+Parent resource:Child resource#stopping
+Parent resource:Child resource#stopped
+Parent resource:Child resource#terminated
+Parent resource:Child resource:Sub Resource 1
+Parent resource:Child resource:Sub Resource 1#defined
+Parent resource:Child resource:Sub Resource 1#defined:Parent resource:Child resource:Sub Resource 1#defined
+Parent resource:Child resource:Sub Resource 1#created
+Parent resource:Child resource:Sub Resource 1#created:Create server
+Parent resource:Child resource:Sub Resource 1#created:Parent resource:Child resource:Sub Resource 1#created
+Parent resource:Child resource:Sub Resource 1#starting
+Parent resource:Child resource:Sub Resource 1#starting:Start server
+Parent resource:Child resource:Sub Resource 1#started
+Parent resource:Child resource:Sub Resource 1#configuring
+Parent resource:Child resource:Sub Resource 1#configured
+Parent resource:Child resource:Sub Resource 1#ready
+Parent resource:Child resource:Sub Resource 1#stopping
+Parent resource:Child resource:Sub Resource 1#stopping:Parent resource:Child resource:Sub Resource 1#stopping
+Parent resource:Child resource:Sub Resource 1#stopped
+Parent resource:Child resource:Sub Resource 1#stopped:Stop server
+Parent resource:Child resource:Sub Resource 1#stopped:Parent resource:Child resource:Sub Resource 1#stopped
+Parent resource:Child resource:Sub Resource 1#terminated
+Parent resource:Child resource:Sub Resource 1#terminated:Terminate server
+Parent resource:Child resource:Sub Resource 2
+Parent resource:Child resource:Sub Resource 2#defined
+Parent resource:Child resource:Sub Resource 2#defined:Parent resource:Child resource:Sub Resource 2#defined
+Parent resource:Child resource:Sub Resource 2#created
+Parent resource:Child resource:Sub Resource 2#created:Create server
+Parent resource:Child resource:Sub Resource 2#created:Parent resource:Child resource:Sub Resource 2#created
+Parent resource:Child resource:Sub Resource 2#starting
+Parent resource:Child resource:Sub Resource 2#starting:Start server
+Parent resource:Child resource:Sub Resource 2#started
+Parent resource:Child resource:Sub Resource 2#configuring
+Parent resource:Child resource:Sub Resource 2#configured
+Parent resource:Child resource:Sub Resource 2#ready
+Parent resource:Child resource:Sub Resource 2#stopping
+Parent resource:Child resource:Sub Resource 2#stopping:Parent resource:Child resource:Sub Resource 2#stopping
+Parent resource:Child resource:Sub Resource 2#stopped
+Parent resource:Child resource:Sub Resource 2#stopped:Stop server
+Parent resource:Child resource:Sub Resource 2#stopped:Parent resource:Child resource:Sub Resource 2#stopped
+Parent resource:Child resource:Sub Resource 2#terminated
+Parent resource:Child resource:Sub Resource 2#terminated:Terminate server
+Parent resource:Child resource:Default Security Group
+Parent resource:Child resource:Default Security Group#defined
+Parent resource:Child resource:Default Security Group#defined:Parent resource:Child resource:Default Security Group#defined
+Parent resource:Child resource:Default Security Group#created
+Parent resource:Child resource:Default Security Group#created:Create security group
+Parent resource:Child resource:Default Security Group#starting
+Parent resource:Child resource:Default Security Group#started
+Parent resource:Child resource:Default Security Group#configuring
+Parent resource:Child resource:Default Security Group#configured
+Parent resource:Child resource:Default Security Group#ready
+Parent resource:Child resource:Default Security Group#stopping
+Parent resource:Child resource:Default Security Group#stopped
+Parent resource:Child resource:Default Security Group#terminated
 EXPECTED_ORDER
 
 			actual_order = each_a.map(&:full_name).join("\n")
@@ -204,7 +233,9 @@ EXPECTED_ORDER
 			end
 
 			it "should include both child resources and state resources" do
-				resource.contained_searchables.length.should == 12
+				resource.contained_searchables.should include sub_resource_1
+				resource.contained_searchables.should include sub_resource_2
+				resource.contained_searchables.should include resource.state(:ready)
 			end
 
 			it "should include all child resources" do
@@ -234,10 +265,10 @@ EXPECTED_ORDER
 	context "#root" do
 
 		it "should return the root resource" do
-			sub_resource_1.root.should == parent_resource
-			sub_resource_2.root.should == parent_resource
-			resource.root.should == parent_resource
-			parent_resource.root.should == parent_resource
+			sub_resource_1.root.should == root_definition
+			sub_resource_2.root.should == root_definition
+			resource.root.should == root_definition
+			parent_resource.root.should == root_definition
 		end
 	end
 
