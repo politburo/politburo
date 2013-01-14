@@ -80,10 +80,9 @@ describe Politburo::Resource::HasStates do
 		end
 
 		let (:defined_state_obj) { 
-			_class = defined_state_class
-			Politburo::DSL.define() {
-				lookup_or_create_resource(_class, full_name: 'has defined state') {}
-			}.children.first
+			object = defined_state_class.new(full_name: 'full name')
+			object.context.evaluate_implied
+			object
 		}
 
 		it "should add a state to be added on initialization" do

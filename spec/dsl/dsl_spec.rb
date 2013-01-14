@@ -20,6 +20,7 @@ describe Politburo::DSL do
         root.stub(:context).and_return(context)
         root.stub(:apply_plugins)
         context.stub(:define).with("string eval").and_return(root)
+        context.stub(:evaluate_implied)
         context.stub(:validate!)
       end
 
@@ -37,6 +38,12 @@ describe Politburo::DSL do
 
       it "should call define on the root context" do
         context.should_receive(:define).with("string eval").and_return(root)
+
+        Politburo::DSL.define("string eval") { "a block" }
+      end
+
+      it "should call evaluate_implied on the root context" do
+        context.should_receive(:evaluate_implied)
 
         Politburo::DSL.define("string eval") { "a block" }
       end
