@@ -29,6 +29,15 @@ module Politburo
 
 			alias :evaluate :define
 
+			def parent(&block)
+				raise "Resource '#{receiver.full_name}' doesn't have a parent" unless receiver.parent_resource
+				parent_context = receiver.parent_resource.context
+
+				parent_context.define(&block) if block_given?
+
+				parent_context
+			end
+
       def state(attributes, &block)
         lookup_or_create_resource(::Politburo::Resource::State, attributes, &block)
       end

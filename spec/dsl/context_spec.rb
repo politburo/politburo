@@ -324,6 +324,26 @@ describe Politburo::DSL::Context do
 
 		end
 
+		context "#parent" do
+			let(:context) { node.context }
+			let(:parent_context) { environment.context }
+
+			it "should return the parent context" do
+				context.parent.should be parent_context
+			end
+
+			it "should raise an error when the receiver doesn't have a parent" do
+				root_definition.should_not be_nil
+				lambda { root_definition.context.parent }.should raise_error "Resource '' doesn't have a parent"
+			end
+
+			it "should evaulate blocks in the parent context" do
+				parent_context.should_receive(:define).and_yield
+
+				context.parent { }
+			end
+		end
+
 		context "#method_missing" do
 
 			it "should delegate to the underlying receiver with all arguments" do

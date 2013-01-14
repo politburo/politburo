@@ -13,16 +13,16 @@ module Politburo
         end
 
         def apply_to_node(node)
-          node.state(:created).context.define    { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CreateTask,    name: "Create server")    {} }
-          node.state(:starting).context.define   { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StartTask,     name: "Start server")     {} }
-          node.state(:stopped).context.define    { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StopTask,      name: "Stop server")      {} }
-          node.state(:terminated).context.define { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::TerminateTask, name: "Terminate server") {} }
+          node.context.define {
+            state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CreateTask,    name: "Create server")    {} }
+            state(:starting)    { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StartTask,     name: "Start server")     {} }
+            state(:stopped)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::StopTask,      name: "Stop server")      {} }
+            state(:terminated)  { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::TerminateTask, name: "Terminate server") {} }
 
-          raise "Node without parent" if node.parent_resource.nil?
-
-          node.parent_resource.context.define do
-            security_group(name: "Default Security Group", region: node.region) { }
-          end
+            parent {
+              security_group(name: "Default Security Group", region: node.region) { }              
+            }
+          }
 
         end
 
