@@ -22,6 +22,8 @@ module Politburo
             parent {
               security_group(name: "Default Security Group", region: node.region) { }              
             }
+
+            depends_on security_group(name: "Default Security Group", region: node.region)
           }
 
         end

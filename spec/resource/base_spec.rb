@@ -3,7 +3,7 @@ require 'politburo'
 describe Politburo::Resource::Base do
 
 	let(:root_definition) {
-		Politburo::DSL.define { 
+		Politburo::Resource::Root.new(name: '').context.define { 
 			environment(name: "Parent resource", provider: :simple) {
 				facet(name: "Child resource") {
 					node(name: 'Sub Resource 1') {}
@@ -161,55 +161,26 @@ Parent resource:Child resource#stopped
 Parent resource:Child resource#terminated
 Parent resource:Child resource:Sub Resource 1
 Parent resource:Child resource:Sub Resource 1#defined
-Parent resource:Child resource:Sub Resource 1#defined:Parent resource:Child resource:Sub Resource 1#defined
 Parent resource:Child resource:Sub Resource 1#created
-Parent resource:Child resource:Sub Resource 1#created:Create server
-Parent resource:Child resource:Sub Resource 1#created:Parent resource:Child resource:Sub Resource 1#created
 Parent resource:Child resource:Sub Resource 1#starting
-Parent resource:Child resource:Sub Resource 1#starting:Start server
 Parent resource:Child resource:Sub Resource 1#started
 Parent resource:Child resource:Sub Resource 1#configuring
 Parent resource:Child resource:Sub Resource 1#configured
 Parent resource:Child resource:Sub Resource 1#ready
 Parent resource:Child resource:Sub Resource 1#stopping
-Parent resource:Child resource:Sub Resource 1#stopping:Parent resource:Child resource:Sub Resource 1#stopping
 Parent resource:Child resource:Sub Resource 1#stopped
-Parent resource:Child resource:Sub Resource 1#stopped:Stop server
-Parent resource:Child resource:Sub Resource 1#stopped:Parent resource:Child resource:Sub Resource 1#stopped
 Parent resource:Child resource:Sub Resource 1#terminated
-Parent resource:Child resource:Sub Resource 1#terminated:Terminate server
 Parent resource:Child resource:Sub Resource 2
 Parent resource:Child resource:Sub Resource 2#defined
-Parent resource:Child resource:Sub Resource 2#defined:Parent resource:Child resource:Sub Resource 2#defined
 Parent resource:Child resource:Sub Resource 2#created
-Parent resource:Child resource:Sub Resource 2#created:Create server
-Parent resource:Child resource:Sub Resource 2#created:Parent resource:Child resource:Sub Resource 2#created
 Parent resource:Child resource:Sub Resource 2#starting
-Parent resource:Child resource:Sub Resource 2#starting:Start server
 Parent resource:Child resource:Sub Resource 2#started
 Parent resource:Child resource:Sub Resource 2#configuring
 Parent resource:Child resource:Sub Resource 2#configured
 Parent resource:Child resource:Sub Resource 2#ready
 Parent resource:Child resource:Sub Resource 2#stopping
-Parent resource:Child resource:Sub Resource 2#stopping:Parent resource:Child resource:Sub Resource 2#stopping
 Parent resource:Child resource:Sub Resource 2#stopped
-Parent resource:Child resource:Sub Resource 2#stopped:Stop server
-Parent resource:Child resource:Sub Resource 2#stopped:Parent resource:Child resource:Sub Resource 2#stopped
 Parent resource:Child resource:Sub Resource 2#terminated
-Parent resource:Child resource:Sub Resource 2#terminated:Terminate server
-Parent resource:Child resource:Default Security Group
-Parent resource:Child resource:Default Security Group#defined
-Parent resource:Child resource:Default Security Group#defined:Parent resource:Child resource:Default Security Group#defined
-Parent resource:Child resource:Default Security Group#created
-Parent resource:Child resource:Default Security Group#created:Create security group
-Parent resource:Child resource:Default Security Group#starting
-Parent resource:Child resource:Default Security Group#started
-Parent resource:Child resource:Default Security Group#configuring
-Parent resource:Child resource:Default Security Group#configured
-Parent resource:Child resource:Default Security Group#ready
-Parent resource:Child resource:Default Security Group#stopping
-Parent resource:Child resource:Default Security Group#stopped
-Parent resource:Child resource:Default Security Group#terminated
 EXPECTED_ORDER
 
 			actual_order = each_a.map(&:full_name).join("\n")
