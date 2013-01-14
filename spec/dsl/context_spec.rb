@@ -198,6 +198,7 @@ describe Politburo::DSL::Context do
 				new_receiver_class.stub(:new).with(:attributes).and_return(new_receiver)
 				new_receiver.stub(:context).and_return(new_receiver_context)
 				new_receiver_context.stub(:define).and_yield
+				new_receiver_context.stub(:evaluate_implied)
 				node.stub(:add_child).with(new_receiver)
 				node.stub(:add_dependency_on).with(new_receiver)
 			end
@@ -213,16 +214,16 @@ describe Politburo::DSL::Context do
 				lambda {context.create_and_define_resource(new_receiver_class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new receiver."
 			end
 
-			it "should call define on the context" do
-				new_receiver_context.should_receive(:define).and_yield
+			it "should evaluate the implied definition for the context" do
+				new_receiver_context.should_receive(:evaluate_implied)
 
 				(context.create_and_define_resource(new_receiver_class, :attributes) { }).should be new_receiver_context
 			end
 
-			it "should call define with each of the implied blocks for the resource's class" do
-				new_receiver_class.should_receive(:implied).and_return([ lambda { raise "lambda was called" } ])
+			it "should call define on the context" do
+				new_receiver_context.should_receive(:define).and_yield
 
-				lambda { (context.create_and_define_resource(new_receiver_class, :attributes) { }) }.should raise_error "lambda was called"
+				(context.create_and_define_resource(new_receiver_class, :attributes) { }).should be new_receiver_context
 			end
 
 			it "should add the new receiver as a child" do
@@ -236,6 +237,20 @@ describe Politburo::DSL::Context do
 
 				(context.create_and_define_resource(new_receiver_class, :attributes) {}).should be new_receiver_context
 			end
+
+		end
+
+		context "#evaluate_implied" do
+			let(:receiver) { node }
+			let(:context) { receiver.context }
+
+			it "should call define with each of the implied blocks for the resource's class" do
+				@flag = false
+				receiver.class.should_receive(:implied).and_return([ Proc.new { raise('lambda was called') } ])
+
+				lambda { context.evaluate_implied() }.should raise_error /lambda was called/
+			end
+
 
 		end
 

@@ -74,9 +74,7 @@ module Politburo
 				context = new_receiver_class.new(attributes).context
 
 				add_child(context.receiver)
-				new_receiver_class.implied.each do | implied_proc |
-					context.define(&implied_proc)
-				end
+				context.evaluate_implied
 
 				context.define(&block)
 
@@ -105,6 +103,12 @@ module Politburo
 				end
 
 				context
+			end
+
+			def evaluate_implied
+				receiver.class.implied.each do | implied_proc |
+					define(&implied_proc)
+				end
 			end
 
 			protected
