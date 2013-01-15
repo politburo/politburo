@@ -153,7 +153,7 @@ ENVFILE_CONTENTS
         end
 
         it "should call pry on the cli" do
-          cli.root.context.should_receive(:pry)
+          cli.should_receive(:pry)
 
           cli.run
         end

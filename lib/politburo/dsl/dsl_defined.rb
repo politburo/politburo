@@ -57,12 +57,15 @@
 
 				def validations
 					validations = {}
-					if (!superclass.nil?) and (superclass.respond_to?(:explicit_validations))
-						validations = superclass.explicit_validations.clone
-					end
-					
-					explicit_validations.each_pair do | attr, validations_for_attr |
-						validations[attr] = validations_for_attr + (validations[attr] || [])
+
+					klass = self
+					until (klass.nil?)
+						if klass.respond_to?(:explicit_validations)
+							klass.explicit_validations.each_pair do | attr, validations_for_attr |
+								validations[attr] = validations_for_attr + (validations[attr] || [])
+							end
+						end
+						klass = klass.superclass
 					end
 
 					validations
@@ -127,8 +130,11 @@
 
 				def implied
 					implied = []
-					implied.push(*superclass.explicitly_implied) if (!superclass.nil?) and (superclass.respond_to?(:explicitly_implied))
-					implied.push(*explicitly_implied)
+					klass = self
+					until (klass.nil?)
+						implied.insert(0, *klass.explicitly_implied) if klass.respond_to?(:explicitly_implied)
+						klass = klass.superclass
+					end
 
 					implied
 				end

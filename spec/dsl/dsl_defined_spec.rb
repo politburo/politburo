@@ -148,6 +148,15 @@ describe Politburo::DSL::DslDefined do
 				} 
 			}
 
+			let(:dsl_defined_class_c) { 
+				Class.new(dsl_defined_class_b) {
+					include Politburo::DSL::DslDefined 
+
+					requires :attr_c
+					validates(:attr_a) { does_more_stuff }
+				} 
+			}
+
 			context "::explicit_validations" do
 
 				it "should be a class specific list of validations for this class only" do
@@ -184,6 +193,15 @@ describe Politburo::DSL::DslDefined do
 					dsl_defined_class_b.validations[:attr_b].size.should == 1
 					dsl_defined_class_b.validations[:attr_a].should_not be_empty
 					dsl_defined_class_b.validations[:attr_a].size.should == 2
+
+					dsl_defined_class_c.validations.should_not be_empty
+
+					dsl_defined_class_c.validations[:attr_b].should_not be_empty
+					dsl_defined_class_c.validations[:attr_b].size.should == 1
+					dsl_defined_class_c.validations[:attr_c].should_not be_empty
+					dsl_defined_class_c.validations[:attr_c].size.should == 1
+					dsl_defined_class_c.validations[:attr_a].should_not be_empty
+					dsl_defined_class_c.validations[:attr_a].size.should == 3
 				end
 
 			end
@@ -219,9 +237,11 @@ describe Politburo::DSL::DslDefined do
 
 		let(:dsl_defined_class_a) { Class.new() { include Politburo::DSL::DslDefined } }
 		let(:dsl_defined_class_b) { Class.new(dsl_defined_class_a) { include Politburo::DSL::DslDefined } }
+		let(:dsl_defined_class_c) { Class.new(dsl_defined_class_b) { include Politburo::DSL::DslDefined } }
 
 		let(:implication_a) { lambda { stuff to_do } }
 		let(:implication_b) { lambda { more stuff to_do } }
+		let(:implication_c) { lambda { even more stuff to_do } }
 
 		before :each do
 			dsl_defined_class_a.explicitly_implied.should be_empty
@@ -249,11 +269,13 @@ describe Politburo::DSL::DslDefined do
 
 			before :each do
 				dsl_defined_class_b.explicitly_implied << implication_b
+				dsl_defined_class_c.explicitly_implied << implication_c
 			end
 
 			it "should aggregate all implications from superclasses down, starting with superclasses" do
 				dsl_defined_class_a.implied.should eq [ implication_a ]
 				dsl_defined_class_b.implied.should eq [ implication_a, implication_b ]
+				dsl_defined_class_c.implied.should eq [ implication_a, implication_b, implication_c ]
 			end
 
 		end
