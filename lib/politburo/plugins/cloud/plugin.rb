@@ -23,6 +23,7 @@ module Politburo
               security_group(name: "Default Security Group", region: node.region) { }              
             }
 
+            self.default_security_group = security_group(name: "Default Security Group", region: node.region).receiver
             depends_on security_group(name: "Default Security Group", region: node.region)
           }
 

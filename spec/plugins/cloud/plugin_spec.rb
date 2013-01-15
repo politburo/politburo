@@ -97,6 +97,11 @@ describe Politburo::Plugins::Cloud::Plugin do
           security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask
         end
 
+        it "should set the security group as the default for the node" do
+          plugin.apply_to_node(node)
+
+          node.default_security_group.should be security_group
+        end
       end
 
       context "when it doesn't exist" do

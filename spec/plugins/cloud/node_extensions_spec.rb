@@ -66,6 +66,14 @@ describe Politburo::Resource::Node, "cloud extensions" do
     end
   end
 
+  context "#default_security_group" do
+    it "should have a default security group attribute" do
+      node.default_security_group = :my_security_group
+
+      node.default_security_group.should be :my_security_group
+    end
+  end
+
   context "#server_creation_overrides" do
 
     it "should have an accessor for this property" do

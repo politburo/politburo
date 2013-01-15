@@ -21,7 +21,12 @@ module Politburo
           image_selector = image_for(node)
           node.logger.debug("Looking for image based on selector: '#{image_selector}'")
           image = find_image(image_selector)
-          server_attrs = { flavor_id: flavor_for(node), image_id: image.id, tags: { "politburo:full_name" => node.full_name, 'Name' => node.full_name } }.merge(node.server_creation_overrides || {})
+          server_attrs = { 
+            flavor_id: flavor_for(node), 
+            image_id: image.id, 
+            tags: { "politburo:full_name" => node.full_name, 'Name' => node.full_name },
+            groups: [ 'default', node.default_security_group.cloud_security_group.name ],
+            }.merge(node.server_creation_overrides || {})
           node.logger.info("Creating server with attributes: #{server_attrs}")
           server = compute_instance.servers.create(server_attrs)
         end

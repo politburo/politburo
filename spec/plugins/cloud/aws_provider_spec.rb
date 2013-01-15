@@ -51,10 +51,13 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
   context "#create_server_for" do
     let(:logger) { double("fake logger", :info => true, :debug => true)}
-    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger, :server_creation_overrides => nil)}
+    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger, :server_creation_overrides => nil, :default_security_group => security_group_resource)}
     let(:servers) { double("fake servers container") }
     let(:server) { double("fake created server") }
     let(:image) { double("fake image", :id => 'ami-00000') }
+
+    let(:security_group_resource) { double("fake security group resource", cloud_security_group: cloud_security_group) }
+    let(:cloud_security_group) { double("fake cloud security group", name: 'security_group_name') }
 
     before :each do
       provider.compute_instance.stub(:servers).and_return(servers)      
@@ -90,6 +93,20 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
       servers.should_receive(:create) do | properties | 
         properties[:image_id].should eq 'ami-00000'
+        server 
+      end
+
+      provider.create_server_for(node).should be server
+    end
+
+    it "should use default_security_group to identify the first additional security group for the cloud server" do
+      node.should_receive(:default_security_group).and_return(security_group_resource)
+      security_group_resource.should_receive(:cloud_security_group).and_return(cloud_security_group)
+      cloud_security_group.should_receive(:name).and_return('security_group_name')
+
+      servers.should_receive(:create) do | properties | 
+        properties[:groups].should include 'default'
+        properties[:groups].should include 'security_group_name'
         server 
       end
 
