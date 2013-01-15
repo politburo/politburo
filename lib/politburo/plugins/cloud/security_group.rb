@@ -3,7 +3,7 @@ module Politburo
     module Cloud
       class SecurityGroup < CloudResource
         implies {
-          state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask,     name: "Create security group") {} } 
+          state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask,     name: "Create security group", noun: 'security group', create_using: lambda { | security_group_resource | security_group_resource.cloud_provider.create_security_group_for(security_group_resource) }) {} } 
           state(:terminated)  { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask,  name: "Delete security group", noun: 'security group') {} } 
         }
 

@@ -21,7 +21,7 @@ module Politburo
             
             Fog::Compute::AWS::SecurityGroup.class_eval do
               include Politburo::Plugins::Cloud::FogSecurityGroupExtensions
-            end
+            end if (config[:provider] == "AWS")
             
             compute
           end

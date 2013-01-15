@@ -94,7 +94,11 @@ describe Politburo::Plugins::Cloud::Plugin do
           
           security_group.state(:created).dependencies.should_not be_empty
           security_group.state(:created).tasks.should_not be_empty
-          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask
+          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          
+          security_group.state(:terminated).dependencies.should_not be_empty
+          security_group.state(:terminated).tasks.should_not be_empty
+          security_group.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
         end
 
         it "should set the security group as the default for the node" do
@@ -119,7 +123,11 @@ describe Politburo::Plugins::Cloud::Plugin do
 
           security_group.state(:created).dependencies.should_not be_empty
           security_group.state(:created).tasks.should_not be_empty
-          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask
+          security_group.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          
+          security_group.state(:terminated).dependencies.should_not be_empty
+          security_group.state(:terminated).tasks.should_not be_empty
+          security_group.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
         end
 
       end
