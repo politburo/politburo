@@ -26,7 +26,6 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
 
     facet(name: name, region: region) do
       node(name: "Primary host in zone", server_creation_overrides: options) {}
-      node(name: "Secondary host in zone", server_creation_overrides: options) {}
     end
   end
 
