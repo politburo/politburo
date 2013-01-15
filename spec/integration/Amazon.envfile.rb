@@ -5,7 +5,7 @@
 # > AWS_ACCESS_KEY_ID=<your key> AWS_SECRET_ACCESS_KEY=<your secret> politburo -e Amazon.envfile.rb Amazon#ready
 #
 # To terminate:
-# > AWS_ACCESS_KEY_ID=<your key> AWS_SECRET_ACCESS_KEY=<your secret> politburo -e Amazon.envfile.rb Amazon#stop
+# > AWS_ACCESS_KEY_ID=<your key> AWS_SECRET_ACCESS_KEY=<your secret> politburo -e Amazon.envfile.rb Amazon#terminate
 # 
 #
 environment(name: 'Amazon', description: "Amazon integration test environment",
@@ -25,14 +25,8 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
     region = options.delete(:region)
 
     facet(name: name, region: region) do
-      node(name: "Primary host in zone", server_creation_overrides: options) do
-        # state(:configured) {
-        #   remote_task(
-        #     name: 'install ruby',
-        #     command: 'sudo apt-get install ruby', 
-        #     met_test_command: 'which ruby') { }
-        # }
-      end
+      node(name: "Primary host in zone", server_creation_overrides: options) {}
+      node(name: "Secondary host in zone", server_creation_overrides: options) {}
     end
   end
 
