@@ -233,6 +233,37 @@ describe Politburo::DSL::DslDefined do
 
 	end
 
+	context "#attr_with_default" do
+
+		let(:class_with_attr_with_default) {
+			Class.new(dsl_defined_class) {
+
+				attr_with_default(:herring) { 'blue' }
+			}
+		}
+
+		let(:obj_with_attr) {
+			class_with_attr_with_default.new()
+		}
+
+		it "should add accessors for the attribute" do
+			obj_with_attr.herring = 'red'
+			obj_with_attr.herring.should eq 'red'
+		end
+
+		it "should revert to default if not set" do
+			obj_with_attr.herring.should eq 'blue'
+		end
+
+		it "should raise an error if no block given" do
+			lambda { 
+				Class.new(dsl_defined_class) {
+					attr_with_default(:parrot)
+				}
+			}.should raise_error "Block is required for default value"
+		end
+	end
+
 	context "implications" do
 
 		let(:dsl_defined_class_a) { Class.new() { include Politburo::DSL::DslDefined } }
