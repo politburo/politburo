@@ -16,7 +16,7 @@ module Politburo
         @name ||= "RemoteTask { command: '#{command}', met? '#{met_test_command}' }"
       end
 
-      def met?
+      def met?(verification = false)
         execute_command(met_test_command)
       end
 

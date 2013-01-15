@@ -9,9 +9,8 @@ module Politburo
         requires :provider
 
         implies {
-          state(:created) { 
-            create_and_define_resource(Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask, name: "Create security group") {} 
-          } 
+          state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::SecurityGroupCreateTask,     name: "Create security group") {} } 
+          state(:terminated)  { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::SecurityGroupTerminateTask,  name: "Delete security group") {} } 
         }
 
         def cloud_security_group

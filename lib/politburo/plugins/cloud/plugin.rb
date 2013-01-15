@@ -24,7 +24,10 @@ module Politburo
             }
 
             self.default_security_group = security_group(name: "Default Security Group", region: node.region).receiver
-            depends_on security_group(name: "Default Security Group", region: node.region)
+
+            state(:created).depends_on security_group(name: "Default Security Group", region: node.region).state(:created)
+            security_group(name: "Default Security Group", region: node.region).state(:terminated).depends_on state(:terminated)
+
           }
 
         end

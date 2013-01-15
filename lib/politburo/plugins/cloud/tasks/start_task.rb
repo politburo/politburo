@@ -4,7 +4,7 @@ module Politburo
       module Tasks
         class StartTask < Politburo::Resource::StateTask
 
-          def met?
+          def met?(verification = false)
             server = resource.cloud_server
             server and server.ready?
           end

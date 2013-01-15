@@ -52,7 +52,7 @@ module Politburo
         self
       end
 
-      def met?
+      def met?(verification = false)
         true
       end
 

@@ -84,7 +84,7 @@ module Politburo
       end
 
       def verify_met?
-        met?
+        met?(true)
       end
 
       def step

@@ -135,7 +135,8 @@ describe Politburo::Plugins::Cloud::AWSProvider do
   end
 
   context "security groups" do
-    let(:security_group_resource) { double("security group resource", full_name: :security_group_resource_full_name) }
+    let(:parent_resource) { double("parent resource", full_name: :parent_resource_full_name) }
+    let(:security_group_resource) { double("security group resource", full_name: :security_group_resource_full_name, parent_resource: parent_resource) }
     let(:security_group_collection) { double("security group collection") }
     let(:cloud_security_group) { double("cloud security group") }
 
@@ -154,7 +155,7 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
       it "should create the cloud security group for the security group resource" do
         compute_instance.should_receive(:security_groups).and_return(security_group_collection)
-        security_group_collection.should_receive(:create).with(name: :security_group_resource_full_name, description: :security_group_resource_full_name).and_return(cloud_security_group)
+        security_group_collection.should_receive(:create).with(name: :security_group_resource_full_name, description: "Default security group for parent_resource_full_name. Automatically created by Politburo.").and_return(cloud_security_group)
 
         provider.create_security_group_for(security_group_resource).should be cloud_security_group
       end

@@ -4,7 +4,7 @@ module Politburo
       module Tasks
         class TerminateTask < Politburo::Resource::StateTask
 
-          def met?
+          def met?(verification = false)
             server = resource.cloud_server
             if server.nil?
               logger.info("No server, so nothing to terminate.")

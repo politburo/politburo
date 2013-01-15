@@ -36,7 +36,7 @@ module Politburo
         end
 
         def create_security_group_for(security_group_resource)
-          compute_instance.security_groups.create(name: security_group_resource.full_name, description: security_group_resource.full_name)
+          compute_instance.security_groups.create(name: security_group_resource.full_name, description: "Default security group for #{security_group_resource.parent_resource.full_name}. Automatically created by Politburo.")
         end
 
         def images
