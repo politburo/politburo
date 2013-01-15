@@ -1,11 +1,10 @@
 module Politburo
   module Plugins
     module Cloud
-      module Server
+      module FogSecurityGroupExtensions
 
         def display_name
-          return self.dns_name if self.respond_to?(:dns_name) and self.dns_name
-          return self.id
+          self.group_id
         end
 
         def self.included(base)

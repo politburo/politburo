@@ -19,6 +19,10 @@ module Politburo
               include Politburo::Plugins::Cloud::Server
             end
             
+            Fog::Compute::AWS::SecurityGroup.class_eval do
+              include Politburo::Plugins::Cloud::FogSecurityGroupExtensions
+            end
+            
             compute
           end
         end

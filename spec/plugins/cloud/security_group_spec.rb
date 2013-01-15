@@ -7,6 +7,13 @@ describe Politburo::Plugins::Cloud::SecurityGroup do
     parent_resource.add_child(security_group)
   end
 
+  context "#cloud_counterpart" do
+    it "should call cloud_security_group" do
+      security_group.should_receive(:cloud_security_group)
+      security_group.cloud_counterpart
+    end
+  end
+
   context "cloud_security_group" do
     let(:provider) { double("provider") }
 
