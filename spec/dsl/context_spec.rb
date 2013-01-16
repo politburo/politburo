@@ -5,7 +5,7 @@ describe Politburo::DSL::Context do
 	let(:root_definition) do
 		Politburo::DSL.define do
 
-			environment(name: "environment", provider: :aws) do
+			environment(name: "environment", provider: :aws, region: :moon_west_1) do
 				node(name: "node", provider: "m1.large") {}
 				node(name: "another node", provider: "m1.large") do
 					depends_on node(name: "node").state(:configured)
@@ -22,7 +22,7 @@ describe Politburo::DSL::Context do
 				end
 			end
 
-			environment(name: 'another environment', provider: :aws) do
+			environment(name: 'another environment', provider: :aws, region: :moon_east_1) do
 				node(name: "a node from another galaxy", provider: "c1.xlarge") {}
 			end
 		end
@@ -116,6 +116,12 @@ describe Politburo::DSL::Context do
 				lambda { context_for_environment.lookup(name: 'Does not exist') }.should raise_error('Could not find receiver by attributes: {:name=>"Does not exist"}.')
 			end
 
+			it "should evaluate the block in context if block is given" do
+				context_for_node.stub(:find_one_by_attributes).with(anything).and_return(context_for_node)
+				context_for_node.should_receive(:define).and_yield
+
+				lambda { context_for_node.lookup({ some: 'attributes' }) { raise "this was called" } }.should raise_error "this was called"
+			end
 		end
 
 		context "#find_one_by_attributes" do

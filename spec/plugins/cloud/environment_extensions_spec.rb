@@ -29,6 +29,12 @@ describe Politburo::Resource::Environment, "cloud extensions" do
 
     end
     
+    context "#key_pair" do
+
+      it { environment.context.key_pair(name: 'Key Pair') {}.receiver.should be_a Politburo::Plugins::Cloud::KeyPair }
+
+    end
+    
   end
 end
 

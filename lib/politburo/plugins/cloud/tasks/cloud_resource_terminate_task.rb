@@ -9,7 +9,7 @@ module Politburo
           def met?(verification = false)
             cloud_resource = resource.cloud_counterpart
             if cloud_resource.nil?
-              logger.info("No #{noun}, so nothing to terminate.") unless verification
+              logger.info("No #{noun}, so nothing to delete.") unless verification
               return true
             end
 

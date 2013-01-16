@@ -41,6 +41,27 @@ describe Politburo::Resource::Node, "cloud extensions" do
       node.region.should be :us_west_1
     end
 
+    it "should require region" do
+      parent_resource.stub(:region).and_return(nil)
+      parent_resource.stub(:provider).and_return(:aws)
+
+      node.region.should be nil
+
+      node.should_not be_valid
+    end
+
+  end
+
+  context "#key_pair" do
+    let(:default_key_pair_for_region_context) { double("context for default keypair", receiver: :default_key_pair_for_region) }
+
+    it "should default to locating one up the tree" do
+      node.should_receive(:region).and_return(:region)
+      node.context.should_receive(:lookup).with(name: 'Default Key Pair for region', class: Politburo::Plugins::Cloud::KeyPair, region: :region).and_return(default_key_pair_for_region_context)
+
+      node.key_pair.should be :default_key_pair_for_region
+    end
+
   end
 
   context "#cloud_provider" do

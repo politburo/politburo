@@ -31,7 +31,8 @@ describe Politburo::Plugins::Cloud::Plugin do
       }
     }
 
-    let(:node) { root.context.lookup(name: 'a node') }
+    let(:node) { root.context.lookup(name: 'a node').receiver }
+    let(:environment) { root.context.lookup(name: 'an environment').receiver }
 
     it "should add a dependency on a creation task to the create state" do
       plugin.apply_to_node(node)
@@ -89,7 +90,7 @@ describe Politburo::Plugins::Cloud::Plugin do
           parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
         end
 
-        it "should have a create task" do
+        it "should have creation and deletion tasks" do
           plugin.apply_to_node(node)
           
           security_group.state(:created).dependencies.should_not be_empty
@@ -118,7 +119,7 @@ describe Politburo::Plugins::Cloud::Plugin do
           parent_resource.find_all_by_attributes(security_group_attrs).should_not be_empty
         end
 
-        it "should have a create task" do
+        it "should have creation and deletion tasks" do
           plugin.apply_to_node(node)
 
           security_group.state(:created).dependencies.should_not be_empty
@@ -132,7 +133,73 @@ describe Politburo::Plugins::Cloud::Plugin do
 
       end
 
+    end
 
+    context "key_pair" do
+      let(:environment_context) { environment.context }
+
+      let(:key_pair_attrs) { { class: Politburo::Plugins::Cloud::KeyPair, name: "Default Key Pair", region: 'a region' } }
+
+      let(:key_pair) { environment.find_all_by_attributes(key_pair_attrs).first }
+
+      context "when it already exists" do
+
+        before :each do
+          environment_context.define do
+            key_pair(name: "Default Key Pair", region: 'a region') {}
+          end
+        end
+
+        it "it should do nothing further" do
+          environment.find_all_by_attributes(key_pair_attrs).should_not be_empty
+
+          plugin.apply_to_node(node)
+
+          environment.find_all_by_attributes(key_pair_attrs).should_not be_empty
+        end
+
+        it "should have creation and deletion tasks" do
+          plugin.apply_to_node(node)
+          
+          key_pair.state(:created).dependencies.should_not be_empty
+          key_pair.state(:created).tasks.should_not be_empty
+          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          
+          key_pair.state(:terminated).dependencies.should_not be_empty
+          key_pair.state(:terminated).tasks.should_not be_empty
+          key_pair.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
+        end
+
+        it "should set the security group as the default for the node" do
+          plugin.apply_to_node(node)
+
+          node.key_pair.should be key_pair
+        end
+      end
+
+      context "when it doesn't exist" do
+
+        it "when it doesn't exist, it should create it" do
+          environment.find_all_by_attributes(key_pair_attrs).should be_empty
+
+          plugin.apply_to_node(node)
+
+          environment.find_all_by_attributes(key_pair_attrs).should_not be_empty
+        end
+
+        it "should have creation and deletion tasks" do
+          plugin.apply_to_node(node)
+
+          key_pair.state(:created).dependencies.should_not be_empty
+          key_pair.state(:created).tasks.should_not be_empty
+          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          
+          key_pair.state(:terminated).dependencies.should_not be_empty
+          key_pair.state(:terminated).tasks.should_not be_empty
+          key_pair.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
+        end
+
+      end
 
     end
 

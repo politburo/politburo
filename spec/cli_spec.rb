@@ -11,7 +11,7 @@ describe Politburo::CLI do
 
     let (:envfile_contents) do
       <<ENVFILE_CONTENTS
-environment(name: "environment", provider: :aws) do
+environment(name: "environment", provider: :aws, region: :moon_west_1) do
   node(name: "node", provider: "m1.large") {}
   node(name: "another node", provider: "m1.large") do
     depends_on node(name: "node").state(:configured)
@@ -21,7 +21,7 @@ environment(name: "environment", provider: :aws) do
   end
 end
 
-environment(name: 'another environment', provider: :aws) do
+environment(name: 'another environment', provider: :aws, region: :moon_east_1) do
   node(name: "a node from another galaxy", provider: "c1.xlarge") {}
 end
 ENVFILE_CONTENTS

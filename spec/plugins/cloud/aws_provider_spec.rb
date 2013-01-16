@@ -136,7 +136,7 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
   context "security groups" do
     let(:parent_resource) { double("parent resource", full_name: :parent_resource_full_name) }
-    let(:security_group_resource) { double("security group resource", full_name: :security_group_resource_full_name, parent_resource: parent_resource) }
+    let(:security_group_resource) { double("security group resource", cloud_counterpart_name: :security_group_resource_counterpart_name, parent_resource: parent_resource) }
     let(:security_group_collection) { double("security group collection") }
     let(:cloud_security_group) { double("cloud security group") }
 
@@ -144,7 +144,7 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
       it "should retrieve the cloud security group for the security group resource" do
         compute_instance.should_receive(:security_groups).and_return(security_group_collection)
-        security_group_collection.should_receive(:get).with(:security_group_resource_full_name).and_return(cloud_security_group)
+        security_group_collection.should_receive(:get).with(:security_group_resource_counterpart_name).and_return(cloud_security_group)
 
         provider.find_security_group_for(security_group_resource).should be cloud_security_group
       end
@@ -155,13 +155,41 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
       it "should create the cloud security group for the security group resource" do
         compute_instance.should_receive(:security_groups).and_return(security_group_collection)
-        security_group_collection.should_receive(:create).with(name: :security_group_resource_full_name, description: "Default security group for parent_resource_full_name. Automatically created by Politburo.").and_return(cloud_security_group)
+        security_group_collection.should_receive(:create).with(name: :security_group_resource_counterpart_name, description: "Default security group for parent_resource_full_name. Automatically created by Politburo.").and_return(cloud_security_group)
 
         provider.create_security_group_for(security_group_resource).should be cloud_security_group
       end
 
     end
 
+  end
+  context "key pairs" do
+    let(:parent_resource) { double("parent resource", full_name: :parent_resource_full_name) }
+    let(:key_pair_resource) { double("key pair resource", cloud_counterpart_name: :key_pair_resource_counterpart_name, parent_resource: parent_resource) }
+    let(:key_pair_collection) { double("key pair collection") }
+    let(:cloud_key_pair) { double("cloud key pair") }
+
+    context "#find_key_pair_for" do
+
+      it "should retrieve the cloud key pair for the key pair resource" do
+        compute_instance.should_receive(:key_pairs).and_return(key_pair_collection)
+        key_pair_collection.should_receive(:get).with(:key_pair_resource_counterpart_name).and_return(cloud_key_pair)
+
+        provider.find_key_pair_for(key_pair_resource).should be cloud_key_pair
+      end
+
+    end
+
+    # context "#create_key_pair_for" do
+
+    #   it "should create the cloud key pair for the key pair resource" do
+    #     compute_instance.should_receive(:key_pairs).and_return(key_pair_collection)
+    #     key_pair_collection.should_receive(:create).with(name: :key_pair_resource_counterpart_name, description: "Default key pair for parent_resource_full_name. Automatically created by Politburo.").and_return(cloud_key_pair)
+
+    #     provider.create_key_pair_for(key_pair_resource).should be cloud_key_pair
+    #   end
+
+    # end
 
   end
 

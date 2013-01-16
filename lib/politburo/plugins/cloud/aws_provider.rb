@@ -32,11 +32,15 @@ module Politburo
         end
 
         def find_security_group_for(security_group_resource)
-          compute_instance.security_groups.get(security_group_resource.full_name)
+          compute_instance.security_groups.get(security_group_resource.cloud_counterpart_name)
         end
 
         def create_security_group_for(security_group_resource)
-          compute_instance.security_groups.create(name: security_group_resource.full_name, description: "Default security group for #{security_group_resource.parent_resource.full_name}. Automatically created by Politburo.")
+          compute_instance.security_groups.create(name: security_group_resource.cloud_counterpart_name, description: "Default security group for #{security_group_resource.parent_resource.full_name}. Automatically created by Politburo.")
+        end
+
+        def find_key_pair_for(key_pair_resource)
+          compute_instance.key_pairs.get(key_pair_resource.cloud_counterpart_name)
         end
 
         def images

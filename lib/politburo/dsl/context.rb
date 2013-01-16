@@ -51,9 +51,11 @@ module Politburo
 				dependent_context
 			end
 
-			def lookup(find_attrs)
+			def lookup(find_attrs, &block)
 				context = find_one_by_attributes(find_attrs)
 				raise "Could not find receiver by attributes: #{find_attrs}." if (context.nil?) 
+				context.define(&block) if block_given?
+				
 				context
 			end
 

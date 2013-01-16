@@ -28,6 +28,13 @@ module Politburo
             state(:created).depends_on security_group(name: "Default Security Group", region: node.region).state(:created)
             security_group(name: "Default Security Group", region: node.region).state(:terminated).depends_on state(:terminated)
 
+            lookup(class: Politburo::Resource::Environment) {
+              key_pair(name: "Default Key Pair for #{node.region}", region: node.region) { }
+            }
+
+            kp = receiver.key_pair.context
+            state(:created).depends_on kp
+            kp.state(:terminated).depends_on state(:terminated)
           }
 
         end

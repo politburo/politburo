@@ -7,6 +7,13 @@ module Politburo
         inherits :region
 
         requires :provider
+        requires :region
+
+        attr_with_default(:cloud_counterpart_name) { default_cloud_counterpart_name }
+
+        def default_cloud_counterpart_name
+          full_name
+        end
 
       end
     end
