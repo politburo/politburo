@@ -89,26 +89,26 @@ ENVFILE_CONTENTS
     end
 
 
-    context "#babushka_sources_path" do
+    context "#private_keys_path" do
 
-      let (:fake_babushka_sources_pathname) { double("fake babushka sources pathname") }
+      let (:fake_private_keys_pathname) { double("fake private keys pathname") }
 
       before :each do
-        cli.options.should_receive(:[]).with(:'babushka-sources-dir').and_return(:fake_babushka_sources_dir)
-        File.should_receive(:expand_path).with(:fake_babushka_sources_dir).and_return(:fake_expanded_babushka_sources_dir)
-        Pathname.should_receive(:new).with(:fake_expanded_babushka_sources_dir).and_return(fake_babushka_sources_pathname)
+        cli.options.should_receive(:[]).with(:'private-keys-dir').and_return(:fake_private_keys_dir)
+        File.should_receive(:expand_path).with(:fake_private_keys_dir).and_return(:fake_expanded_private_keys_dir)
+        Pathname.should_receive(:new).with(:fake_expanded_private_keys_dir).and_return(fake_private_keys_pathname)
       end
 
-      it "should use the babushka-sources-dir option to construct the babushka dir" do
-        fake_babushka_sources_pathname.should_receive(:directory?).and_return(true)
+      it "should use the private-keys-dir option to construct the key files dir" do
+        fake_private_keys_pathname.should_receive(:directory?).and_return(true)
 
-        cli.babushka_sources_path.should == fake_babushka_sources_pathname
+        cli.private_keys_path.should == fake_private_keys_pathname
       end
 
       it "should raise an error if the end result isn't a valid directory" do
-        fake_babushka_sources_pathname.should_receive(:directory?).and_return(false)
+        fake_private_keys_pathname.should_receive(:directory?).and_return(false)
 
-        lambda { cli.babushka_sources_path}.should raise_error
+        lambda { cli.private_keys_path}.should raise_error
       end
 
     end
@@ -258,21 +258,21 @@ ENVFILE_CONTENTS
 
     end
 
-    context "--babushka-sources-dir" do
+    context "--private-keys-dir" do
 
       context "when not provided" do
         let(:args) { %w(fake-target) }
 
-        it "should default to ~/.babushka/sources" do
-          cli.options[:'babushka-sources-dir'].should == '~/.babushka/sources'
+        it "should default to .ssh" do
+          cli.options[:'private-keys-dir'].should == '.ssh'
         end
       end
 
       context "when provided" do
-        let(:args) { %w(--babushka-sources-dir=Some-dir fake-target) }
+        let(:args) { %w(--private-keys-dir=Some-dir fake-target) }
 
         it "should set the source dir" do
-          cli.options[:'babushka-sources-dir'].should == 'Some-dir'
+          cli.options[:'private-keys-dir'].should == 'Some-dir'
         end
 
       end

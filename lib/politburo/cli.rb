@@ -12,7 +12,7 @@ module Politburo
       p = Trollop::Parser.new do
           version "politburo, version #{Politburo::VERSION}"
           banner <<-EOS
-        Politburo - The Babushka-wielding DevOps orchestrator 
+        Politburo - The Developer's DevOps orchestrator 
 
         Usage:
                politburo [options] resource[#state] [resource2[#state]]+
@@ -21,7 +21,7 @@ module Politburo
         opt :interactive, "Interactive pry console", :short => 'i'
         opt :color, "Use colored output", :default => true, :short => 'c'
         opt :envfile, "Use a different envfile", :short => 'e', :default => 'Envfile'
-        opt :'babushka-sources-dir', "Use a different babushka sources dir", :short => 'b', :default => '~/.babushka/sources'
+        opt :'private-keys-dir', "Use a different private keys dir", :short => 'b', :default => '.ssh'
       end
 
       opts = Trollop::with_standard_exception_handling p do
@@ -59,7 +59,10 @@ module Politburo
     end
 
     def root()
-      @root ||= Politburo::DSL.define(envfile_contents)
+      _cli = self
+      @root ||= Politburo::DSL.define(envfile_contents) {
+        self.cli = _cli
+      }
     end
 
     def release()
@@ -74,13 +77,17 @@ module Politburo
       end.flatten)
     end
 
-    def envfile_contents()
-      @envfile_contents ||= File.open(options[:envfile], "r") { | f | f.read() }
+    def envfile_path
+      @envfile_path ||= Pathname.new(options[:envfile])
     end
 
-    def babushka_sources_path()
-      result_path = Pathname.new(File.expand_path(options[:'babushka-sources-dir']))
-      raise "Babushka sources directory: '#{result_path.to_s}' does not exist or isn't a directory" unless result_path.directory?
+    def envfile_contents()
+      @envfile_contents ||= envfile_path.read 
+    end
+
+    def private_keys_path()
+      result_path = Pathname.new(File.expand_path(options[:'private-keys-dir']))
+      raise "Key files directory: '#{result_path.to_s}' does not exist or isn't a directory" unless result_path.directory?
       result_path
     end
 

@@ -5,6 +5,7 @@ Politburo::Resource::Environment.class_eval do
 
   requires :provider
   
+  attr_with_default(:private_keys_path) { root.cli.private_keys_path }
 end
 
 Politburo::Resource::EnvironmentContext.class_eval do

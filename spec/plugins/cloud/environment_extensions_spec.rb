@@ -21,6 +21,22 @@ describe Politburo::Resource::Environment, "cloud extensions" do
     environment.provider_config.should be {}
   end
 
+
+  context "#private_keys_path" do
+    let(:private_keys_path) { double("private keys path") }
+    let(:cli) { double("CLI") }
+    let(:root) { double("root") }
+
+    it "should default to getting it from the CLI" do
+      environment.should_receive(:root).and_return(root)
+      root.should_receive(:cli).and_return(cli)
+      cli.should_receive(:private_keys_path).and_return(private_keys_path)
+
+      environment.private_keys_path.should be private_keys_path
+    end
+
+  end  
+
   describe Politburo::Resource::EnvironmentContext, "cloud extensions" do
 
     context "#security_group" do

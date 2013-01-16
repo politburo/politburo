@@ -2,6 +2,10 @@ module Politburo
   module Resource
     class Root < Base
 
+      attr_accessor :cli
+
+      requires :cli
+
       def parent_resource
         nil
       end

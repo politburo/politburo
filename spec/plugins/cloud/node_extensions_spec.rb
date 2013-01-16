@@ -56,7 +56,7 @@ describe Politburo::Resource::Node, "cloud extensions" do
     let(:default_key_pair_for_region_context) { double("context for default keypair", receiver: :default_key_pair_for_region) }
 
     it "should default to locating one up the tree" do
-      node.should_receive(:region).and_return(:region)
+      node.stub(:region).and_return(:region)
       node.context.should_receive(:lookup).with(name: 'Default Key Pair for region', class: Politburo::Plugins::Cloud::KeyPair, region: :region).and_return(default_key_pair_for_region_context)
 
       node.key_pair.should be :default_key_pair_for_region

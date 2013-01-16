@@ -1,36 +1,41 @@
-Politburo - The Babushka-wielding DevOps orchestrator
+Politburo - The Developer's DevOps orchestrator
 =====================================================================
 
 Politburo is a tool to orchestrate launching, configuring, maintaining & 
 updating entire multi-machine environments / clusters described in a 
-simple DSL, using Babushka recipes.
+simple DSL.
 
 > "Give me a lever long enough and a fulcrum on which to place it, 
 > and I shall move the world" - Arhchimedes
+
+Or:
+
+> "First requisite of get shit done is be
+>          able for deal with lot of shit." - @DEVOPS_BORAT (http://goo.gl/FCxTz)
 
 The prologue:
 -------------
 
 * We love DevOps
 * We like being able to describe our environments in code
+  described the same way.
 * We believe that code should be the lever that allows single
   developers to orchestrate entire environments.
-* We don't like Chef's complexity:
-  * We don't like needed centralised servers
-  * We don't like having to manage cookbooks
-  * We don't like Chef's over-complicated recipe style 
-  * We don't like the way that Chef recipes tend to bit-rot
+* We don't like needed centralised configuration servers
+  * Why not launch a 100-machine cluster from our laptop?
+* We don't like having to manage cookbooks
+  * Cookbook versions on different servers? Blah.
+* We don't like recipes that are brittle or suffer from bit-rot  
 * We love Babushka's approach to DevOps scripting:
   * Test-driven, self-describing idempotent, dependency based tasks.
   * Searchable, reusable & parameterised tasks with 
     '% successful run' metrics
-* Babushka is missing a couple of things to allow it to wield it to
+* Tools like Babushka are missing a couple of things to allow wielding them to
   manage multi-host environments/clusters:
   * A method of orchestrating multiple servers with inter-machine dependencies
-  * A cron-able mechanism to run Babushka tasks
-  * A dashboard view of your Babushka provisioned servers
-* We like the ability to view and monitor our provisioned servers 
-  from a web user interface
+* The difference between a test environment and a production one is
+  in the number of servers, the topology is the same -- one source of
+  truth is enough.
 
 Aspirational Feature List:
 --------------------------
@@ -73,5 +78,6 @@ Politburo DSL Basics:
   * e.g. The webnodes for a standard LAMP stack are dependent on the master 
     db node being ready, even though they don't hierarchically 'own' the dbnode. 
 * Resources lifecycle
-  * All resources share a minimum of these life-cycle states: "Defined", "In Progress", "Ready"
+  * All resources share a minimum of these life-cycle states: 
+    "Defined", "Creating", "Created", "Ready", "Stopping", "Stopped", "Terminated"
 

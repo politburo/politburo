@@ -58,12 +58,12 @@ module Politburo
 
       def log_formatter
         @log_formatter ||= lambda do |severity, datetime, progname, msg|
-          "#{console_prefix(datetime)} #{msg}\n"
+          "#{console_prefix(datetime, severity)} #{msg}\n"
         end
       end
 
-      def console_prefix(datetime)
-        "#{datetime.to_s} #{self.resource_state.full_name.to_s.white} #{self.name.cyan}"
+      def console_prefix(datetime, severity = :INFO)
+        "#{self.colorize_by_severity(datetime, severity)} #{self.resource_state.full_name.to_s.white} #{self.colorize_by_severity(self.name, severity)}"
       end
 
 

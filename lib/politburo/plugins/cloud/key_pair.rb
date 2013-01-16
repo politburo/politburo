@@ -2,9 +2,16 @@ module Politburo
   module Plugins
     module Cloud
       class KeyPair < CloudResource
+        inherits :private_keys_path
+
+        attr_with_default(:private_key_file_name) { "#{cloud_counterpart_name.gsub(/\W/, '_')}.pem" }
+        attr_with_default(:private_key_path) { private_keys_path + private_key_file_name }
+
+        attr_with_default(:public_key_file_name) { "#{cloud_counterpart_name.gsub(/\W/, '_')}.pub" }
+        attr_with_default(:public_key_path) { private_keys_path + public_key_file_name }
+
         implies {
-          state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask,     name: "Create key pair", noun: 'key pair', create_using: lambda { | kp | raise "Not yet implemented." }) {} } 
-          state(:terminated)  { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask,  name: "Delete key pair", noun: 'key pair') {} } 
+          state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::KeyPairCreateTask,           name: "Create key pair") {} } 
         }
 
         def default_cloud_counterpart_name

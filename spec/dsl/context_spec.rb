@@ -4,7 +4,8 @@ describe Politburo::DSL::Context do
 
 	let(:root_definition) do
 		Politburo::DSL.define do
-
+			self.cli = :fake_cli
+			
 			environment(name: "environment", provider: :aws, region: :moon_west_1) do
 				node(name: "node", provider: "m1.large") {}
 				node(name: "another node", provider: "m1.large") do

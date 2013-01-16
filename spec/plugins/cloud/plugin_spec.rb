@@ -138,7 +138,7 @@ describe Politburo::Plugins::Cloud::Plugin do
     context "key_pair" do
       let(:environment_context) { environment.context }
 
-      let(:key_pair_attrs) { { class: Politburo::Plugins::Cloud::KeyPair, name: "Default Key Pair", region: 'a region' } }
+      let(:key_pair_attrs) { { class: Politburo::Plugins::Cloud::KeyPair, name: "Default Key Pair for a region", region: 'a region' } }
 
       let(:key_pair) { environment.find_all_by_attributes(key_pair_attrs).first }
 
@@ -146,7 +146,7 @@ describe Politburo::Plugins::Cloud::Plugin do
 
         before :each do
           environment_context.define do
-            key_pair(name: "Default Key Pair", region: 'a region') {}
+            key_pair(name: "Default Key Pair for a region", region: 'a region') {}
           end
         end
 
@@ -158,16 +158,14 @@ describe Politburo::Plugins::Cloud::Plugin do
           environment.find_all_by_attributes(key_pair_attrs).should_not be_empty
         end
 
-        it "should have creation and deletion tasks" do
+        it "should have creation only tasks" do
           plugin.apply_to_node(node)
           
           key_pair.state(:created).dependencies.should_not be_empty
           key_pair.state(:created).tasks.should_not be_empty
-          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::KeyPairCreateTask
           
-          key_pair.state(:terminated).dependencies.should_not be_empty
-          key_pair.state(:terminated).tasks.should_not be_empty
-          key_pair.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
+          key_pair.state(:terminated).tasks.should be_empty
         end
 
         it "should set the security group as the default for the node" do
@@ -192,11 +190,9 @@ describe Politburo::Plugins::Cloud::Plugin do
 
           key_pair.state(:created).dependencies.should_not be_empty
           key_pair.state(:created).tasks.should_not be_empty
-          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask
+          key_pair.state(:created).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::KeyPairCreateTask
           
-          key_pair.state(:terminated).dependencies.should_not be_empty
-          key_pair.state(:terminated).tasks.should_not be_empty
-          key_pair.state(:terminated).tasks.first.should be_a Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask
+          key_pair.state(:terminated).tasks.should be_empty
         end
 
       end

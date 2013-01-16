@@ -5,7 +5,7 @@ describe Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask do
   let(:cloud_counterpart) { double("cloud counterpart", display_name: 'sg-90210') }
 
   let(:state) { cloud_resource.context.define { state(:started) {} }.state(:started) }
-  let(:task) { Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask.new(name: 'Create security group', noun: 'noun', create_using: lambda { | resource | resource.cloud_provider.create_cloud_resource_for(resource) }) }
+  let(:task) { Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask.new(name: 'Create cloud resource', noun: 'noun', create_using: lambda { | resource | resource.cloud_provider.create_cloud_resource_for(resource) }) }
 
   before :each do
     cloud_resource.stub(:cloud_provider).and_return(provider)

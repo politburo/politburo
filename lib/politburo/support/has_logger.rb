@@ -27,7 +27,12 @@ module Politburo
           warn: 33,
           error: 31, 
         }
-      end     
+      end
+
+      def colorize_by_severity(string, severity)
+        string.to_s.colorize( self.severity_color[severity.to_s.downcase.to_sym] )
+      end
+
 
       module ClassMethods
       end

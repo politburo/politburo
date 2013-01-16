@@ -7,6 +7,21 @@ describe Politburo::Resource::Root do
 
   it("should not have a parent resource") { root.parent_resource.should be nil }
   it("should be its own root") { root.root.should be root }
+  
+  context "#cli" do
+    it("should be an attribute") do
+      root.cli = :cli
+      root.cli.should be :cli
+    end
+
+    it "should be required" do
+      root.should_not be_valid
+
+      root.cli = :cli
+
+      root.should be_valid
+    end
+  end
 
   context "#apply_plugins" do
     let(:plugin_one) { double("plugin 1") }

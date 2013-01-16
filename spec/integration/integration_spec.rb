@@ -6,7 +6,8 @@ describe "End to end test" do
 
 	let(:arguments) { [
 		"-e", environment_definition_file, 
-		"#{target}##{state_to_achieve}"
+		"#{target}##{state_to_achieve}",
+		"--private-keys-dir", (Pathname.new(environment_definition_file).parent + ".ssh").to_s
 		] }
 
 	describe "with Amazon environment" do
