@@ -6,7 +6,7 @@ module Politburo
 
           def met?(verification = false)
             server = resource.cloud_server
-            server and server.ready?
+            server and server.ready? and server.sshable?
           end
 
           def meet
@@ -23,9 +23,12 @@ module Politburo
               logger.info("Waiting for server #{server.display_name.cyan} to become available...")
             end
 
-            result = server.wait_for { ready? }
+            ready_result = resource.cloud_server.wait_for { ready? }
 
-            logger.info("Server #{server.reload.display_name.cyan} is now available. Took #{result[:duration]} second(s).")
+            logger.debug("Waiting for server #{server.display_name.cyan} to become sshable...")
+            sshable_result = resource.cloud_server.wait_for { sshable? }
+
+            logger.info("Server #{server.reload.display_name.cyan} is now available. Took #{ready_result[:duration] + sshable_result[:duration]} second(s).")
             true
           end
         end

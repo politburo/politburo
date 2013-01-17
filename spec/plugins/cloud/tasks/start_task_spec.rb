@@ -29,12 +29,26 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
         node.should_receive(:cloud_server).and_return(cloud_server)
       end
 
-      it "and it is ready, should return true" do
-        cloud_server.should_receive(:ready?).and_return(true)
-        task.should be_met
+      context "when it is ready" do
+        before :each do
+          cloud_server.should_receive(:ready?).and_return(true)
+        end
+
+        it "and it is sshable, should return true" do
+          cloud_server.should_receive(:sshable?).and_return(true)
+
+          task.should be_met
+        end
+
+        it "and it is not sshable, should return false" do
+          cloud_server.should_receive(:sshable?).and_return(false)
+
+          task.should_not be_met
+        end
+
       end
 
-      it "and it is not ready, should return true" do
+      it "and it is not ready, should return false" do
         cloud_server.should_receive(:ready?).and_return(false)
         task.should_not be_met
       end
@@ -52,6 +66,7 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
       # The following expectation is actually on the _server_. 
       # However, rspec doesn't seem to let you change the yield context
       task.stub(:ready?).and_return(true)
+      task.stub(:sshable?).and_return(true)
 
       cloud_server.stub(:wait_for).and_yield.and_return({:duration=>5.0})
     end
@@ -88,11 +103,22 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
 
     it "should wait until it started" do
       cloud_server.should_receive(:state).twice.and_return("pending")
-      cloud_server.should_receive(:wait_for).and_yield.and_return({:duration=>19.0})
+      cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
 
-      # The following expectation is actually on the _server_. 
+      # The following expectations are actually on the _server_. 
       # However, rspec doesn't seem to let you change the yield context
       task.should_receive(:ready?).and_return(true)
+
+      task.meet
+    end
+
+    it "should wait until it is sshable" do
+      cloud_server.stub(:state).twice.and_return("pending")
+      cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
+      
+      # The following expectation are actually on the _server_. 
+      # However, rspec doesn't seem to let you change the yield context
+      task.should_receive(:sshable?).and_return(true)      
 
       task.meet
     end
