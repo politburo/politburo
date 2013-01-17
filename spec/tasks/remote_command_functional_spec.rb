@@ -1,13 +1,9 @@
 describe Politburo::Tasks::RemoteCommand, "functional" do
 
-  let(:output_stream) { StringIO.new }
+  let(:logger) { Logger.new(STDOUT) }
 
   let(:remote_command) { 
-    Politburo::Tasks::RemoteCommand.new(
-      command_string, nil, 
-      STDIN, 
-      output_stream, 
-      output_stream)
+    Politburo::Tasks::RemoteCommand.new(command_string, logger)
   }
 
   let(:user) { ENV['USER'] }
@@ -35,7 +31,7 @@ describe Politburo::Tasks::RemoteCommand, "functional" do
     end
 
     it "should have the correct output" do
-      output_stream.string.should include "ls"
+      remote_command.captured_output.string.should include "ls"
     end
 
   end

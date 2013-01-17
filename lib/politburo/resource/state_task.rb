@@ -33,6 +33,10 @@ module Politburo
         Set.new
       end
 
+      def context_class
+        EnvironmentContext
+      end
+
       def release
       end
 
@@ -64,29 +68,6 @@ module Politburo
 
       def console_prefix(datetime, severity = :INFO)
         "#{self.colorize_by_severity(datetime, severity)} #{self.resource_state.full_name.to_s.white} #{self.colorize_by_severity(self.name, severity)}"
-      end
-
-
-      def stdout_console_prefix
-        "#{self.console_prefix(Time.now)} #{ "#{resource.user}@#{resource.host}".cyan } | "
-      end
-
-      def stderr_console_prefix
-        "#{self.console_prefix(Time.now)} #{ "#{resource.user}@#{resource.host}".red } ! "
-      end
-
-      def stdout_console
-        @stdout_console ||= begin 
-          task = self
-          Politburo::Support::Consoles.instance.create_console() { | s | "#{task.stdout_console_prefix}#{s}" }
-        end
-      end
-
-      def stderr_console
-        @stderr_console ||= begin 
-          task = self
-          Politburo::Support::Consoles.instance.create_console() { | s | "#{task.stderr_console_prefix}#{s}" }
-        end
       end
 
     end

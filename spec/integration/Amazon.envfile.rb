@@ -27,7 +27,10 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
     facet(name: name, region: region) do
       node(name: "Primary host in zone", server_creation_overrides: options, user: 'ubuntu') {
         state(:configured) {
-          remote_task(command: 'sudo apt-get -q -y install git', met_test_command: 'which git') {}
+          remote_task(name: 'updated apt-get', command: 'sudo apt-get -q -y check', met_test_command: 'sudo apt-get -q -y update') {}
+          remote_task(name: 'install git', command: 'sudo apt-get -q -y install git', met_test_command: 'which git') { 
+            depends_on remote_task('updated apt-get') 
+          }
         }
       }
     end

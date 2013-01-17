@@ -1,12 +1,11 @@
 describe Politburo::Tasks::RemoteCommand do
   let(:output_stream) { StringIO.new }
-
+  let(:logger) { Logger.new(STDOUT) }
   let(:remote_command) { 
     Politburo::Tasks::RemoteCommand.new(
-      "command here; echo $?", /^(?<exit_code>\d*)$[^$]?\z/, 
-      STDIN, 
-      output_stream, 
-      output_stream) { | remote_command, result | result[:exit_code] == "0" }
+      "command here; echo $?", 
+      logger,
+      /^(?<exit_code>\d*)$[^$]?\z/) { | remote_command, result | result[:exit_code] == "0" }
   }
 
   it "should initialize correctly" do
@@ -15,9 +14,7 @@ describe Politburo::Tasks::RemoteCommand do
     remote_command.validate_success_block.should_not be_nil
     remote_command.validate_success_block.should be_a Proc
 
-    remote_command.stdout.should be output_stream
-    remote_command.stderr.should be output_stream
-    remote_command.stdin.should be STDIN
+    remote_command.logger.should be logger
   end
 
   context "#to_s" do
@@ -35,7 +32,7 @@ describe Politburo::Tasks::RemoteCommand do
       end
 
       it "should simply return the object" do
-        Politburo::Tasks::RemoteCommand.repack(remote_command).should be remote_command
+        Politburo::Tasks::RemoteCommand.repack(remote_command, :logger).should be remote_command
       end
 
     end
@@ -50,9 +47,9 @@ describe Politburo::Tasks::RemoteCommand do
 
       it "should convert it to a string, and pack it through unix_command" do
         not_a_remote_command.should_receive(:to_s).and_return(a_string)
-        Politburo::Tasks::RemoteCommand.should_receive(:unix_command).with(a_string, :execution_output_match_pattern, :stdin, :stdout, :stderr).and_return(:a_new_command)
+        Politburo::Tasks::RemoteCommand.should_receive(:unix_command).with(a_string, :logger, :execution_output_match_pattern).and_return(:a_new_command)
 
-        Politburo::Tasks::RemoteCommand.repack(not_a_remote_command, :execution_output_match_pattern, :stdin, :stdout, :stderr).should be :a_new_command
+        Politburo::Tasks::RemoteCommand.repack(not_a_remote_command, :logger, :execution_output_match_pattern).should be :a_new_command
       end
 
     end
@@ -104,11 +101,11 @@ describe Politburo::Tasks::RemoteCommand do
         remote_command.validate_success_block.stub(:call).with(remote_command, anything).and_return(true)
       end
 
-      it "should print remote standard output to output stream" do
+      it "should print remote standard output to logger as info" do
         ssh_channel.should_receive(:on_data).and_yield(ssh_channel, "output to standard output, line 1\n").and_yield(ssh_channel, "output to standard output, line 2\n")
 
-        remote_command.stdout.should_receive(:print).with("output to standard output, line 1\n")
-        remote_command.stdout.should_receive(:print).with("output to standard output, line 2\n")
+        logger.should_receive(:info).with("output to standard output, line 1")
+        logger.should_receive(:info).with("output to standard output, line 2")
 
         remote_command.execute(ssh_channel)
       end
@@ -116,8 +113,8 @@ describe Politburo::Tasks::RemoteCommand do
       it "should print remote error output to error stream" do
         ssh_channel.should_receive(:on_extended_data).and_yield(ssh_channel, 1, "output to error output, line 1\n").and_yield(ssh_channel, 1, "output to error output, line 2\n")
 
-        remote_command.stderr.should_receive(:print).with("output to error output, line 1\n")
-        remote_command.stderr.should_receive(:print).with("output to error output, line 2\n")
+        logger.should_receive(:error).with("output to error output, line 1")
+        logger.should_receive(:error).with("output to error output, line 2")
 
         remote_command.execute(ssh_channel)
       end

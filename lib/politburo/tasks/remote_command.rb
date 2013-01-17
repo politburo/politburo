@@ -7,17 +7,14 @@ module Politburo
       attr_accessor :execution_output_match_pattern
       attr_reader   :execution_result
 
-      attr_reader   :stdin, :stdout, :stderr
+      attr_reader   :logger
 
       attr_writer   :use_tty
 
-      def initialize(command, execution_output_match_pattern = nil, stdin = STDIN, stdout = STDOUT, stderr = STDERR, &validate_success_block)
+      def initialize(command, logger, execution_output_match_pattern = nil, &validate_success_block)
         @command = command
+        @logger = logger
         @execution_output_match_pattern = execution_output_match_pattern
-
-        @stdin = stdin
-        @stdout = stdout
-        @stderr = stderr
 
         @validate_success_block = validate_success_block if block_given?
         @execution_result = nil
@@ -31,12 +28,12 @@ module Politburo
         @use_tty ||= false
       end
 
-      def self.unix_command(unix_command, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)
-        self.new(unix_command.to_s, execution_output_match_pattern, stdin, stdout, stderr)
+      def self.unix_command(unix_command, logger, execution_output_match_pattern = nil)
+        self.new(unix_command.to_s, logger, execution_output_match_pattern)
       end
 
-      def self.repack(command_obj_or_string, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)
-        command_obj_or_string.kind_of?(Politburo::Tasks::RemoteCommand) ? command_obj_or_string : Politburo::Tasks::RemoteCommand.unix_command(command_obj_or_string.to_s, execution_output_match_pattern, stdin, stdout, stderr)
+      def self.repack(command_obj_or_string, logger, execution_output_match_pattern = nil)
+        command_obj_or_string.kind_of?(Politburo::Tasks::RemoteCommand) ? command_obj_or_string : Politburo::Tasks::RemoteCommand.unix_command(command_obj_or_string.to_s, logger, execution_output_match_pattern)
       end
 
       def execute(channel) 
@@ -80,14 +77,14 @@ module Politburo
 
           # "on_data" is called when the process writes something to stdout
           ch.on_data do | c, data |
-            captured_output.print data
-            stdout.print data
+            captured_output.print(data)
+            data.split(/\n/).each { | line | logger.info(line) }
           end
 
           # "on_extended_data" is called when the process writes something to stderr
           ch.on_extended_data do | c, type, data |
-            captured_output.print data
-            stderr.print data
+            captured_output.print(data)
+            data.split(/\n/).each { | line | logger.error(line) }
           end
 
           ch.on_request("exit-status") do | ch, data |

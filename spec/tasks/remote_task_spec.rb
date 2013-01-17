@@ -3,7 +3,7 @@ describe Politburo::Tasks::RemoteTask do
   let(:session) { double("fake ssh session") }
   let(:channel) { double("fake ssh channel", :wait => true) }
 
-  let(:node) { Politburo::Resource::Node.new(name: "Node resource") }
+  let(:node) { Politburo::Resource::Node.new(name: "Node resource", host: 'localhost') }
 
   let(:state) { Politburo::Resource::State.new(name: "state") }
 

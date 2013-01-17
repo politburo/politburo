@@ -21,6 +21,8 @@ describe Politburo::Resource::StateTask do
 
   end
 
+  it("should use environment context class") { state_task.context_class.should be Politburo::Resource::EnvironmentContext }
+
   context "#prerequisites" do
     let(:state_dependency) { double("state dependency") }
     let(:task_dependency) { double("task dependency") }
@@ -75,26 +77,6 @@ describe Politburo::Resource::StateTask do
 
     it "should have a different default log formatter" do
       resource.log_formatter.call(Logger::ERROR, Time.now, "my prog", "error message").should include resource.full_name
-    end
-  end
-
-  context "#stdout_console" do
-    let (:console) { double("fake console") }
-
-    it "should return a console" do
-      Politburo::Support::Consoles.instance.should_receive(:create_console).and_return(console)
-
-      state_task.stdout_console.should == console
-    end
-  end
-
-  context "#stderr_console" do
-    let (:console) { double("fake console") }
-
-    it "should return a console" do
-      Politburo::Support::Consoles.instance.should_receive(:create_console).and_return(console)
-
-      state_task.stderr_console.should == console
     end
   end
 
