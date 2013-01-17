@@ -6,6 +6,8 @@ Politburo::Resource::Node.class_eval do
   requires :provider
   requires :region
 
+  attr_with_default(:host) { cloud_server.dns_name }
+
   attr_accessor :default_security_group
 
   attr_with_default(:key_pair) { self.context.lookup(name: "Default Key Pair for #{self.region}", class: Politburo::Plugins::Cloud::KeyPair, region: self.region).receiver }
@@ -22,4 +24,7 @@ Politburo::Resource::Node.class_eval do
     @cloud_server
   end
   
+  def create_session
+    cloud_server.create_ssh_session
+  end
 end

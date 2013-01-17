@@ -18,6 +18,10 @@ module Politburo
             Fog::Compute::Server.class_eval do
               include Politburo::Plugins::Cloud::Server
             end
+
+            Fog::SSH::Real.class_eval do
+              include Politburo::Plugins::Cloud::FogSSHExtensions
+            end
             
             Fog::Compute::AWS::SecurityGroup.class_eval do
               include Politburo::Plugins::Cloud::FogSecurityGroupExtensions

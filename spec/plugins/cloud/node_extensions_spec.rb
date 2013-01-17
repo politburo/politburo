@@ -6,6 +6,29 @@ describe Politburo::Resource::Node, "cloud extensions" do
     parent_resource.add_child(node)
   end
 
+  context "#create_session" do
+    let(:cloud_server) { double("fake cloud server") }
+
+    it "should use the cloud server to create the ssh session" do
+      node.should_receive(:cloud_server).and_return(cloud_server)
+      cloud_server.should_receive(:create_ssh_session).and_return(:ssh_session)
+
+      node.create_session.should be :ssh_session
+    end
+  end
+
+  context "#host" do
+    let(:cloud_server) { double("fake cloud server") }
+
+    it "should default to using the cloud server's public dns name'" do
+      node.should_receive(:cloud_server).and_return(cloud_server)
+      cloud_server.should_receive(:dns_name).and_return(:dns_name)
+
+      node.host.should be :dns_name
+      node.host = :override
+      node.host.should be :override
+    end
+  end
 
   context "#provider" do
 

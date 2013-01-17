@@ -32,7 +32,7 @@ module Politburo
       end
 
       def self.unix_command(unix_command, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)
-        self.new("#{unix_command}", execution_output_match_pattern, stdin, stdout, stderr)
+        self.new(unix_command.to_s, execution_output_match_pattern, stdin, stdout, stderr)
       end
 
       def self.repack(command_obj_or_string, execution_output_match_pattern = nil, stdin = nil, stdout = STDOUT, stderr = STDERR)

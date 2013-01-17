@@ -19,4 +19,25 @@ describe Politburo::Plugins::Cloud::Server do
     end
 
   end
+
+  context "#create_ssh_session" do
+    let(:ssh) { double('ssh') }
+    let(:options) { double('options') }
+
+    it "should use the fog ssh class to create an ssh session" do
+      server.should_receive(:requires).with(:public_ip_address, :username)
+
+      server.should_receive(:public_ip_address).and_return(:public_ip_address)
+      server.should_receive(:username).and_return(:username)
+      server.stub(:private_key).and_return(:private_key)
+      server.should_receive(:ssh_port).and_return(:ssh_port)
+
+      Fog::SSH.should_receive(:new).with(:public_ip_address, :username, { key_data: [ :private_key ], port: :ssh_port }).and_return(ssh)
+
+      ssh.should_receive(:create_session).and_return(:session)
+
+      server.create_ssh_session.should be(:session)
+    end
+  end
+
 end

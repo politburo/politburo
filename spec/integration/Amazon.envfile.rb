@@ -25,7 +25,11 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
     region = options.delete(:region)
 
     facet(name: name, region: region) do
-      node(name: "Primary host in zone", server_creation_overrides: options) {}
+      node(name: "Primary host in zone", server_creation_overrides: options, user: 'ubuntu') {
+        state(:configured) {
+          remote_task(command: 'sudo apt-get -q -y install git', met_test_command: 'which git') {}
+        }
+      }
     end
   end
 
