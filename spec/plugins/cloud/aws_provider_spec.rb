@@ -51,13 +51,15 @@ describe Politburo::Plugins::Cloud::AWSProvider do
 
   context "#create_server_for" do
     let(:logger) { double("fake logger", :info => true, :debug => true)}
-    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger, :server_creation_overrides => nil, :default_security_group => security_group_resource)}
+    let(:node) { double("fake node", :name => 'name', :full_name => 'full name', :logger => logger, :server_creation_overrides => nil, :default_security_group => security_group_resource, :key_pair => key_pair_resource)}
     let(:servers) { double("fake servers container") }
     let(:server) { double("fake created server") }
     let(:image) { double("fake image", :id => 'ami-00000') }
 
     let(:security_group_resource) { double("fake security group resource", cloud_security_group: cloud_security_group) }
     let(:cloud_security_group) { double("fake cloud security group", name: 'security_group_name') }
+
+    let(:key_pair_resource) { double("key pair resource", cloud_counterpart_name: 'key pair name', private_key_content: 'key content') }
 
     before :each do
       provider.compute_instance.stub(:servers).and_return(servers)      
@@ -107,6 +109,18 @@ describe Politburo::Plugins::Cloud::AWSProvider do
       servers.should_receive(:create) do | properties | 
         properties[:groups].should include 'default'
         properties[:groups].should include 'security_group_name'
+        server 
+      end
+
+      provider.create_server_for(node).should be server
+    end
+
+     it "should use key_pair to identify the key to use for the server" do
+      node.should_receive(:key_pair).and_return(key_pair_resource)
+      key_pair_resource.should_receive(:cloud_counterpart_name).and_return('key pair name')
+
+      servers.should_receive(:create) do | properties | 
+        properties[:key_name].should eq 'key pair name'
         server 
       end
 

@@ -24,6 +24,7 @@ module Politburo
             end
 
             result = server.wait_for { ready? }
+
             logger.info("Server #{server.reload.display_name.cyan} is now available. Took #{result[:duration]} second(s).")
             true
           end

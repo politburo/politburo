@@ -75,15 +75,30 @@ describe Politburo::Resource::Node, "cloud extensions" do
 
   context "#cloud_server" do
     let(:cloud_provider) { double("fake cloud provider") }
+    let(:cloud_server) { double("fake cloud server") }
+    let(:key_pair_resource) { double("key pair resource", private_key_content: 'key content') }
 
     before :each do
-      node.should_receive(:cloud_provider).and_return(cloud_provider)
+      node.stub(:cloud_provider).and_return(cloud_provider)
+      node.stub(:key_pair).and_return(key_pair_resource)
+
+      cloud_provider.stub(:find_server_for).with(node).and_return(cloud_server)
+      cloud_server.stub(:'private_key=').with(anything)
     end
 
     it "should use the cloud_provider to ask for the server for this node" do
-      cloud_provider.should_receive(:find_server_for).with(node).and_return(:cloud_server)
+      node.should_receive(:cloud_provider).and_return(cloud_provider)
+      cloud_provider.should_receive(:find_server_for).with(node).and_return(cloud_server)
 
-      node.cloud_server.should be :cloud_server
+      node.cloud_server.should be cloud_server
+    end
+
+    it "should set the private key on the server" do
+      node.should_receive(:key_pair).and_return(key_pair_resource)
+      key_pair_resource.should_receive(:private_key_content).and_return('key content')
+      cloud_server.should_receive(:'private_key=').with('key content')
+
+      node.cloud_server.should be cloud_server
     end
   end
 

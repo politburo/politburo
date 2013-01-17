@@ -26,9 +26,12 @@ module Politburo
             image_id: image.id, 
             tags: { "politburo:full_name" => node.full_name, 'Name' => node.full_name },
             groups: [ 'default', node.default_security_group.cloud_security_group.name ],
+            key_name: node.key_pair.cloud_counterpart_name,
             }.merge(node.server_creation_overrides || {})
           node.logger.info("Creating server with attributes: #{server_attrs}")
           server = compute_instance.servers.create(server_attrs)
+
+          server
         end
 
         def find_security_group_for(security_group_resource)

@@ -49,6 +49,17 @@ describe Politburo::Plugins::Cloud::KeyPair do
     end
   end
 
+  context "#private_key_content" do
+    let(:private_key_path) { double('private key path') }
+
+    it "should default to loading the content by using the key path" do
+      key_pair.should_receive(:private_key_path).and_return(private_key_path)
+      private_key_path.should_receive(:read).and_return(:private_key_content)
+
+      key_pair.private_key_content.should be :private_key_content
+    end
+  end
+
   context "#public_key_file_name" do
     it "should default to cloud counterpart name with all non word chars replaced by underscore and the .pem extension added" do
       key_pair.should_receive(:cloud_counterpart_name).and_return("An environment:name")
