@@ -18,13 +18,13 @@ The prologue:
 
 * We love DevOps
 * We like being able to describe our environments in code
-  described the same way.
 * We believe that code should be the lever that allows single
   developers to orchestrate entire environments.
-* We don't like needed centralised configuration servers
+* We don't want centralised configuration servers
   * Why not launch a 100-machine cluster from our laptop?
+  * Source of truth should be in our code.
 * We don't like having to manage cookbooks
-  * Cookbook versions on different servers? Blah.
+  * Cookbook version hell is not acceptable.
 * We don't like recipes that are brittle or suffer from bit-rot  
 * We love Babushka's approach to DevOps scripting:
   * Test-driven, self-describing idempotent, dependency based tasks.
@@ -34,8 +34,13 @@ The prologue:
   manage multi-host environments/clusters:
   * A method of orchestrating multiple servers with inter-machine dependencies
 * The difference between a test environment and a production one is
-  in the number of servers, the topology is the same -- one source of
-  truth is enough.
+  in the number of servers while the topology is the same -- 
+  therefore there should only be one copy of the environment's description with
+  parameters controlling the difference.
+* We want predictability, at the end of the tool's run we want to know
+  it is in a known state.
+* We want to be able to automatically test our environment as part of 
+  testing our application.
 
 Aspirational Feature List:
 --------------------------
@@ -48,11 +53,16 @@ Aspirational Feature List:
     version-controlled truth
 * Be agnostic of whether you are using pre-allocated hosts or 
   on-demand provisioned ones (either Cloud or VMs.)
+  * Production environment on AWS, Rackspace, other? No problem.
+  * Dev environment on VMs or in the cloud? Either is fine.
 * Dependencies between hosts & roles 
   * Classic situation: You may need your master node fully 
     configured before your slave can start.
-  * Classic situation: NFS master node must be available before 
-    you start your NFS clients
+  * Examples: 
+    * NFS master node must be available before you start your NFS clients
+    * Hadoop HDFS namenode should be up before job servers can be started
+  * These are simple inter-machine dependencies, most orchestration tools
+    don't allow you to do this. Politburo does.
 * Blueprint environments + modifications:
   * You may want multiple staging environment, that are 99% simliar.
     You do not want to have to duplicate & maintain multiple descriptors.
