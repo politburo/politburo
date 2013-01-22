@@ -30,9 +30,6 @@ module Politburo
 
     end
 
-    class NodeContext < Politburo::Resource::FacetContext
-    end
-
   end
 end
 

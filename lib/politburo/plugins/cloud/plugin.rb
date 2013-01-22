@@ -3,6 +3,12 @@ module Politburo
     module Cloud
       class Plugin < Politburo::Plugins::Base
 
+        def load(context)
+          Politburo::Resource::Base.class_eval { include Politburo::Plugins::Cloud::BaseExtensions }
+          Politburo::Plugins::Cloud::RootContextExtensions.load(context)
+          Politburo::Plugins::Cloud::EnvironmentContextExtensions.load(context)
+        end
+
         def apply
           logger.debug("Applying Cloud Plug-in...")
 
@@ -28,7 +34,7 @@ module Politburo
             state(:created).depends_on security_group(name: "Default Security Group", region: node.region).state(:created)
             security_group(name: "Default Security Group", region: node.region).state(:terminated).depends_on state(:terminated)
 
-            lookup(class: Politburo::Resource::Environment) {
+            lookup(class: lambda { |obj, attr, value| obj.is_a? Politburo::Plugins::Cloud::Environment } ) {
               key_pair(name: "Default Key Pair for #{node.region}", region: node.region) { }
             }
 
@@ -41,7 +47,6 @@ module Politburo
 
       end
 
-      Politburo::DSL.default_plugins << Politburo::Plugins::Cloud::Plugin
     end
   end
 end

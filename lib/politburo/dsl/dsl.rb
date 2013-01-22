@@ -1,14 +1,11 @@
 module Politburo
   module DSL
-    def self.default_plugins
-      @default_plugins ||= Set.new
-    end
 
-    def self.define(definition = nil, &block)
+    def self.define(definition = nil, plugins = [], &block)
       root_resource = Politburo::Resource::Root.new(name: "")
       root_context = root_resource.context
 
-      default_plugins.each do | plugin_class |
+      plugins.each do | plugin_class |
         root_context.plugin(class: plugin_class) {}
       end
 

@@ -8,6 +8,10 @@ module Politburo
     attr_reader :options
     attr_reader :targets
 
+    def self.default_plugins
+      @default_plugins ||= Set.new([ Politburo::Plugins::Cloud::Plugin ])
+    end
+
     def self.create(arguments)
       p = Trollop::Parser.new do
           version "politburo, version #{Politburo::VERSION}"
@@ -21,6 +25,7 @@ module Politburo
         opt :interactive, "Interactive pry console", :short => 'i'
         opt :color, "Use colored output", :default => true, :short => 'c'
         opt :envfile, "Use a different envfile", :short => 'e', :default => 'Envfile'
+        opt :plugins, "Use different default plugins (comma separated)", :default => Politburo::CLI.default_plugins.map(&:to_s).join(', ')
         opt :'private-keys-dir', "Use a different private keys dir", :short => 'b', :default => '.ssh'
       end
 
@@ -89,6 +94,12 @@ module Politburo
       result_path = Pathname.new(File.expand_path(options[:'private-keys-dir']))
       raise "Key files directory: '#{result_path.to_s}' does not exist or isn't a directory" unless result_path.directory?
       result_path
+    end
+
+    def plugins
+      @plugins ||= begin
+        options[:plugins].split(/[\s,]+/).map { | plugin_class_name | eval(plugin_class_name) }
+      end
     end
 
     def log()

@@ -9,6 +9,4 @@ describe Politburo::Resource::Facet do
     parent_resource.add_child(facet)
   end
 
-  it("should have its own context class") { facet.context_class.should be Politburo::Resource::FacetContext }
-
 end

@@ -9,8 +9,6 @@ describe Politburo::Resource::Node do
     parent_resource.add_child(node)
   end
 
-  it("should have its own context class") { node.context_class.should be Politburo::Resource::NodeContext }
-
   context "#user" do
 
     it "should inherit user" do

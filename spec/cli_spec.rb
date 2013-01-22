@@ -3,6 +3,12 @@ require 'stringio'
 
 describe Politburo::CLI do 
 
+  context "#default_plugins" do
+
+    it { Politburo::CLI.default_plugins.should be_a Set }
+    
+  end
+
   context "normal running" do
 
     let (:cli) { Politburo::CLI.new(options, targets) }
@@ -11,18 +17,18 @@ describe Politburo::CLI do
 
     let (:envfile_contents) do
       <<ENVFILE_CONTENTS
-environment(name: "environment", provider: :aws, region: :moon_west_1) do
-  node(name: "node", provider: "m1.large") {}
-  node(name: "another node", provider: "m1.large") do
+environment(name: "environment") do
+  node(name: "node") { }
+  node(name: "another node") do
     depends_on node(name: "node").state(:configured)
   end
-  node(name: "yet another node", provider: "m1.large") do
+  node(name: "yet another node") do
     state(name: 'configured').depends_on node(name: "node")
   end
 end
 
-environment(name: 'another environment', provider: :aws, region: :moon_east_1) do
-  node(name: "a node from another galaxy", provider: "c1.xlarge") {}
+environment(name: 'another environment') do
+  node(name: "a node from another galaxy") {}
 end
 ENVFILE_CONTENTS
     end
@@ -48,6 +54,14 @@ ENVFILE_CONTENTS
         cli.root.children.should include another_environment
       end
 
+    end
+
+    context "#plugins" do
+      let (:options) { { color: true, plugins: "Politburo::Plugins::Cloud::Plugin,   Integer" } }
+
+      it "should resolve to the classes by name" do
+        cli.plugins.should eq [ Politburo::Plugins::Cloud::Plugin, Integer ]
+      end
     end
 
     context "#resolved_targets" do

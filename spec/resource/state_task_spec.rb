@@ -21,8 +21,6 @@ describe Politburo::Resource::StateTask do
 
   end
 
-  it("should use environment context class") { state_task.context_class.should be Politburo::Resource::EnvironmentContext }
-
   context "#prerequisites" do
     let(:state_dependency) { double("state dependency") }
     let(:task_dependency) { double("task dependency") }

@@ -9,8 +9,6 @@ describe Politburo::Resource::Environment do
     parent_resource.add_child(environment)
   end
 
-  it("should have its own context class") { environment.context_class.should be Politburo::Resource::EnvironmentContext }
-
 	it "should have all the default states" do
 		parent_resource.states.each do | state | 
 			state = environment.state(state.name)

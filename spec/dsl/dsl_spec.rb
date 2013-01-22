@@ -1,11 +1,5 @@
 describe Politburo::DSL do
 
-  context "#default_plugins" do
-
-    it { Politburo::DSL.default_plugins.should be_a Set }
-    
-  end
-
   context "::define" do
     context "unit test" do
 
@@ -15,7 +9,6 @@ describe Politburo::DSL do
       let(:plugin_class_two) { double("plugin class 2") }
 
       before :each do
-        Politburo::DSL.stub(:default_plugins).and_return([ plugin_class_one, plugin_class_two ])
         Politburo::Resource::Root.stub(:new).with(name: "").and_return(root)
         root.stub(:context).and_return(context)
         root.stub(:apply_plugins)
@@ -48,13 +41,11 @@ describe Politburo::DSL do
         Politburo::DSL.define("string eval") { "a block" }
       end
 
-      it "should iterate over default plugins and add them to root" do
-        Politburo::DSL.should_receive(:default_plugins).and_return([ plugin_class_one, plugin_class_two ])
-
+      it "should iterate over plugins and add them to root" do
         context.should_receive(:plugin).with(class: plugin_class_one)
         context.should_receive(:plugin).with(class: plugin_class_two)
 
-        Politburo::DSL.define("string eval") { "a block" }
+        Politburo::DSL.define("string eval", [ plugin_class_one, plugin_class_two ]) { "a block" }
       end
 
       it "should call apply_plugins on the root resource" do

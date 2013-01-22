@@ -15,10 +15,6 @@ module Politburo
 				update_attributes(attributes)
 			end
 
-			def context_class
-				StateContext
-			end
-
 			def tasks
 				children
 			end

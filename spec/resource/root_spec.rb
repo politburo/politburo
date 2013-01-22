@@ -3,10 +3,16 @@ describe Politburo::Resource::Root do
 
   it { root.should be_a Politburo::Resource::Base }
 
-  it("should have its own context class") { root.context_class.should be Politburo::Resource::RootContext }
-
   it("should not have a parent resource") { root.parent_resource.should be nil }
   it("should be its own root") { root.root.should be root }
+
+  context "#context" do
+
+    it "should have the receiver set correctly" do
+      root.context.receiver.should be root
+    end
+    
+  end
   
   context "#cli" do
     it("should be an attribute") do
@@ -37,15 +43,40 @@ describe Politburo::Resource::Root do
 
   end
 
-  describe Politburo::Resource::RootContext do
+  describe "#context" do
 
-    context "#plugin" do
+    describe "default nouns" do
 
-      it "should call lookup_or_create_resource with the specified plugin class" do
-        root.context.should_receive(:lookup_or_create_resource).with(:class, name: 'class')
-        root.context.plugin(class: :class)
+      context "#plugin" do
+        let(:receiver) { double("receiver") }
+        let(:context) { root.context }
+        let(:plugin) { double("plugin") }
+        let(:plugin_context) { double("plugin context", receiver: plugin) }
+
+        before :each do
+          context.stub(:lookup_or_create_resource).with(:class, name: 'class').and_return(plugin_context)
+
+          plugin.stub(:load).with(context)
+        end
+
+        it "should call lookup_or_create_resource with the specified plugin class" do
+          context.should_receive(:lookup_or_create_resource).with(:class, name: 'class').and_return(plugin_context)
+
+          context.plugin(class: :class)
+        end
+
+        it "should load the plugin" do
+          plugin_context.should_receive(:receiver).and_return(plugin)
+          plugin.should_receive(:load).with(context)
+
+          context.plugin(class: :class)
+        end
+
+        it "should return the plugin context" do
+          context.plugin(class: :class).should be plugin_context
+        end
+
       end
-
     end
   end
 

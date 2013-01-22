@@ -33,10 +33,6 @@ module Politburo
         Set.new
       end
 
-      def context_class
-        EnvironmentContext
-      end
-
       def release
       end
 

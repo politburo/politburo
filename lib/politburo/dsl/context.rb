@@ -42,8 +42,19 @@ module Politburo
         lookup_or_create_resource(::Politburo::Resource::State, attributes, &block)
       end
 
-			def method_missing(method, *args)
-				@receiver.send(method, *args)
+			def method_missing(method, *args, &block)
+				return @receiver.send(method, *args, &block) if @receiver.respond_to?(method)
+				delegate_call_to_parent_context(self, method, *args, &block)
+			end
+
+			def delegate_call_to_parent_context(original_context, method, *args, &block)
+				return explicit_nouns[method].call(original_context, *args, &block) if responds_to_noun?(method)
+				return parent.delegate_call_to_parent_context(original_context, method, *args, &block) unless receiver.parent_resource.nil?
+				raise NoMethodError.new("Could not locate method '#{method}' on resource or context hierarchy", method)
+			end
+
+			def responds_to_noun?(noun)
+				explicit_nouns.include?(noun)
 			end
 
 			def depends_on(dependent_context)
@@ -53,7 +64,7 @@ module Politburo
 
 			def lookup(find_attrs, &block)
 				context = find_one_by_attributes(find_attrs)
-				raise "Could not find receiver by attributes: #{find_attrs}." if (context.nil?) 
+				raise "Could not find resource by attributes: #{find_attrs}." if (context.nil?) 
 				context.define(&block) if block_given?
 				
 				context
@@ -67,7 +78,7 @@ module Politburo
 				end
 				return nil if receivers.empty?
 
-				raise "Ambiguous receiver for attributes: #{find_attrs}. Found: \"#{receivers.map(&:full_name).join("\", \"")}\"." if (receivers.size > 1) 
+				raise "Ambiguous resource for attributes: #{find_attrs}. Found: \"#{receivers.map(&:full_name).join("\", \"")}\"." if (receivers.size > 1) 
 				receivers.first.context
 			end
 
@@ -81,7 +92,7 @@ module Politburo
 			end
 
 			def create_and_define_resource(new_receiver_class, attributes, &block)
-				raise "No block given for defining a new receiver." unless block_given?
+				raise "No block given for defining a new resource." unless block_given?
 				context = new_receiver_class.new(attributes).context
 
 				add_child(context.receiver)
@@ -122,6 +133,14 @@ module Politburo
 				end
 			end
 
+			def explicit_nouns
+				@explicit_nouns ||= {}
+			end
+
+			def noun(noun, &lambda)
+				explicit_nouns[noun] = lambda
+			end
+
 			protected
 
 		  def validate!()
@@ -130,7 +149,7 @@ module Politburo
 
 			def find_attributes(new_receiver_class, name_or_attributes)
 				attributes = name_or_attributes.respond_to?(:keys) ? name_or_attributes : { name: name_or_attributes }
-				attributes.merge(:class => new_receiver_class)
+				attributes.merge(:class => lambda { | object, attr, value | object.is_a?(new_receiver_class) } )
 			end
 
 			def create_receiver(new_receiver_class, attributes)

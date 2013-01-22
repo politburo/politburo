@@ -1,6 +1,12 @@
-describe Politburo::Resource::Base, "cloud extensions" do
+describe Politburo::Plugins::Cloud::BaseExtensions do
+  let(:extended_class) {
+    Class.new(Politburo::Resource::Base) {
+      include Politburo::Plugins::Cloud::BaseExtensions
+    }
+  }
+
   let(:parent_resource) { Politburo::Resource::Base.new(name: 'Parent resource') }
-  let(:resource) { Politburo::Resource::Base.new(name: "Base resource") }
+  let(:resource) { extended_class.new(name: "Base resource") }
 
   before :each do
     parent_resource.add_child(resource)

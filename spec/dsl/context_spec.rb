@@ -2,16 +2,174 @@ require 'politburo'
 
 describe Politburo::DSL::Context do
 
+	describe "#delegate_call_to_parent_context" do
+	  let(:parent) { double("parent", context: parent_context) }
+	  let(:resource) { double("resource", parent_resource: parent) }
+
+	  let(:parent_context) { double("parent context") }
+	  let(:resource_context) { Politburo::DSL::Context.new(resource) }
+
+    context "when it doesn't exist on the current context" do
+      before :each do
+        resource_context.should_receive(:responds_to_noun?).with(:do_stuff).and_return(false)
+      end
+
+      context "when there is a parent resource" do
+
+	      it "should delegate it up the chain" do
+	      	parent_context.should_receive(:delegate_call_to_parent_context).with(:original_context, :do_stuff, :arg1, :arg2).and_return(:result)
+
+	      	resource_context.delegate_call_to_parent_context(:original_context, :do_stuff, :arg1, :arg2).should be :result
+	      end
+
+	      it "should not attempt to call it on the receiver" do
+	      	parent_context.stub(:delegate_call_to_parent_context).with(:original_context, :do_stuff).and_return(:result)
+	        resource.should_not_receive(:do_stuff)
+
+	        resource_context.delegate_call_to_parent_context(:original_context, :do_stuff).should be :result
+	      end
+
+	    end
+
+	    context "when there isn't a parent resource" do
+	    	before :each do
+	    		resource.should_receive(:parent_resource).and_return(nil)
+	    	end
+
+	    	it "should throw a NameError" do
+	    		lambda { resource_context.delegate_call_to_parent_context(:original_context, :do_stuff) }.should raise_error NoMethodError
+	    	end
+
+	    end
+    end
+
+    context "when it exists on the current context" do
+    	let(:original_context) { "Original context" }
+
+    	it "should call on the current context" do
+    		resource_context.noun(:do_stuff) { | context, attributes, &block | context }
+    	
+    		resource_context.responds_to_noun?(:do_stuff).should be true
+
+    		actual_result = resource_context.delegate_call_to_parent_context(original_context, :do_stuff)
+    		raise "Failed, expected '#{original_context}', got '#{actual_result}'" unless actual_result == original_context
+    	end
+    end
+	end
+
+	describe "nouns" do
+	  let(:resource) { double("resource") }
+	  let(:resource_context) { Politburo::DSL::Context.new(resource) }
+	  let(:explicit_nouns) { resource_context.explicit_nouns }
+
+
+		context "#explicit_nouns" do
+			it "should be memoized" do
+				resource_context.explicit_nouns.should be explicit_nouns
+			end
+
+			it "should be a hash" do
+				explicit_nouns.should be_a Hash
+			end
+		end
+
+		context "#noun" do
+			let(:a_lambda) { lambda { do_stuff } }
+			
+			it "should store the lambda for the explicit noun" do
+				resource_context.noun(:noun, &a_lambda)
+				explicit_nouns[:noun].should be a_lambda
+			end
+
+		end
+
+		context "#responds_to_noun?" do
+
+			context "when noun is defined explicitly" do
+				before :each do
+					explicit_nouns.should_receive(:include?).with(:noun).and_return(true)
+				end
+
+				it "should return true" do
+					resource_context.responds_to_noun?(:noun).should be true
+				end
+
+			end
+
+			context "when noun is not defined explicitly" do
+				before :each do
+					explicit_nouns.should_receive(:include?).with(:noun).and_return(false)
+				end
+
+				it "should return false" do
+					resource_context.responds_to_noun?(:noun).should be false
+				end
+
+			end
+		end
+
+	end
+
+	describe "#method_missing" do
+	  
+	  let(:parent) { double("parent", context: parent_context) }
+	  let(:resource) { double("resource", parent_resource: parent) }
+
+	  let(:parent_context) { double("parent context") }
+	  let(:resource_context) { Politburo::DSL::Context.new(resource) }
+
+	  context "when calling a method which doesn't exist on the current context" do
+
+	    context "when it exists on the receiver" do
+
+	      before :each do
+	        resource.should_receive(:respond_to?).with(:do_stuff).and_return(true)
+	      end
+
+	      it "should call it" do
+	        resource.should_receive(:do_stuff).and_return(:stuff_happened)
+
+	        resource_context.do_stuff.should be :stuff_happened
+	      end
+
+	    end
+
+	    context "when it doesn't exist on the current receiver" do
+
+	      before :each do
+	        resource.should_receive(:respond_to?).with(:do_stuff).and_return(false)
+	        resource_context.stub(:delegate_call_to_parent_context).with(resource_context, :do_stuff).and_return(:result)
+	      end
+
+	      it "should not call it" do
+	        resource.should_not_receive(:do_stuff)
+
+	        resource_context.do_stuff
+	      end
+
+	      it "should delegate to the parent context" do
+	        resource_context.should_receive(:delegate_call_to_parent_context).with(resource_context, :do_stuff, :arg1, :arg2).and_return(:result)
+	        resource_context.do_stuff(:arg1, :arg2).should be :result
+	      end
+
+	    end
+	  end
+	end
+
+end
+
+describe Politburo::DSL::Context do
+
 	let(:root_definition) do
 		Politburo::DSL.define do
 			self.cli = :fake_cli
 			
-			environment(name: "environment", provider: :aws, region: :moon_west_1) do
-				node(name: "node", provider: "m1.large") {}
-				node(name: "another node", provider: "m1.large") do
+			environment(name: "environment") do
+				node(name: "node") {}
+				node(name: "another node") do
 					depends_on node(name: "node").state(:configured)
 				end
-				node(name: "yet another node", provider: "m1.large") do
+				node(name: "yet another node") do
 					state(:configured) do
 						depends_on node("node")
 
@@ -23,8 +181,8 @@ describe Politburo::DSL::Context do
 				end
 			end
 
-			environment(name: 'another environment', provider: :aws, region: :moon_east_1) do
-				node(name: "a node from another galaxy", provider: "c1.xlarge") {}
+			environment(name: 'another environment') do
+				node(name: "a node from another galaxy") {}
 			end
 		end
 	end
@@ -32,14 +190,25 @@ describe Politburo::DSL::Context do
 	let(:environment) { root_definition.find_all_by_attributes(name: 'environment').first }
 	let(:another_environment) { root_definition.find_all_by_attributes(name: 'another environment').first }
 
-	let(:node) { root_definition.find_all_by_attributes(name: :node).first }
+	let(:node) { root_definition.find_all_by_attributes(name: 'node').first }
 	let(:another_node) { root_definition.find_all_by_attributes(name: "another node").first }
 	let(:yet_another_node) { root_definition.find_all_by_attributes(name: "yet another node").first }
 
 	let(:remote_task) { root_definition.find_all_by_attributes(name: "install babushka").first }
 
-	let(:another_environment_node) { another_environment.find_all_by_attributes(:class => Politburo::Resource::Node).first }
+	let(:another_environment_node) { another_environment.find_all_by_attributes(class: /Node/).first }
 	
+	before :each do
+		root_definition.should_not be nil
+		environment.should_not be nil
+		another_environment.should_not be nil
+		node.should_not be nil
+		another_node.should_not be nil
+		yet_another_node.should_not be nil
+		remote_task.should_not be nil
+		another_environment_node.should_not be nil
+	end
+
 	context "::define" do
 
 		context "effects test" do
@@ -106,15 +275,15 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should lookup in parent's hierarchy next" do
-				context_for_node.lookup(name: 'another node').receiver.should == another_node
+				context_for_node.lookup(name: 'another node').receiver.should be another_node
 			end
 
 			it "should travel up to the root if neccessary" do
-				context_for_node.lookup(name: 'a node from another galaxy').receiver.should == another_environment_node
+				context_for_node.lookup(name: 'a node from another galaxy').receiver.should be another_environment_node
 			end
 
 			it "should raise error if found none" do
-				lambda { context_for_environment.lookup(name: 'Does not exist') }.should raise_error('Could not find receiver by attributes: {:name=>"Does not exist"}.')
+				lambda { context_for_environment.lookup(name: 'Does not exist') }.should raise_error('Could not find resource by attributes: {:name=>"Does not exist"}.')
 			end
 
 			it "should evaluate the block in context if block is given" do
@@ -131,7 +300,7 @@ describe Politburo::DSL::Context do
 			let(:context_for_node) { node.context }
 
 			it "should lookup first within a resource hierarchy" do
-				context_for_node.find_one_by_attributes(class: Politburo::Resource::Node).receiver.should be node
+				context_for_node.find_one_by_attributes(class: /Node/).receiver.should be node
 			end
 
 			it "should lookup in parent's hierarchy next" do
@@ -143,7 +312,7 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should raise error if found more than one" do
-				lambda { context_for_environment.find_one_by_attributes(class: Politburo::Resource::Node) }.should raise_error('Ambiguous receiver for attributes: {:class=>Politburo::Resource::Node}. Found: "environment:node", "environment:another node", "environment:yet another node".')
+				lambda { context_for_environment.find_one_by_attributes(class: /Node/) }.should raise_error('Ambiguous resource for attributes: {:class=>/Node/}. Found: "environment:node", "environment:another node", "environment:yet another node".')
 			end
 
 
@@ -218,7 +387,7 @@ describe Politburo::DSL::Context do
 			end
 
 			it "should raise an error if no block was given" do
-				lambda {context.create_and_define_resource(new_receiver_class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new receiver."
+				lambda {context.create_and_define_resource(new_receiver_class, :attributes).should be new_receiver }.should raise_error "No block given for defining a new resource."
 			end
 
 			it "should evaluate the implied definition for the context" do
@@ -351,20 +520,5 @@ describe Politburo::DSL::Context do
 			end
 		end
 
-		context "#method_missing" do
-
-			it "should delegate to the underlying receiver with all arguments" do
-				receiver.should_receive(:some_method_that_doesnt_exit).with(:param_a, :param_b)
-
-				context.define { some_method_that_doesnt_exit(:param_a, :param_b) }
-			end
-
-			it "should delegate to the underlying receiver with all arguments" do
-				receiver.should_receive(:description=).with(:value)
-
-				context.description= :value
-			end
-
-		end
 	end
 end

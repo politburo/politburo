@@ -4,10 +4,10 @@ describe Politburo::Resource::Base do
 
 	let(:root_definition) {
 		Politburo::Resource::Root.new(name: '').context.define { 
-			environment(name: "Parent resource", provider: :simple) {
-				facet(name: "Child resource") {
-					node(name: 'Sub Resource 1') {}
-					node(name: 'Sub Resource 2') {}
+			create_and_define_resource(Politburo::Resource::Base, name: "Parent resource") {
+				create_and_define_resource(Politburo::Resource::Base, name: "Child resource") {
+					create_and_define_resource(Politburo::Resource::Base, name: 'Sub Resource 1') {}
+					create_and_define_resource(Politburo::Resource::Base, name: 'Sub Resource 2') {}
 				}
 			}
 		}
@@ -44,13 +44,13 @@ describe Politburo::Resource::Base do
 
 	context "#inspect" do
 		it "should return a very basic view" do
-			resource.inspect.should =~ /<Politburo::Resource::Facet:0x[a-f\d]* "Parent resource:Child resource">/
+			resource.inspect.should =~ /<Politburo::Resource::Base:0x[a-f\d]* "Parent resource:Child resource">/
 		end
 	end
 
 	context "#to_s" do
 		it "should return a very basic view" do
-			resource.to_s.should =~ /<Politburo::Resource::Facet:0x[a-f\d]* "Parent resource:Child resource">/
+			resource.to_s.should =~ /<Politburo::Resource::Base:0x[a-f\d]* "Parent resource:Child resource">/
 		end
 	end
 

@@ -9,9 +9,10 @@ require_relative 'cloud/providers'
 
 # Resources
 require_relative 'cloud/base_extensions'
-require_relative 'cloud/node_extensions'
-require_relative 'cloud/facet_extensions'
-require_relative 'cloud/environment_extensions'
+require_relative 'cloud/cloud_node'
+require_relative 'cloud/cloud_facet'
+require_relative 'cloud/cloud_environment'
+require_relative 'cloud/root_context_extensions'
 require_relative 'cloud/cloud_resource'
 require_relative 'cloud/security_group'
 require_relative 'cloud/key_pair'

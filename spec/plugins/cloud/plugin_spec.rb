@@ -3,10 +3,6 @@ describe Politburo::Plugins::Cloud::Plugin do
 
   it { plugin.should be_a Politburo::Plugins::Base }
 
-  it "should add itself to the default plugins" do
-    Politburo::DSL.default_plugins.should include Politburo::Plugins::Cloud::Plugin
-  end
-
   context "#apply" do
     let (:root) { double("root") }
     let (:node) { double("a node") }
@@ -25,6 +21,7 @@ describe Politburo::Plugins::Cloud::Plugin do
   context "#apply_to_node" do
     let(:root) { 
       Politburo::Resource::Root.new(name: "").context.define { 
+        plugin(class: Politburo::Plugins::Cloud::Plugin) {}
         environment(name: 'an environment', provider: :provider ) { 
           node(name: 'a node', region: 'a region') {} 
         } 
@@ -33,6 +30,12 @@ describe Politburo::Plugins::Cloud::Plugin do
 
     let(:node) { root.context.lookup(name: 'a node').receiver }
     let(:environment) { root.context.lookup(name: 'an environment').receiver }
+
+    before :each do
+
+    end
+
+    it { environment.should be_a Politburo::Plugins::Cloud::Environment }
 
     it "should add a dependency on a creation task to the create state" do
       plugin.apply_to_node(node)

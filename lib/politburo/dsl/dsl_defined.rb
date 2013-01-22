@@ -14,13 +14,8 @@
 			end
 
 			def context
-				@context ||= context_class.new(self)
+				@context ||= Politburo::DSL::Context.new(self)
 			end
-
-			def context_class
-				Politburo::DSL::Context
-			end
-
 
 			def validation_errors
 				self.class.validation_errors_for(self)
