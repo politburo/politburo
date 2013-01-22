@@ -58,7 +58,7 @@ module Politburo
 
       def log_formatter
         @log_formatter ||= lambda do |severity, datetime, progname, msg|
-          "#{console_prefix(datetime, severity)} #{msg}\n"
+          "#{console_prefix(datetime, severity)}\t#{msg}\n"
         end
       end
 
