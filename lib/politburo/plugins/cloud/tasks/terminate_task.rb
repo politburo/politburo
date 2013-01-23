@@ -17,7 +17,7 @@ module Politburo
             return false
           end
 
-          def meet
+          def meet(try = 0)
             server = resource.cloud_server
             
             if (server.state != "terminated")

@@ -21,6 +21,10 @@ module Politburo
         parent_resource
       end
 
+      def retry_timeout
+        @retry_timeout ||= 1800.0
+      end
+
       def name 
         @name ||= resource_state.full_name
       end

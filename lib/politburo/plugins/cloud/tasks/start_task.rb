@@ -6,14 +6,30 @@ module Politburo
 
           def met?(verification = false)
             server = resource.cloud_server
-            server and server.ready? and server.sshable?
+            return false unless server
+
+            ready = verification ? server.wait_for { ready? } : server.ready?
+            logger.error("Server #{server.display_name.cyan} is still not ready.") if !ready and verification
+            return false unless ready
+
+            sshable = verification ? server.wait_for { sshable? } : server.sshable?
+            logger.error("Server #{server.display_name.cyan} is still not sshable.") if !sshable and verification
+            return false unless sshable
+            
+            server and ready and sshable
           end
 
-          def meet
+          def meet(try = 0)
             server = resource.cloud_server
+
+            logger.warn("Trying again, retry #{try}...") if (try > 0)
+
             if (server.state == "stopping")
               logger.info("Server #{server.display_name.cyan} is still stopping, will wait for it to fully stop before attempting to start it up again...")
-              server.wait_for { state != "stopping" }
+              unless server.wait_for(180) { state != "stopping" }
+                logger.error("Timed out while waiting for server #{server.display_name.cyan} to fully stop.")
+                raise "Timed out while waiting for server #{server.display_name} to fully stop."
+              end
             end
 
             if (server.state == "stopped")
@@ -23,12 +39,24 @@ module Politburo
               logger.info("Waiting for server #{server.display_name.cyan} to become available...")
             end
 
-            ready_result = resource.cloud_server.wait_for { ready? }
+            ready_result = resource.cloud_server.wait_for(180) { ready? }
+            if (ready_result)
+              logger.info("Server #{server.reload.display_name.cyan} is now ready. Took #{ready_result[:duration]} second(s).")
+            else
+              logger.error("Timed out while waiting for server #{server.display_name.cyan} to become available.")
+              raise "Timed out while waiting for server #{server.display_name} to become available."
+            end
 
-            logger.debug("Waiting for server #{server.display_name.cyan} to become sshable...")
-            sshable_result = resource.cloud_server.wait_for { sshable? }
+            logger.info("Waiting for server #{server.display_name.cyan} to become sshable...")
+            sshable_result = resource.cloud_server.wait_for(180) { sshable? }
 
-            logger.info("Server #{server.reload.display_name.cyan} is now available. Took #{ready_result[:duration] + sshable_result[:duration]} second(s).")
+            if sshable_result
+              logger.info("Server #{server.reload.display_name.cyan} is now sshable. Took #{sshable_result[:duration]} second(s).")
+            else
+              logger.error("Timed out while waiting for ssh access to server #{server.display_name.cyan}.")
+              raise "Timed out while waiting for ssh access to server #{server.display_name}."
+            end
+
             true
           end
         end

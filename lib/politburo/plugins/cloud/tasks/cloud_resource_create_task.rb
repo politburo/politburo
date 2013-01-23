@@ -14,11 +14,7 @@ module Politburo
             cloud_counterpart
           end
 
-          def verify_met?
-            met?(true)
-          end
-
-          def meet
+          def meet(try = 0)
             cloud_counterpart = create_using.call(resource)
             logger.info("Created new #{noun}: #{cloud_counterpart.display_name.cyan}") if (cloud_counterpart)
             cloud_counterpart        

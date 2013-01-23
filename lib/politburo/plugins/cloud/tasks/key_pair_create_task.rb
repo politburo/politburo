@@ -21,11 +21,7 @@ module Politburo
             cloud_key_pair
           end
 
-          def verify_met?
-            met?(true)
-          end
-
-          def meet
+          def meet(try = 0)
             cloud_key_pair = nil
             if resource.private_key_path.exist?
               if resource.public_key_path.exist?

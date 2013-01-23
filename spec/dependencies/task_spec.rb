@@ -184,6 +184,7 @@ describe Politburo::Dependencies::Task do
   context "#step" do
 
     before :each do
+      Kernel.stub(:sleep).with(anything).and_return(1.0)
       task.stub(:met?).and_return(false)
       task.stub(:all_prerequisites_satisfied?).and_return(true)
       task.step
@@ -252,8 +253,8 @@ describe Politburo::Dependencies::Task do
       before :each do
         task.step
         task.should be_ready_to_meet
-        task.stub(:meet).and_return(true)
-        task.stub(:met?).and_return(true)
+        task.stub(:meet).with(anything).and_return(true)
+        task.stub(:met?).with(anything).and_return(true)
       end
 
       it "should verify the task doesn't have unsatisfied prerequisites at this point" do
@@ -280,6 +281,7 @@ describe Politburo::Dependencies::Task do
 
       it "should attempt to meet, and if successful should be satisfied" do
         task.should_receive(:meet).and_return(true)
+        task.should_receive(:verify_met?).with(0).and_return(true)
         task.step
         task.should be_satisfied
       end
@@ -292,14 +294,18 @@ describe Politburo::Dependencies::Task do
       end
 
       it "should attempt to meet, and if it fails with a nil or false return value, it should be marked as failed" do
-        task.should_receive(:meet).and_return false
+        task.should_receive(:meet).with(0).and_return false
+        task.should_receive(:meet).with(1).and_return false
+        task.should_receive(:meet).with(2).and_return false
         task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Task 'test-task' failed as calling #meet() indicated failure by returning nil or false."
       end
 
       it "should verify is met, and if it isn't, it should be marked as failed" do
-        task.should_receive(:verify_met?).and_return(false)
+        task.should_receive(:verify_met?).with(0).and_return(false)
+        task.should_receive(:verify_met?).with(1).and_return(false)
+        task.should_receive(:verify_met?).with(2).and_return(false)
         task.step
         task.should be_failed
         task.cause_of_failure.message.should eq "Task 'test-task' failed as its criteria hasn't been met after executing."
@@ -318,6 +324,68 @@ describe Politburo::Dependencies::Task do
         task.cause_of_failure.message.should eq "Whoops"
       end
       
+    end
+
+  end
+
+  context "self.wait_for" do
+    let(:try_keeper) { double("(re)try keeper") }
+
+    before :each do
+      Time.stub(:now).and_return(0, 0.01, 1.0, 2.0, 3.0, 4.0, 5.0)
+      Kernel.stub(:sleep).with(1.0).and_return(600.0)
+    end
+
+    context "when successful" do
+
+      (1..3).each do | i | 
+        context "on retry ##{i}" do
+          before :each do
+            try_sequence = Array.new(i - 1) { false } << true
+            try_keeper.should_receive(:try).and_return(*try_sequence)
+          end
+
+          it "should return duration hash" do
+            Politburo::Dependencies::Task.wait_for { try_keeper.try }.should eq(duration: i.to_f)
+          end
+
+        end
+      end
+
+    end
+
+    it "should yield the retry count (zero based) as an argument to the block" do
+      try_keeper.should_receive(:try).and_return(false, false, true)
+      retries = []
+      Politburo::Dependencies::Task.wait_for { | try | retries << try; try_keeper.try }
+
+      retries.should eq [0, 1, 2]
+    end
+
+    context "when successful on last try, which would bring it over timeout" do
+
+      it "should still be successful" do
+        try_keeper.should_receive(:try).and_return(false, true)
+
+        Politburo::Dependencies::Task.wait_for(1.5) { try_keeper.try }.should eq(duration: 2.0)
+      end
+
+    end
+
+    context "when timed out" do
+
+      it "should return false" do
+        try_keeper.should_receive(:try).once.and_return(false)
+        Politburo::Dependencies::Task.wait_for(0.5) { try_keeper.try }.should be false
+      end
+    end
+
+    context "when retried out" do
+
+      it "should return false" do
+        try_keeper.should_receive(:try).exactly(5).times.and_return(false)
+        Politburo::Dependencies::Task.wait_for(600.0, 5) { try_keeper.try }.should be false
+      end
     end
 
   end

@@ -11,11 +11,7 @@ module Politburo
             server
           end
 
-          def verify_met?
-            met?(true)
-          end
-
-          def meet
+          def meet(try = 0)
             server = resource.cloud_provider.find_or_create_server_for(resource)
             logger.info("Created new server: #{server.display_name.cyan}") if (server)
             server        

@@ -18,7 +18,7 @@ module Politburo
         execute_command(met_test_command)
       end
 
-      def meet
+      def meet(try = 0)
         execute_command(command)
       end
 

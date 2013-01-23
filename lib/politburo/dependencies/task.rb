@@ -11,6 +11,14 @@ module Politburo
         [ :unexecuted, :started, :ready_to_meet, :executing, :failed, :satisfied ]
       end
 
+      def retry_timeout
+        @retry_timeout ||= 600.0
+      end
+
+      def retries
+        @retries ||= 3
+      end
+
       def unexecuted?
         state == :unexecuted
       end
@@ -83,7 +91,7 @@ module Politburo
         satisfied? and all_prerequisites_satisfied?
       end
 
-      def verify_met?
+      def verify_met?(try = 0)
         met?(true)
       end
 
@@ -101,7 +109,7 @@ module Politburo
               raise "Can't check if task was met when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
 
               task.logger.debug("About to ask met? of the task...")
-              if (met?) then
+              if (task.met?) then
                 task.state = :satisfied
               else
                 task.state = :ready_to_meet
@@ -111,10 +119,10 @@ module Politburo
               raise "Can't execute task when it has unsatisfied prerequisites" unless task.all_prerequisites_satisfied?
               task.state = :executing
               task.logger.debug("About to meet the task...")
-              if !task.meet
+              if ! Task.wait_for(retry_timeout, retries) { | try | task.logger.debug("Will try to meet the task again (retry ##{try})...") if try > 0; task.meet(try) }
                 task.state = :failed
                 task.cause_of_failure = RuntimeError.new("Task '#{task.name}' failed as calling #meet() indicated failure by returning nil or false.")
-              elsif (task.verify_met?)
+              elsif Task.wait_for(retry_timeout, retries) { | try | task.verify_met?(try) }
                 task.state = :satisfied
               else
                 task.state = :failed
@@ -135,6 +143,21 @@ module Politburo
           end
 
           task
+      end
+
+      def self.wait_for(timeout=600, retries=3, interval=1, &block)
+        duration = 0
+        start = Time.now
+        retries_left = retries
+        until (duration = Time.now - start) > timeout or (retries_left <= 0) or (success = yield(retries - retries_left))
+          retries_left = (retries_left - 1)
+          Kernel.sleep(interval.to_f)
+        end
+        if success
+          { :duration => (Time.now - start) }
+        else
+          false
+        end
       end
 
       def log_formatter

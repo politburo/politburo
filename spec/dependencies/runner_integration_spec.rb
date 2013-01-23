@@ -28,14 +28,16 @@ describe Politburo::Dependencies::Runner, "integration" do
 
   it "should run a one node tree correctly when task failed" do
     task_a = task(:a)
-    task_a.should_receive(:met?).and_return(false, false)
-    task_a.should_receive(:meet)
-
+    #task_a.should_receive(:met?).exactly(1).times.and_return(false)
+    #task_a.should_receive(:verify_met?).with(anything).exactly(3).times.and_return(false)
+    task_a.should_receive(:meet).with(anything).and_raise("error")
 
     runner = Politburo::Dependencies::Runner.new(task_a)
 
     runner.logger.should_receive(:error)
     runner.run()
+
+    task_a.cause_of_failure.to_s.should eq "error"
 
 
     task_a.should_not be_done
