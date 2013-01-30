@@ -108,30 +108,52 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
 
     end
 
-    it "should wait until it started" do
-      cloud_server.should_receive(:state).twice.and_return("pending")
-      cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
+    context "when waiting for server to start" do
 
-      # The following expectations are actually on the _server_. 
-      # However, rspec doesn't seem to let you change the yield context
-      task.should_receive(:ready?).and_return(true)
+      before :each do
+        cloud_server.should_receive(:state).twice.and_return("pending")
+      end
 
-      task.meet
+      it "should wait until it is ready" do
+        cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
+
+        # The following expectations are actually on the _server_. 
+        # However, rspec doesn't seem to let you change the yield context
+        task.should_receive(:ready?).and_return(true)
+
+        task.meet
+      end
+
+      it "if it times out waiting for stop, it should raise an error" do
+        cloud_server.should_receive(:wait_for).and_yield.and_return(false)
+
+        lambda { task.meet }.should raise_error "Timed out while waiting for server server.display.name to become available."
+      end
+
     end
 
-    it "and times out while starting, it should raise an error" do
-      
-    end
+    context "when waiting for server to become sshable" do
+      before :each do
+        cloud_server.stub(:state).twice.and_return("running")
+      end
 
-    it "should wait until it is sshable" do
-      cloud_server.stub(:state).twice.and_return("pending")
-      cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
-      
-      # The following expectation are actually on the _server_. 
-      # However, rspec doesn't seem to let you change the yield context
-      task.should_receive(:sshable?).and_return(true)      
+      it "should wait until it is sshable" do
+        cloud_server.should_receive(:wait_for).twice.and_yield.and_return({:duration=>19.0})
+        
+        # The following expectation are actually on the _server_. 
+        # However, rspec doesn't seem to let you change the yield context
+        task.should_receive(:sshable?).and_return(true)      
 
-      task.meet
+        task.meet
+      end
+
+      it "if it times out waiting for stop, it should raise an error" do
+        cloud_server.should_receive(:wait_for).and_yield.and_return({:duration=>19.0})
+        cloud_server.should_receive(:wait_for).and_yield.and_return(false)
+
+        lambda { task.meet }.should raise_error "Timed out while waiting for ssh access to server server.display.name."
+      end
+
     end
 
   end
