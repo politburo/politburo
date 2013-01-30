@@ -10,7 +10,6 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
         node(name: "node") do
           state(:configured) {
             babushka_task(dep: 'cool-as:cool-dep') {
-              puts "prereqs: #{prerequisites}"
             }
           }
         end
@@ -31,6 +30,11 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
 
   it "should depend on the installation task" do
     babushka_task.should be_dependent_on install_babushka_task
+  end
+
+  it "should have a default name" do
+    puts babushka_task.method(:name)
+    babushka_task.name.should eq "babushka cool-as:cool-dep"
   end
 
   context "install babushka task" do

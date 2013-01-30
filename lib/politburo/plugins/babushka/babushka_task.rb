@@ -20,6 +20,9 @@ module Politburo
         attr_with_default(:command) { Politburo::Tasks::RemoteCommand.repack("babushka meet #{dep}", command_logger) }
         attr_with_default(:met_test_command) { Politburo::Tasks::RemoteCommand.repack("babushka meet #{dep} --dry-run", command_logger) }
 
+        def default_task_name
+          "babushka #{dep}"
+        end
       end
     end
   end

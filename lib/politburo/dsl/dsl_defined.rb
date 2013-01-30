@@ -104,15 +104,15 @@
 					
 				end
 
-				def attr_with_default(name, &default_value)
+				def attr_with_default(_name, &default_value)
 					raise "Block is required for default value" unless block_given?
 
-					name_sym = name.to_sym
+					name_sym = _name.to_sym
 
 					attr_reader name_sym unless (method_defined?(name_sym))
 					attr_writer name_sym unless (method_defined?("#{name_sym}=".to_sym))
 
-					original_name_sym = "original_#{name_sym}".to_sym
+					original_name_sym = "original_#{name_sym}_before_#{self.to_s.gsub(/\W+/, '_')}".to_sym
 					alias_method original_name_sym, name_sym
 
 					define_method(name_sym) do

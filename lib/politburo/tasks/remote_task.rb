@@ -8,8 +8,6 @@ module Politburo
       requires :command
       requires :met_test_command
 
-      attr_with_default(:name) { "RemoteTask { command: '#{command}', met? '#{met_test_command}' }" }
-
       def node
         self.resource
       end
@@ -34,6 +32,14 @@ module Politburo
         @command_log_formatter ||= lambda do |severity, datetime, progname, msg|
           "#{colorize_by_severity(datetime, severity)} #{node.full_name}\t#{colorize_by_severity(msg, severity)}\n"
         end
+      end
+
+      def name
+        @name ||= default_task_name
+      end
+
+      def default_task_name
+        "RemoteTask { command: '#{command}', met? '#{met_test_command}' }"
       end
 
       attr_with_default(:command_logger) { 
