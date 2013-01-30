@@ -148,7 +148,7 @@
 
 			class ValidationError < Exception
 				def initialize(invalid_object, validation_errors)
-					super("Validation error(s): #{validation_errors.each_pair.map { |k, v| v.map(&:message) } .flatten.join(", ")}")
+					super("Validation error(s) on #{invalid_object.to_s}: #{validation_errors.each_pair.map { |k, v| v.map(&:message) } .flatten.join(", ")}")
 
 					@invalid_object = invalid_object
 					@validation_errors = validation_errors

@@ -62,6 +62,17 @@ module Politburo
 				dependent_context
 			end
 
+			def containing_node(&block)
+				if (receiver.parent_resource)
+				  if receiver.parent_resource.kind_of? Politburo::Resource::Node
+				  	return receiver.parent_resource.context.define(&block)
+				  else
+				  	return parent.containing_node(&block)
+				  end
+				end
+				raise "Could not locate containing node before reaching root."
+			end
+
 			def lookup(find_attrs, &block)
 				context = find_one_by_attributes(find_attrs)
 				raise "Could not find resource by attributes: #{find_attrs}." if (context.nil?) 

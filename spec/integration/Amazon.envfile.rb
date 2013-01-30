@@ -8,8 +8,6 @@
 # > AWS_ACCESS_KEY_ID=<your key> AWS_SECRET_ACCESS_KEY=<your secret> politburo -e Amazon.envfile.rb Amazon#terminate
 # 
 #
-plugin(class: Politburo::Plugins::Cloud::Plugin) {}
-
 environment(name: 'Amazon', description: "Amazon integration test environment",
   provider: :aws, 
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
@@ -29,10 +27,7 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
     facet(name: name, region: region) do
       node(name: "Primary host in zone", server_creation_overrides: options, user: 'ubuntu') {
         state(:configured) {
-          remote_task(name: 'updated apt-get', command: 'sudo apt-get -q -y update', met_test_command: 'sudo apt-cache showpkg git | grep Versions:') {}
-          remote_task(name: 'install git', command: 'sudo apt-get -q -y install git', met_test_command: 'which git') { 
-            depends_on remote_task('updated apt-get') 
-          }
+          babushka_task(dep: 'git.bin') { }
         }
       }
     end

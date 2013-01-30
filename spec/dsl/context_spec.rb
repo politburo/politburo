@@ -264,6 +264,17 @@ describe Politburo::DSL::Context do
 
 		end
 
+		context "#containing_node" do
+
+			it "should lookup the context for the node containing the resource" do
+				remote_task.context.containing_node.should be yet_another_node
+			end
+
+			it "should raise an error if no containg node for the resource" do
+				lambda { another_environment.context.containing_node }.should raise_error "Could not locate containing node before reaching root."
+			end
+		end
+
 		context "#lookup" do
 
 			let(:context_for_environment) { environment.context }

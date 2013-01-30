@@ -103,7 +103,7 @@ describe Politburo::DSL::DslDefined do
 
 			before(:each) { dsl_defined_obj.name = nil }
 
-			it { lambda { dsl_defined_obj.validate! }.should raise_error "Validation error(s): 'name' is required" }
+			it { lambda { dsl_defined_obj.validate! }.should raise_error /Validation error\(s\) on .*: 'name' is required/ }
 
 		end
 

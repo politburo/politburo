@@ -9,7 +9,7 @@ module Politburo
     attr_reader :targets
 
     def self.default_plugins
-      @default_plugins ||= Set.new([ Politburo::Plugins::Cloud::Plugin ])
+      @default_plugins ||= Set.new([ Politburo::Plugins::Cloud::Plugin, Politburo::Plugins::Babushka::Plugin ])
     end
 
     def self.create(arguments)
@@ -65,7 +65,7 @@ module Politburo
 
     def root()
       _cli = self
-      @root ||= Politburo::DSL.define(envfile_contents) {
+      @root ||= Politburo::DSL.define(envfile_contents, plugins) {
         self.cli = _cli
       }
     end
@@ -98,7 +98,7 @@ module Politburo
 
     def plugins
       @plugins ||= begin
-        options[:plugins].split(/[\s,]+/).map { | plugin_class_name | eval(plugin_class_name) }
+        options[:plugins].nil? ? [] : options[:plugins].split(/[\s,]+/).map { | plugin_class_name | eval(plugin_class_name) }
       end
     end
 
