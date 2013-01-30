@@ -30,5 +30,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "net-sftp"
   s.add_runtime_dependency "net-scp"
   s.add_runtime_dependency "net-ssh-gateway"
+  s.add_runtime_dependency "innertube"
 
 end

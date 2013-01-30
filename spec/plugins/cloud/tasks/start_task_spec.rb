@@ -87,6 +87,12 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
 
         task.meet
       end
+
+      it "and times out waiting for stop, it should raise an error" do
+        cloud_server.should_receive(:wait_for).and_yield.and_return(false)
+
+        lambda { task.meet }.should raise_error "Timed out while waiting for server server.display.name to fully stop."
+      end
     end
 
     context "when the server is stopped" do
@@ -99,6 +105,7 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
 
         task.meet
       end
+
     end
 
     it "should wait until it started" do
@@ -110,6 +117,10 @@ describe Politburo::Plugins::Cloud::Tasks::StartTask do
       task.should_receive(:ready?).and_return(true)
 
       task.meet
+    end
+
+    it "and times out while starting, it should raise an error" do
+      
     end
 
     it "should wait until it is sshable" do

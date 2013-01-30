@@ -1,6 +1,7 @@
 describe Politburo::Tasks::RemoteTask do
 
   let(:session) { double("fake ssh session") }
+  let(:session_pool) { double("session pool") }
   let(:channel) { double("fake ssh channel", :wait => true) }
 
   let(:node) { Politburo::Resource::Node.new(name: "Node resource", host: 'localhost') }
@@ -15,6 +16,9 @@ describe Politburo::Tasks::RemoteTask do
   before :each do
     node.add_child(state)
     state.add_child(task)
+
+    node.stub(:session_pool).and_return(session_pool)
+    session_pool.stub(:take).and_yield(session)
   end
 
   it "should initialize correctly" do
@@ -29,7 +33,6 @@ describe Politburo::Tasks::RemoteTask do
   context "#met?" do
 
     before :each do
-      node.should_receive(:session).and_return(session)
       session.should_receive(:open_channel).and_yield(channel).and_return(channel)
     end
 
@@ -52,7 +55,6 @@ describe Politburo::Tasks::RemoteTask do
   context "#meet" do
 
     before :each do
-      node.should_receive(:session).and_return(session)
       session.should_receive(:open_channel).and_yield(channel).and_return(channel)
     end
 

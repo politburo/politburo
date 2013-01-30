@@ -2,6 +2,10 @@ describe Politburo::Plugins::Cloud::Node do
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
   let(:node) { Politburo::Plugins::Cloud::Node.new(name: "Node resource") }
 
+  before(:all) do
+    Politburo::Resource::Base.class_eval { include Politburo::Plugins::Cloud::BaseExtensions }
+  end
+
   before :each do
     parent_resource.add_child(node)
   end

@@ -48,8 +48,10 @@ module Politburo
       def execute_command(cmd)
         logger.info("Remote executing '#{cmd.to_s.cyan}' on '#{node.full_name.cyan}' (#{"#{node.user}@#{node.host}".cyan})...")
         result = nil
-        channel = node.session.open_channel do | channel |
-          result = cmd.execute(channel)
+        channel = node.session_pool.take do | session | 
+          session.open_channel do | channel |
+            result = cmd.execute(channel)
+          end
         end
         channel.wait
         logger.debug("Execution result: #{cmd.execution_result}.")

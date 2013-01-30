@@ -19,46 +19,28 @@ describe Politburo::Resource::Node do
 
   end
 
-  context "#session" do
-    before :each do
-      node.stub(:create_session).and_return(double("a session"))
-    end
+  context "#session_pool" do
+    let(:session_pool) { node.session_pool }
 
-    context "with no existing session" do
-      it "it should create one if create_if_missing is true" do
-        node.should_receive(:create_session).and_return(double("a session"))
-        node.session.should_not be_nil
-      end
-
-      it "it should not create one, and return nil if create_if_missing is false" do
-        node.session(false).should be_nil
-      end
-    end
-
-    context "with existing session" do
-      let(:existing_session) { node.session }
-
-      it "should return the same session" do
-        node.session.should be existing_session
-      end
+    it "should memoise a connection pool" do
+      node.session_pool.should be_a Innertube::Pool
+      node.session_pool.should be session_pool
     end
   end
 
   context "#release" do
+    let(:fake_session) { double('fake session') }
+    let(:session_pool) { node.session_pool }
 
-    context "with no existing session" do
-      it "should release the session if it exists" do
-        node.should_receive(:session).with(false).and_return(nil)
+    context "with existing sessions" do
 
-        node.release
+      before :each do
+        node.should_receive(:create_session).and_return(fake_session)
+
+        node.session_pool.take { }
       end
-    end
 
-    context "with existing session" do
-      let(:fake_session) { double("a fake session") }
-
-      it "should release the session if it exists" do
-        node.should_receive(:session).with(false).at_least(2).times.and_return(fake_session)
+      it "should iterate over sessions and close them" do
         fake_session.should_receive(:close)
 
         node.release

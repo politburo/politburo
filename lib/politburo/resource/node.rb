@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'innertube'
 
 module Politburo
 	module Resource
@@ -16,12 +17,13 @@ module Politburo
 				Net::SSH.start(host, user)
 			end
 
-			def session(create_if_missing = true)
-				@session || @session = (create_if_missing ? create_session : nil)
-			end
+      def session_pool
+        @session_pool ||= Innertube::Pool.new(  proc { create_session },
+                                              proc { |c| c.close })
+      end
 
 			def release
-				session(false).close if session(false)
+				session_pool.each { | session | session.close }
 			end
 
       def context_class
