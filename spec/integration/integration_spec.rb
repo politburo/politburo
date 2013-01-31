@@ -21,6 +21,8 @@ describe "End to end test" do
 			cli.root.context.lookup(name: "Primary host in zone", region: 'ap-southeast-2')
 		end
 
+		let(:git_client_role) { cli.root.context.lookup(name: 'git_client').receiver }
+
   	let(:security_group) do
   		cli.root.context.lookup(class: Politburo::Plugins::Cloud::SecurityGroup, parent_resource: test_host.parent_resource)
   	end
@@ -57,6 +59,7 @@ describe "End to end test" do
 			it "should start the cloud server correctly and set up the security group for it" do
 				test_host.cloud_server.state.should == "running"
 				security_group.cloud_security_group.should_not be_nil
+				test_host.applied_roles.should include git_client_role
 			end
 		end
 

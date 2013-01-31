@@ -29,6 +29,10 @@ module Politburo
 				update_attributes(attributes)
 			end
 
+			def applied_roles
+				@applied_roles ||= Set.new
+			end
+
 			def as_dependency
 				state(:ready)
 			end

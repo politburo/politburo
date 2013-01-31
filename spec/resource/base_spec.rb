@@ -36,6 +36,10 @@ describe Politburo::Resource::Base do
 		resource.should be_a Politburo::Resource::Searchable
 	end
 
+	it "should have a set of applied roles" do
+		resource.applied_roles.should be_a Set
+	end
+
 	context "#full_name" do
 		it "should return a hierarchical name for the resource" do
 			sub_resource_2.full_name.should == "Parent resource:Child resource:Sub Resource 2"

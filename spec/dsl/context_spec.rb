@@ -1,6 +1,163 @@
 require 'politburo'
 
 describe Politburo::DSL::Context do
+	let(:resource) { double('resource') }
+	let(:context) { Politburo::DSL::Context.new(resource) }
+	
+	context "#role" do
+		let(:role) { double('role', implies: nil) }
+		let(:role_context) { double('role context', receiver: role)}
+
+		context "when block is given" do
+
+			before :each do
+				Politburo::Resource::Role.stub(:new).with(name: 'master').and_return(role)
+				context.stub(:add_child).with(role)
+				role.stub(:implies=).with(kind_of(Proc))
+			end
+
+			it "should create a new role" do
+				Politburo::Resource::Role.should_receive(:new).with(name: 'master').and_return(role)
+
+				context.role(:master) {
+					self.do_stuff
+				}
+			end
+
+			it "should add a new role as child" do
+				context.should_receive(:add_child).with(role)
+
+				context.role(:master) {
+					self.do_stuff
+				}
+			end
+
+			it "should assign the content of the block to the role's implies attribute" do
+				role.should_receive(:implies=).with(kind_of(Proc))
+
+				context.role(:master) {
+					self.do_stuff
+				}
+			end
+		end
+
+		context "when no block is given" do
+			let(:applied_roles) { [] }
+
+			before :each do
+				context.stub(:lookup_and_define_resource).with(Politburo::Resource::Role, name: 'master').and_return(role_context)
+				resource.stub(:applied_roles).and_return(applied_roles)
+				applied_roles.stub(:<<).with(role)
+			end
+
+			it "should attempt to lookup the role" do
+				context.should_receive(:lookup_and_define_resource).with(Politburo::Resource::Role, name: 'master').and_return(role_context)
+
+				context.role(:master)
+			end
+
+			context "when the role has not been executed on this resource" do
+
+				let(:proc) { Proc.new { do_stuff } }
+
+				it "should execute the role's implies proc within the resource's context" do
+					role.should_receive(:implies).and_return(proc)
+
+					resource.should_receive(:do_stuff)
+
+					context.role(:master)
+				end
+
+				it "should add the role to the applied roles of the receiver" do
+					applied_roles.should_receive(:<<).with(role)
+
+					context.role(:master)
+				end
+			end
+
+			context "when the role has already been executed on this resource" do
+				let(:proc) { Proc.new { do_stuff } }
+
+				before :each do
+					role.stub(:implies).and_return(proc)
+				end
+
+				it "should not execute the role definition again" do
+					resource.should_receive(:applied_roles).and_return([ role ])
+					resource.should_receive(:do_stuff).exactly(1).times
+
+					context.role(:master)
+					context.role(:master)
+				end
+
+			end
+		end
+
+	end
+end
+
+describe Politburo::DSL::Context, "roles" do
+
+	let(:root_definition) do
+		Politburo::DSL.define do
+			self.cli = :fake_cli
+
+			role(:nginx_server) {
+				self.description = "#{self.description} nginx_server"
+			}
+			role(:postgres_client) { 
+				self.description = "#{self.description} postgres_client"
+			}
+			role(:postgres_server) do 
+				role(:postgres_client)
+				self.description = "#{self.description} postgres_server"
+			end
+			role(:webnode) do
+				role(:nginx_server)
+				role(:postgres_client)
+				self.description = "#{self.description} webnode"
+			end
+			
+			environment(name: "environment") do
+				node(name: "node") {
+					role(:postgres_server)
+					role(:webnode)
+				}
+				node(name: "another node") do
+					role(:webnode)
+				end
+			end
+		end
+	end
+
+	let(:node) { root_definition.find_all_by_attributes(name: 'node').first }
+	let(:another_node) { root_definition.find_all_by_attributes(name: "another node").first }
+
+	let(:webnode_role) { root_definition.context.role(:webnode).receiver }
+	let(:postgres_client_role) { root_definition.context.role(:postgres_client).receiver }
+
+	it "should locate roles correctly" do
+		webnode_role.should be_a Politburo::Resource::Role
+	end
+
+	it "should execute the role's content in the context of the node" do
+		another_node.description.should include 'webnode'
+
+		another_node.applied_roles.should include webnode_role
+	end
+
+	it "should execute any implied roles in the context of the node" do
+		node.description.should include 'postgres_client'
+
+		node.applied_roles.should include postgres_client_role
+	end
+
+	it "should only execute roles once" do
+		node.description.split(/\s/).select { |s| s.eql?('postgres_client') }.should have(1).item
+	end
+end
+
+describe Politburo::DSL::Context do
 
 	describe "#delegate_call_to_parent_context" do
 	  let(:parent) { double("parent", context: parent_context) }
@@ -265,9 +422,12 @@ describe Politburo::DSL::Context do
 		end
 
 		context "#containing_node" do
+			it "should return itself if called on a node" do
+				node.context.containing_node.should be node.context
+			end
 
 			it "should lookup the context for the node containing the resource" do
-				remote_task.context.containing_node.should be yet_another_node
+				remote_task.context.containing_node.should be yet_another_node.context
 			end
 
 			it "should raise an error if no containg node for the resource" do

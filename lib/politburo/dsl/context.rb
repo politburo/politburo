@@ -63,12 +63,11 @@ module Politburo
 			end
 
 			def containing_node(&block)
-				if (receiver.parent_resource)
-				  if receiver.parent_resource.kind_of? Politburo::Resource::Node
-				  	return receiver.parent_resource.context.define(&block)
-				  else
-				  	return parent.containing_node(&block)
-				  end
+			  if receiver.kind_of? Politburo::Resource::Node
+			  	define(&block)
+			  	return self
+			  elsif (receiver.parent_resource)
+			  	return parent.containing_node(&block)
 				end
 				raise "Could not locate containing node before reaching root."
 			end
@@ -116,6 +115,26 @@ module Politburo
 				end
 
 				context
+			end
+
+			def role(role_name, &block)
+
+				if block_given?
+					role = Politburo::Resource::Role.new(name: role_name.to_s)
+					role.implies = block
+					
+					add_child(role)
+				else
+					role_context = lookup_and_define_resource(Politburo::Resource::Role, name: role_name.to_s)
+					role = role_context.receiver
+
+					unless receiver.applied_roles.include?(role)
+						define(&role_context.receiver.implies)
+						receiver.applied_roles << role
+					end
+
+					role_context
+				end
 			end
 
 			def find_and_define_resource(new_receiver_class, name_or_attributes, &block)

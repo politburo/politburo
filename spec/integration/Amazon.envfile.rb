@@ -8,6 +8,12 @@
 # > AWS_ACCESS_KEY_ID=<your key> AWS_SECRET_ACCESS_KEY=<your secret> politburo -e Amazon.envfile.rb Amazon#terminate
 # 
 #
+role(:git_client) {
+  state(:configured) {
+    babushka_task(dep: 'git.bin') { }
+  }
+}
+
 environment(name: 'Amazon', description: "Amazon integration test environment",
   provider: :aws, 
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
@@ -26,9 +32,7 @@ environment(name: 'Amazon', description: "Amazon integration test environment",
 
     facet(name: name, region: region) do
       node(name: "Primary host in zone", server_creation_overrides: options, user: 'ubuntu') {
-        state(:configured) {
-          babushka_task(dep: 'git.bin') { }
-        }
+        role(:git_client)
       }
     end
   end

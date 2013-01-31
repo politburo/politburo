@@ -1,7 +1,5 @@
 environment(name: "Complex integration test environment", provider: :aws) do
 
-  import 'redbeard:webnode#SHA1'
-
   # This defines the database master + slaves
   %w(us-west-1 us-west-2 us-east-1).each do | region |
     group(name: "Database", region: region) do
