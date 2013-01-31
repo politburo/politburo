@@ -15,6 +15,10 @@ module Politburo
           full_name
         end
 
+        def destroy_cloud_counterpart
+          cloud_counterpart.destroy
+        end
+
       end
     end
   end

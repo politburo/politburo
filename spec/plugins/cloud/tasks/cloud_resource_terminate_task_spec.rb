@@ -33,7 +33,7 @@ describe Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask do
 
     it "should send destroy to the cloud resource" do
       cloud_resource.should_receive(:cloud_counterpart).and_return(cloud_counterpart)
-      cloud_counterpart.should_receive(:destroy)
+      cloud_resource.should_receive(:destroy_cloud_counterpart)
 
       task.meet
     end

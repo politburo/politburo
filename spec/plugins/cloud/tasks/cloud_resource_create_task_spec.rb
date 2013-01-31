@@ -5,7 +5,7 @@ describe Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask do
   let(:cloud_counterpart) { double("cloud counterpart", display_name: 'sg-90210') }
 
   let(:state) { cloud_resource.context.define { state(:started) {} }.state(:started) }
-  let(:task) { Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask.new(name: 'Create cloud resource', noun: 'noun', create_using: lambda { | resource | resource.cloud_provider.create_cloud_resource_for(resource) }) }
+  let(:task) { Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask.new(name: 'Create cloud resource', noun: 'noun') }
 
   before :each do
     cloud_resource.stub(:cloud_provider).and_return(provider)
@@ -45,7 +45,7 @@ describe Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask do
   context "#meet" do
 
     it "should use create security group to return the server" do
-      provider.should_receive(:create_cloud_resource_for).with(cloud_resource).and_return(cloud_counterpart)
+      cloud_resource.should_receive(:create_cloud_counterpart).and_return(cloud_counterpart)
 
       task.meet.should be cloud_counterpart
     end

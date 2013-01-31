@@ -56,6 +56,14 @@ ENVFILE_CONTENTS
 
     end
 
+    context "#context" do
+      it "should return the root context" do
+        cli.root.should_receive(:context).and_return(:root_context)
+
+        cli.context.should be :root_context
+      end
+    end
+
     context "#plugins" do
       let (:options) { { color: true, plugins: "Politburo::Plugins::Cloud::Plugin,   Integer" } }
 

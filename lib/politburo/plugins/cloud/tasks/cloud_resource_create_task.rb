@@ -5,7 +5,6 @@ module Politburo
         class CloudResourceCreateTask < Politburo::Resource::StateTask
 
           attr_accessor :noun
-          attr_accessor :create_using
 
           def met?(verification = false)
             logger.info("Searching for existing #{noun}...") unless verification
@@ -15,7 +14,7 @@ module Politburo
           end
 
           def meet(try = 0)
-            cloud_counterpart = create_using.call(resource)
+            cloud_counterpart = resource.create_cloud_counterpart
             logger.info("Created new #{noun}: #{cloud_counterpart.display_name.cyan}") if (cloud_counterpart)
             cloud_counterpart        
           end

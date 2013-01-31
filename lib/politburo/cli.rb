@@ -70,6 +70,10 @@ module Politburo
       }
     end
 
+    def context
+      root.context
+    end
+
     def release()
       root.each { | r | r.release }
     end

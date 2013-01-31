@@ -19,7 +19,7 @@ module Politburo
           def meet(try = 0)
             cloud_resource = resource.cloud_counterpart
             logger.info("Deleting #{noun}: #{cloud_resource.display_name.cyan}...")
-            cloud_resource.destroy
+            resource.destroy_cloud_counterpart
 
             true
           end

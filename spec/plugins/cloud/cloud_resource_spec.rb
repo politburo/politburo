@@ -2,6 +2,7 @@ describe Politburo::Plugins::Cloud::CloudResource do
 
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
   let(:cloud_resource) { Politburo::Plugins::Cloud::CloudResource.new(name: "Cloud resource") }
+  let(:cloud_counterpart) { double('cloud counterpart') }
 
   before :each do
     parent_resource.add_child(cloud_resource)
@@ -20,6 +21,16 @@ describe Politburo::Plugins::Cloud::CloudResource do
       cloud_resource.cloud_counterpart_name.should eq "override the default"
     end
 
+  end
+
+  context "#destroy_cloud_counterpart" do
+
+    it "should destroy the cloud counterpart" do
+      cloud_resource.should_receive(:cloud_counterpart).and_return(cloud_counterpart)
+      cloud_counterpart.should_receive(:destroy)
+
+      cloud_resource.destroy_cloud_counterpart
+    end
   end
 
   context "#provider" do

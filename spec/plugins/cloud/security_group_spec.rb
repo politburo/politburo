@@ -14,7 +14,7 @@ describe Politburo::Plugins::Cloud::SecurityGroup do
     end
   end
 
-  context "cloud_security_group" do
+  context "#cloud_security_group" do
     let(:provider) { double("provider") }
 
     it "should use the provider to return the appropriate security group" do
@@ -25,4 +25,14 @@ describe Politburo::Plugins::Cloud::SecurityGroup do
     end
   end
 
+  context "#create_cloud_counterpart" do
+    let(:provider) { double("provider") }
+
+    it "should use the provider to create the cloud security group" do
+      security_group.should_receive(:cloud_provider).and_return(provider)
+      provider.should_receive(:create_security_group_for).with(security_group).and_return(:cloud_security_group)
+
+      security_group.create_cloud_counterpart
+    end
+  end
 end
