@@ -57,6 +57,24 @@ module Politburo
 				explicit_nouns.include?(noun)
 			end
 
+			def type(type_sym, options = {}, &block)
+				based_on = options.delete(:based_on)
+				raise ":based_on is a required options for context#type." unless based_on
+
+				based_on_class = based_on.is_a?(Symbol) ? types[based_on] : based_on
+				
+				new_class = Class.new(based_on_class, &block)
+				types[type_sym] = new_class
+
+				noun(type_sym) { | context, attributes, &block | context.lookup_or_create_resource(new_class, attributes, &block) }
+
+				new_class
+			end
+
+			def types
+				@types ||= {}
+			end
+
 			def depends_on(dependent_context)
 				receiver.add_dependency_on(dependent_context.receiver)
 				dependent_context

@@ -4,6 +4,140 @@ describe Politburo::DSL::Context do
 	let(:resource) { double('resource') }
 	let(:context) { Politburo::DSL::Context.new(resource) }
 	
+	context "#type" do
+		let(:created_class) { context.types[:webnode] }
+		let(:types) { { node: Politburo::Plugins::Cloud::Node } }
+
+		before do
+			context.stub(:types).and_return(types)
+			context.stub(:noun).with(:webnode)
+		end
+		
+		context "based_on" do
+			context "when it is a class" do
+
+				it "should define a class based on it" do
+					context.type(:webnode, based_on: Politburo::Plugins::Cloud::Node)
+
+					created_class.should be_a Class
+					(created_class < Politburo::Plugins::Cloud::Node).should be_true
+				end
+
+			end
+
+			context "when it is a symbol" do
+			
+				it "should look up type and define a class based on it" do
+					context.type(:webnode, based_on: :node)
+
+					created_class.should be_a Class
+					(created_class < Politburo::Plugins::Cloud::Node).should be_true
+				end
+
+			end
+
+			context "when it is not given" do
+
+				it { lambda { context.type(:webnode, {}) }.should raise_error ":based_on is a required options for context#type." }
+
+			end
+		end
+
+		context "block" do
+
+			it "should yield it in the context of the created class" do
+				context.type(:webnode, based_on: :node) do
+					def new_method_in_webnode_class
+						"does nothing"
+					end
+				end
+
+				created_class.instance_methods.should include :new_method_in_webnode_class
+			end
+
+		end
+
+		context "noun for type" do
+
+			it "should define a noun for the type" do
+				context.should_receive(:noun).with(:webnode)
+
+				context.type(:webnode, based_on: :node)
+			end
+
+		end
+
+	end
+
+end
+
+describe Politburo::DSL::Context, "types" do
+
+	let(:root_definition) do
+		Politburo::DSL.define do
+			self.cli = :fake_cli
+
+			role(:nginx_server) { }
+			role(:postgres_client) { }
+			role(:postgres_server) do 
+				role(:postgres_client)
+			end
+
+			type(:webnode, based_on: Politburo::Resource::Node) do
+				implies do
+					role(:nginx_server)
+					role(:postgres_client)
+				end
+			end
+
+			type(:load_balancer, based_on: Politburo::Resource::Node) do
+				implies do
+					role(:nginx_server)
+				end
+			end
+
+			type(:webnodes, based_on: Politburo::Resource::Facet) do
+				attr_accessor :cardinality
+				requires :cardinality
+
+				implies do
+					load_balancer(name: 'Front-Facing Load Balancer') { }
+					(1..cardinality).each do | i |
+						webnode("Webnode #{i}") { }
+					end
+				end
+			end
+
+			role(:custom_role) { }
+			
+			environment(name: "environment") do
+				webnodes(name: 'webnodes', cardinality: 10) do
+					role(:custom_role)
+				end
+			end
+		end
+	end
+
+	let(:node) { root_definition.find_all_by_attributes(name: 'node').first }
+	let(:another_node) { root_definition.find_all_by_attributes(name: "another node").first }
+
+	let(:webnode_role) { root_definition.context.role(:webnode).receiver }
+	let(:customised_role) { root_definition.context.role(:customised_role).receiver }
+
+	let(:webnodes) { root_definition.find_all_by_attributes(name: /Webnode/) }
+	let(:webnode) { webnodes.first }
+
+	it "should define classes for the types" do
+		webnode.should be_a Politburo::Resource::Node
+		webnode.should be_a root_definition.context.types[:webnode]
+	end
+
+end
+
+describe Politburo::DSL::Context do
+	let(:resource) { double('resource') }
+	let(:context) { Politburo::DSL::Context.new(resource) }
+	
 	context "#role" do
 		let(:role) { double('role', implies: nil) }
 		let(:role_context) { double('role context', receiver: role)}
