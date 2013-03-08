@@ -122,14 +122,18 @@ describe Politburo::DSL::Context, "types" do
 	let(:another_node) { root_definition.find_all_by_attributes(name: "another node").first }
 
 	let(:webnode_role) { root_definition.context.role(:webnode).receiver }
-	let(:customised_role) { root_definition.context.role(:customised_role).receiver }
+	let(:custom_role) { root_definition.context.role(:custom_role).receiver }
 
-	let(:webnodes) { root_definition.find_all_by_attributes(name: /Webnode/) }
-	let(:webnode) { webnodes.first }
+	let(:webnodes) { root_definition.find_all_by_attributes(name: /webnodes/).first }
+	let(:webnode) { root_definition.find_all_by_attributes(name: /Webnode/).first }
 
 	it "should define classes for the types" do
 		webnode.should be_a Politburo::Resource::Node
 		webnode.should be_a root_definition.context.types[:webnode]
+	end
+
+	it "should handle custom ops correctly" do
+		webnodes.applied_roles.should include custom_role
 	end
 
 end
