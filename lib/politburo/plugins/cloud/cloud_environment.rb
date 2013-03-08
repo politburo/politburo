@@ -15,11 +15,11 @@ module Politburo
       module EnvironmentContextExtensions
 
         def self.load(context)
-          context.noun(:node)           { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Plugins::Cloud::Node, attributes, &block) }
-          context.noun(:facet)          { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Plugins::Cloud::Facet, attributes, &block) }
-          context.noun(:group)          { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Plugins::Cloud::Facet, attributes, &block) }
-          context.noun(:security_group) { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Plugins::Cloud::SecurityGroup, attributes, &block) }
-          context.noun(:key_pair)       { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Plugins::Cloud::KeyPair, attributes, &block) }
+          context.add_noun_and_type(:node, ::Politburo::Plugins::Cloud::Node)
+          context.add_noun_and_type(:facet, ::Politburo::Plugins::Cloud::Facet)
+          context.add_noun_and_type(:group, ::Politburo::Plugins::Cloud::Facet)
+          context.add_noun_and_type(:security_group, ::Politburo::Plugins::Cloud::SecurityGroup)
+          context.add_noun_and_type(:key_pair, ::Politburo::Plugins::Cloud::KeyPair)
         end
 
       end

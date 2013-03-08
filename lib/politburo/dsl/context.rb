@@ -60,15 +60,17 @@ module Politburo
 			def type(type_sym, options = {}, &block)
 				based_on = options.delete(:based_on)
 				raise ":based_on is a required options for context#type." unless based_on
-
 				based_on_class = based_on.is_a?(Symbol) ? types[based_on] : based_on
 				
 				new_class = Class.new(based_on_class, &block)
-				types[type_sym] = new_class
-
-				noun(type_sym) { | context, attributes, &block | context.lookup_or_create_resource(new_class, attributes, &block) }
+				add_noun_and_type(type_sym, new_class)
 
 				new_class
+			end
+
+			def add_noun_and_type(type_noun_sym, klass)
+				types[type_noun_sym] = klass
+				noun(type_noun_sym) { | context, attributes, &block | context.lookup_or_create_resource(klass, attributes, &block) }
 			end
 
 			def types

@@ -19,11 +19,11 @@ module Politburo
         @context ||= begin
           context = Politburo::DSL::Context.new(self)
 
-          context.noun(:environment)  { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Resource::Environment, attributes, &block) }
-          context.noun(:node)         { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Resource::Node, attributes, &block) }
-          context.noun(:facet)        { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Resource::Facet, attributes, &block) }
-          context.noun(:group)        { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Resource::Facet, attributes, &block) }
-          context.noun(:remote_task)  { | context, attributes, &block | context.lookup_or_create_resource(::Politburo::Tasks::RemoteTask, attributes, &block) }
+          context.add_noun_and_type(:environment, ::Politburo::Resource::Environment)
+          context.add_noun_and_type(:node,::Politburo::Resource::Node)
+          context.add_noun_and_type(:facet, ::Politburo::Resource::Facet)
+          context.add_noun_and_type(:group, ::Politburo::Resource::Facet)
+          context.add_noun_and_type(:remote_task, ::Politburo::Tasks::RemoteTask)
 
           context.noun(:plugin) { | context, attributes, &block | 
             klass = attributes.delete(:class)

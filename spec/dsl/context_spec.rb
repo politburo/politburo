@@ -83,20 +83,20 @@ describe Politburo::DSL::Context, "types" do
 				role(:postgres_client)
 			end
 
-			type(:webnode, based_on: Politburo::Resource::Node) do
+			type(:webnode, based_on: :node) do
 				implies do
 					role(:nginx_server)
 					role(:postgres_client)
 				end
 			end
 
-			type(:load_balancer, based_on: Politburo::Resource::Node) do
+			type(:load_balancer, based_on: :node) do
 				implies do
 					role(:nginx_server)
 				end
 			end
 
-			type(:webnodes, based_on: Politburo::Resource::Facet) do
+			type(:webnodes, based_on: :group) do
 				attr_accessor :cardinality
 				requires :cardinality
 
