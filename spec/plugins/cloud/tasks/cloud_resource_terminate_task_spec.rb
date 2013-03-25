@@ -1,7 +1,13 @@
 describe Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask do
 
+  let(:klass) { 
+    Class.new(Politburo::Resource::Base) {
+      include Politburo::Plugins::Cloud::CloudResource
+    }
+  }
+  
   let(:provider) { double("cloud provider") }
-  let(:cloud_resource) { Politburo::Plugins::Cloud::CloudResource.new(name: "Cloud resource") }
+  let(:cloud_resource) { klass.new(name: "Cloud resource") }
   let(:cloud_counterpart) { double("cloud counterpart resource", display_name: 'resource#1') }
 
   let(:state) { cloud_resource.context.define { state(:started) {} }.state(:started) }

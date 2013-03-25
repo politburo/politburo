@@ -1,7 +1,9 @@
 module Politburo
   module Plugins
     module Cloud
-      class KeyPair < CloudResource
+      class KeyPair < Politburo::Resource::Base
+        include CloudResource
+
         inherits :private_keys_path
 
         attr_with_default(:private_key_file_name) { "#{cloud_counterpart_name.gsub(/\W/, '_')}.pem" }

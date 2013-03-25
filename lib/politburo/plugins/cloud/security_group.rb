@@ -1,7 +1,8 @@
 module Politburo
   module Plugins
     module Cloud
-      class SecurityGroup < CloudResource
+      class SecurityGroup < Politburo::Resource::Base
+        include CloudResource
         implies {
           state(:created)     { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceCreateTask,     name: "Create security group", noun: 'security group') {} } 
           state(:terminated)  { create_and_define_resource(Politburo::Plugins::Cloud::Tasks::CloudResourceTerminateTask,  name: "Delete security group", noun: 'security group') {} } 

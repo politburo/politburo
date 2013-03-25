@@ -53,14 +53,12 @@
 				def validations
 					validations = {}
 
-					klass = self
-					until (klass.nil?)
+					for klass in ancestors
 						if klass.respond_to?(:explicit_validations)
 							klass.explicit_validations.each_pair do | attr, validations_for_attr |
 								validations[attr] = validations_for_attr + (validations[attr] || [])
 							end
 						end
-						klass = klass.superclass
 					end
 
 					validations

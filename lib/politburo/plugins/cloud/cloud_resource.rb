@@ -1,7 +1,9 @@
 module Politburo
   module Plugins
     module Cloud
-      class CloudResource < Politburo::Resource::Base
+      module CloudResource
+        include Politburo::DSL::DslDefined
+
         inherits :provider
         inherits :provider_config
         inherits :region
@@ -17,6 +19,13 @@ module Politburo
 
         def destroy_cloud_counterpart
           cloud_counterpart.destroy
+        end
+
+        def self.included(base)
+          base.extend(ClassMethods)
+        end
+
+        module ClassMethods
         end
 
       end

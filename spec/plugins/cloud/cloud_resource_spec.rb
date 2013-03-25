@@ -1,7 +1,13 @@
 describe Politburo::Plugins::Cloud::CloudResource do
 
+  let(:klass) { 
+    Class.new(Politburo::Resource::Base) {
+      include Politburo::Plugins::Cloud::CloudResource
+    }
+  }
+
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-  let(:cloud_resource) { Politburo::Plugins::Cloud::CloudResource.new(name: "Cloud resource") }
+  let(:cloud_resource) { klass.new(name: "Cloud resource") }
   let(:cloud_counterpart) { double('cloud counterpart') }
 
   before :each do
