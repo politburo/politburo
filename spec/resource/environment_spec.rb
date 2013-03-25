@@ -15,4 +15,20 @@ describe Politburo::Resource::Environment do
 			state.should_not be_nil
 		end
 	end
+
+  context "#private_keys_path" do
+    let(:private_keys_path) { double("private keys path") }
+    let(:cli) { double("CLI") }
+    let(:root) { double("root") }
+
+    it "should default to getting it from the CLI" do
+      environment.should_receive(:root).and_return(root)
+      root.should_receive(:cli).and_return(cli)
+      cli.should_receive(:private_keys_path).and_return(private_keys_path)
+
+      environment.private_keys_path.should be private_keys_path
+    end
+
+  end  
+
 end

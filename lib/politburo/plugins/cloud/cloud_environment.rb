@@ -7,9 +7,6 @@ module Politburo
         attr_accessor :region
 
         requires :provider
-        
-        attr_with_default(:private_keys_path) { root.cli.private_keys_path }
-
       end
 
       module EnvironmentContextExtensions
