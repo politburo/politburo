@@ -1,24 +1,10 @@
-describe Politburo::Plugins::Cloud::KeyPair do
+describe Politburo::Resource::KeyPair do
 
   let(:parent_resource) { Politburo::Resource::Base.new(name: "Parent resource") }
-  let(:key_pair) { Politburo::Plugins::Cloud::KeyPair.new(name: "Key pair resource") }
+  let(:key_pair) { Politburo::Resource::KeyPair.new(name: "Key pair resource") }
 
   before :each do
     parent_resource.add_child(key_pair)
-  end
-
-  context "#cloud_counterpart_name" do
-
-    it "should default to the parent's short name" do
-      key_pair.cloud_counterpart_name.should eq parent_resource.name
-    end
-  end
-
-  context "#cloud_counterpart" do
-    it "should call cloud_key_pair" do
-      key_pair.should_receive(:cloud_key_pair)
-      key_pair.cloud_counterpart
-    end
   end
 
   context "#private_keys_path" do
@@ -77,17 +63,6 @@ describe Politburo::Plugins::Cloud::KeyPair do
       private_keys_path.should_receive(:+).and_return(:combined_path)
 
       key_pair.public_key_path.should be :combined_path
-    end
-  end
-
-  context "cloud_key_pair" do
-    let(:provider) { double("provider") }
-
-    it "should use the provider to return the appropriate security group" do
-      key_pair.should_receive(:cloud_provider).and_return(provider)
-      provider.should_receive(:find_key_pair_for).with(key_pair).and_return(:cloud_key_pair)
-
-      key_pair.cloud_key_pair.should be :cloud_key_pair
     end
   end
 

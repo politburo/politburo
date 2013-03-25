@@ -16,7 +16,7 @@ require_relative 'cloud/cloud_environment'
 require_relative 'cloud/root_context_extensions'
 require_relative 'cloud/cloud_resource'
 require_relative 'cloud/security_group'
-require_relative 'cloud/key_pair'
+require_relative 'cloud/cloud_key_pair'
 require_relative 'cloud/tasks'
 
 # Plugin
