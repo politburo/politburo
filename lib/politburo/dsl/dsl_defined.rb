@@ -129,10 +129,8 @@
 
 				def implied
 					implied = []
-					klass = self
-					until (klass.nil?)
+					for klass in ancestors
 						implied.insert(0, *klass.explicitly_implied) if klass.respond_to?(:explicitly_implied)
-						klass = klass.superclass
 					end
 
 					implied
