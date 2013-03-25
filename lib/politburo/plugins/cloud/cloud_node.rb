@@ -2,12 +2,7 @@ module Politburo
   module Plugins
     module Cloud
       class Node < Politburo::Resource::Node
-        inherits :provider
-        inherits :provider_config
-        inherits :region
-
-        requires :provider
-        requires :region
+        include CloudCommon
 
         attr_with_default(:host) { cloud_server.dns_name }
 

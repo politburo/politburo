@@ -2,14 +2,8 @@ module Politburo
   module Plugins
     module Cloud
       module CloudResource
+        include CloudCommon
         include Politburo::DSL::DslDefined
-
-        inherits :provider
-        inherits :provider_config
-        inherits :region
-
-        requires :provider
-        requires :region
 
         attr_with_default(:cloud_counterpart_name) { default_cloud_counterpart_name }
 
