@@ -9,8 +9,8 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
       environment(name: "environment") do
         node(name: "node") do
           state(:configured) {
-            babushka_task(dep: 'cool-as:cool-dep') {
-            }
+            babushka_task(dep: 'cool-as:cool-dep') { }
+            babushka_task(dep: 'cool-as:cool-dep-with-args', args: { version: 1.0, cluster_name: "big cluster with \"quotes\"" }) { }
           }
         end
       end
@@ -19,6 +19,7 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
 
   let(:node) { root_definition.context.lookup(name: 'node').receiver }
   let(:babushka_task) { root_definition.context.lookup(dep: 'cool-as:cool-dep').receiver }
+  let(:babushka_task_with_args) { root_definition.context.lookup(dep: 'cool-as:cool-dep-with-args').receiver }
 
   let(:install_babushka_task) { node.state(:configured).find_all_by_attributes(name: 'install babushka').first }
 
@@ -35,6 +36,20 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
   it "should have a default name" do
     puts babushka_task.method(:name)
     babushka_task.name.should eq "babushka cool-as:cool-dep"
+  end
+
+  context "#args" do
+    it "should have default empty args" do
+      babushka_task.args.should == {}
+    end
+
+    it "should have set args" do
+      babushka_task_with_args.args.should == { version: 1.0, cluster_name: "big cluster with \"quotes\"" }
+    end
+
+    it "should have the correct remote command" do
+      babushka_task_with_args.command.command.should == "babushka meet cool-as:cool-dep-with-args version=1.0 cluster_name=big\\ cluster\\ with\\ \\\"quotes\\\""
+    end
   end
 
   context "install babushka task" do
