@@ -8,8 +8,6 @@ module Politburo
 
         attr_accessor :default_security_group
 
-        attr_with_default(:key_pair) { (parent_resource.nil? ? nil : parent_resource.key_pair) || self.context.lookup(name: "Default Key Pair for #{self.region}", class: Politburo::Plugins::Cloud::KeyPair, region: self.region).receiver }
-
         def cloud_server
           if @cloud_server.nil? 
             @cloud_server = cloud_provider.find_server_for(self)

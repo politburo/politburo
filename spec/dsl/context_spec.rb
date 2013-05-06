@@ -201,7 +201,7 @@ describe Politburo::DSL::Context do
 				it "should execute the role's implies proc within the resource's context" do
 					role.should_receive(:implies).and_return(proc)
 
-					resource.should_receive(:do_stuff)
+					context.should_receive(:do_stuff).and_return(false)
 
 					context.role(:master)
 				end
@@ -222,7 +222,8 @@ describe Politburo::DSL::Context do
 
 				it "should not execute the role definition again" do
 					resource.should_receive(:applied_roles).and_return([ role ])
-					resource.should_receive(:do_stuff).exactly(1).times
+					
+					context.should_receive(:do_stuff).exactly(1).times
 
 					context.role(:master)
 					context.role(:master)
@@ -415,39 +416,46 @@ describe Politburo::DSL::Context do
 
 	  context "when calling a method which doesn't exist on the current context" do
 
-	    context "when it exists on the receiver" do
+	  	it "should delegate to parent resource" do
+	  		resource_context.should_receive(:delegate_call_to_parent_context).with(resource_context, :do_stuff).and_return(true)
 
-	      before :each do
-	        resource.should_receive(:respond_to?).with(:do_stuff).and_return(true)
-	      end
+	  		resource_context.do_stuff.should be_true
+	  	end
 
-	      it "should call it" do
-	        resource.should_receive(:do_stuff).and_return(:stuff_happened)
+	  	context "when the parent context can't handle it" do
 
-	        resource_context.do_stuff.should be :stuff_happened
-	      end
+	  		before do
+	  			resource_context.should_receive(:delegate_call_to_parent_context).with(resource_context, :do_stuff).and_raise("Could not locate method 'do_stuff' on context hierarchy, or receiver")
+	  		end
 
-	    end
+	  		context "when the resource has the method" do
 
-	    context "when it doesn't exist on the current receiver" do
+	  			before do
+	  				resource.should_receive(:respond_to?).with(:do_stuff).and_return(true)
+	  			end
 
-	      before :each do
-	        resource.should_receive(:respond_to?).with(:do_stuff).and_return(false)
-	        resource_context.stub(:delegate_call_to_parent_context).with(resource_context, :do_stuff).and_return(:result)
-	      end
+	  			it "should call it" do
+	  				resource.should_receive(:do_stuff).and_return(true)
 
-	      it "should not call it" do
-	        resource.should_not_receive(:do_stuff)
+	  				resource_context.do_stuff.should be_true
+	  			end
 
-	        resource_context.do_stuff
-	      end
+	  		end
 
-	      it "should delegate to the parent context" do
-	        resource_context.should_receive(:delegate_call_to_parent_context).with(resource_context, :do_stuff, :arg1, :arg2).and_return(:result)
-	        resource_context.do_stuff(:arg1, :arg2).should be :result
-	      end
+	  		context "when the resource doesn't have the method" do
 
-	    end
+	  			before do
+	  				resource.should_receive(:respond_to?).with(:do_stuff).and_return(false)
+	  			end
+
+	  			it "should raise an error" do
+	  				lambda { resource_context.do_stuff }.should raise_error "Could not locate method 'do_stuff' on context hierarchy, or receiver"
+	  			end
+
+	  		end
+
+	  	end
+
 	  end
 	end
 

@@ -11,6 +11,8 @@ module Politburo
         requires :provider
         requires :region
 
+        attr_with_default(:key_pair) { (parent_resource.nil? ? nil : parent_resource.key_pair) || self.context.lookup(name: "Default Key Pair for #{self.region}", class: Politburo::Plugins::Cloud::KeyPair, region: self.region).receiver }
+
         def self.included(base)
           base.extend(ClassMethods)
         end
