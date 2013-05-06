@@ -9,3 +9,4 @@ tmp/*
 spec/functional/test_app/bin
 coverage.data
 coverage
+.env

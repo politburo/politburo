@@ -82,6 +82,10 @@ describe Politburo::Plugins::Cloud::Node do
   context "#key_pair" do
     let(:default_key_pair_for_region_context) { double("context for default keypair", receiver: :default_key_pair_for_region) }
 
+    before do
+      parent_resource.stub(:key_pair).and_return(nil)
+    end
+
     it "should default to locating one up the tree" do
       node.stub(:region).and_return(:region)
       node.context.should_receive(:lookup).with(name: 'Default Key Pair for region', class: Politburo::Plugins::Cloud::KeyPair, region: :region).and_return(default_key_pair_for_region_context)
@@ -89,6 +93,11 @@ describe Politburo::Plugins::Cloud::Node do
       node.key_pair.should be :default_key_pair_for_region
     end
 
+    it "should inherit the keypair if it was set up the hierarchy" do
+      parent_resource.should_receive(:key_pair).and_return(:parent_key_pair)
+
+      node.key_pair.should be :parent_key_pair
+    end
   end
 
   context "#cloud_provider" do

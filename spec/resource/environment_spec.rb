@@ -31,4 +31,10 @@ describe Politburo::Resource::Environment do
 
   end  
 
+  context "#key_pair" do
+    it "should be defined as an accessor" do
+      environment.key_pair = :key_pair
+      environment.key_pair.should be :key_pair
+    end
+  end
 end
