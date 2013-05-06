@@ -11,10 +11,14 @@ module Politburo
           containing_node do
               state(:configured) {
                 remote_task(name: 'install babushka', command: 'sudo sh -c "`curl https://babushka.me/up`"', met_test_command: 'which babushka') { }
+                
+                remote_task(name: 'update babushka sources', command: '', met_test_command: 'babushka sources -u') {
+                  depends_on remote_task('install babushka')
+                }
               }
           end
 
-          depends_on remote_task('install babushka')
+          depends_on remote_task('update babushka sources')
         end
 
         requires :dep
