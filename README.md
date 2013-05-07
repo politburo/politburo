@@ -49,23 +49,26 @@ To terminate just the front-facing webnode:
 Why?
 -------------
 
-* Environmments are code
-  * Snowflake servers are _so_ 2006
-  * In the cloud, environments code you
-  * We like being able to describe our environments in code
-  * We believe that code should be the lever that allows single developers to orchestrate entire environments.
-  * Source of truth should be in our code.
-  * The difference between a test environment and a production one is
-    in the number of servers while the topology is the same -- 
-    therefore there should only be one copy of the environment's description with
-    parameters controlling the difference.
+### Environmments are code ###
 
-* Test your environments
-  * Your build pipeline should be testing your deployment, which also includes your provisioning and how your different machines interact.
+* Snowflake servers are _so_ 2006
+* In the cloud, environments code you
+* We like being able to describe our environments in code
+* We believe that code should be the lever that allows single developers to orchestrate entire environments.
+* Source of truth should be in our code.
+* The difference between a test environment and a production one is
+  in the number of servers while the topology is the same -- 
+  therefore there should only be one copy of the environment's description with
+  parameters controlling the difference.
 
-* Dev ≈ Test ≈ Prod
-  * Difference between dev, test, prod should be cardinality, not topology.
-  * Dev might be local VMs, prod might be AWS? That shouldn't stop you.
+### Test your environments ###
+
+* Your build pipeline should be testing your deployment, which also includes your provisioning and how your different machines interact.
+
+### Dev ≈ Test ≈ Prod ###
+
+* Difference between dev, test, prod should be cardinality, not topology.
+* Dev might be local VMs, prod might be AWS? That shouldn't stop you.
 
 Why not (insert DevOps tool here)
 -------------
