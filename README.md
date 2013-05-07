@@ -28,8 +28,8 @@ This is an example that shows the basics of the Politburo DSL.
 environment(name: "tiny") do
     database(name: "db") {}
   webnode(name: "front facing") do
-    depends_on database(“db”)
-        application(repo: “git://...”)
+    depends_on database("db")
+        application(repo: "git://...")
   end
 end
 ```
@@ -72,18 +72,20 @@ Why not Chef? Puppet? Ansible? Capistrano? CloudFormation? Vagrant? Pallet?
 * So many tools try to scratch the itch, but we found that we still had an itch.
 * How come? 
   * We don't want centralised configuration servers
-  * Why not launch a 100-machine cluster from our laptop?
-* Source of truth should be version controlled.
+    * Why not launch a 100-machine cluster from our laptop?
+    * Source of truth should be version controlled.
   * We don't like recipes that are brittle or suffer from bit-rot
-  * We want test-driven, self-describing idempotent, dependency based tasks.
-* We don't like having to manage cookbooks
-  * Cookbook version hell is not acceptable.
+    * We want test-driven, self-describing idempotent, dependency based tasks.
+    * We don't like having to manage cookbooks
+    * Cookbook version hell is not acceptable.
 * Inter-machine dependencies
   * Classic situation: You may need your master node fully configured before your slave can start. Examples:
     * NFS master node must be available before you start your NFS clients
     * Hadoop HDFS namenode should be up before job servers can be started
 * Single threading is passe, why not resolve dependencies in parallel?
 * Vendor lock-in sucks, that goes for Cloud providers.
+  * Politburo is written with Fog, should be easy to add support for Cloud providers
+  * Should be able to describe an environment that crosses Cloud provider boundaries
 * We want predictability, at the end of the tool's run we want to know
   it is in a known state.
 
@@ -96,12 +98,12 @@ environment(name: "tiny", provider: :aws) do
   group(name: "databases") do
   database(name: "master") {}
   database(name: "slave") do
-    depends_on database(“master”)
+    depends_on database("master")
 end
   end
   webnode(name: "front facing") do
-    depends_on group(“databases”)
-    application(repo: “git://...”)
+    depends_on group("databases")
+    application(repo: "git://...")
   end
 end
 ```
@@ -127,7 +129,7 @@ environment(name: "biggie", provider: :aws) do
     group(name: "#{region}", region: region) do
       group(name: "databases") { ... }
       group(name: "webnodes") do
-        load_balancer(name: “webnodes”)
+        load_balancer(name: "webnodes")
         (1..10).each do | i | 
           webnode(name: "webnode #{i}") { ... }
         end
@@ -170,7 +172,7 @@ type(:web_app_node, based_on: :node) do
 
 end
 
-environment(name: 'Brownbag', description: "Brownbag environment",
+environment(name: 'example', description: "example environment",
   provider: :aws, 
   provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
 
@@ -200,7 +202,7 @@ Contributors:
 What's with the name?
 -------------
 Политбюро IPA: [pəlʲɪtbʲʉˈro]
-“Political Bureau of the Central Committee of the Communist Party of the Soviet Union“
+"Political Bureau of the Central Committee of the Communist Party of the Soviet Union"
 
 As the DSL utilises an army of Babushka deps, we thought it was appropriate.
 
