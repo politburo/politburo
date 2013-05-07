@@ -1,9 +1,15 @@
-Politburo - The Developer's DevOps orchestrator
-=====================================================================
+Politburo - The Ruby Dev's DevOps Weapon of Mass Creation
+================================================================
 
-Politburo is a tool to orchestrate launching, configuring, maintaining & 
-updating entire multi-machine environments / clusters described in a 
-simple DSL.
+Politburo is a Ruby-based DSL that lets you describe entire environments in 
+declarative code, and launch them with a single command. 
+
+Launch in the cloud, or locally. It is still Ruby, with all that implies.
+
+Remote tasks are written in Babushka.
+
+Inspiration
+-------------
 
 > "Give me a lever long enough and a fulcrum on which to place it, 
 > and I shall move the world" - Arhchimedes
@@ -13,81 +19,188 @@ Or:
 > "First requisite of get shit done is be
 >          able for deal with lot of shit." - @DEVOPS_BORAT (http://goo.gl/FCxTz)
 
-The prologue:
+Quick example:
 -------------
 
-* We love DevOps
-* We like being able to describe our environments in code
-* We believe that code should be the lever that allows single
-  developers to orchestrate entire environments.
-* We don't want centralised configuration servers
-  * Why not launch a 100-machine cluster from our laptop?
+This is an example that shows the basics of the Politburo DSL.
+
+```ruby
+environment(name: "tiny") do
+    database(name: "db") {}
+  webnode(name: "front facing") do
+    depends_on database(“db”)
+        application(repo: “git://...”)
+  end
+end
+```
+
+You launch this environment with:
+```politburo tiny#ready```
+
+You terminate it with:
+```politburo tiny#terminated```
+
+To terminate just the front-facing webnode:
+```politburo "tiny:front facing#terminated"```
+
+Why?
+-------------
+
+* Environmments are code
+  * Snowflake servers are _so_ 2006
+  * In the cloud, environments code you
+  * We like being able to describe our environments in code
+  * We believe that code should be the lever that allows single developers to orchestrate entire environments.
   * Source of truth should be in our code.
+  * The difference between a test environment and a production one is
+    in the number of servers while the topology is the same -- 
+    therefore there should only be one copy of the environment's description with
+    parameters controlling the difference.
+
+* Test your environments
+  * Your build pipeline should be testing your deployment, which also includes your provisioning and how your different machines interact.
+
+* Dev ≈ Test ≈ Prod
+  * Difference between dev, test, prod should be cardinality, not topology.
+  * Dev might be local VMs, prod might be AWS? That shouldn't stop you.
+
+Why not (insert DevOps tool here)
+-------------
+
+Why not Chef? Puppet? Ansible? Capistrano? CloudFormation? Vagrant? Pallet? 
+
+* So many tools try to scratch the itch, but we found that we still had an itch.
+* How come? 
+  * We don't want centralised configuration servers
+  * Why not launch a 100-machine cluster from our laptop?
+* Source of truth should be version controlled.
+  * We don't like recipes that are brittle or suffer from bit-rot
+  * We want test-driven, self-describing idempotent, dependency based tasks.
 * We don't like having to manage cookbooks
   * Cookbook version hell is not acceptable.
-* We don't like recipes that are brittle or suffer from bit-rot  
-* We love Babushka's approach to DevOps scripting:
-  * Test-driven, self-describing idempotent, dependency based tasks.
-  * Searchable, reusable & parameterised tasks with 
-    '% successful run' metrics
-* Tools like Babushka are missing a couple of things to allow wielding them to
-  manage multi-host environments/clusters:
-  * A method of orchestrating multiple servers with inter-machine dependencies
-* The difference between a test environment and a production one is
-  in the number of servers while the topology is the same -- 
-  therefore there should only be one copy of the environment's description with
-  parameters controlling the difference.
-* We want predictability, at the end of the tool's run we want to know
-  it is in a known state.
-* We want to be able to automatically test our environment as part of 
-  testing our application.
-
-Aspirational Feature List:
---------------------------
-
-* Secure, but not inconvenient
-* Not dependent on a specialized server for orchestration
-* Version control your environment(s) description
-  * VCS, likely git, is the source of truth, 
-  * A dashboard is just a view and/or tool to manipulate the 
-    version-controlled truth
-* Be agnostic of whether you are using pre-allocated hosts or 
-  on-demand provisioned ones (either Cloud or VMs.)
-  * Production environment on AWS, Rackspace, other? No problem.
-  * Dev environment on VMs or in the cloud? Either is fine.
-* Dependencies between hosts & roles 
-  * Classic situation: You may need your master node fully 
-    configured before your slave can start.
-  * Examples: 
+* Inter-machine dependencies
+  * Classic situation: You may need your master node fully configured before your slave can start. Examples:
     * NFS master node must be available before you start your NFS clients
     * Hadoop HDFS namenode should be up before job servers can be started
-  * These are simple inter-machine dependencies, most orchestration tools
-    don't allow you to do this. Politburo does.
-* Blueprint environments + modifications:
-  * You may want multiple staging environment, that are 99% simliar.
-    You do not want to have to duplicate & maintain multiple descriptors.
+* Single threading is passe, why not resolve dependencies in parallel?
+* Vendor lock-in sucks, that goes for Cloud providers.
+* We want predictability, at the end of the tool's run we want to know
+  it is in a known state.
 
 Politburo DSL Basics:
 ---------------------
 
+Note this example:
+```ruby
+environment(name: "tiny", provider: :aws) do
+  group(name: "databases") do
+  database(name: "master") {}
+  database(name: "slave") do
+    depends_on database(“master”)
+end
+  end
+  webnode(name: "front facing") do
+    depends_on group(“databases”)
+    application(repo: “git://...”)
+  end
+end
+```
+
 * The DSL describes a hierarchy of resources
-  * e.g. An example production environment is _composed of_ one load 
-    balancer, one database master, one database slaves and three web-nodes
-  * The production environment is a resource, and so are the load balancer, 
-    db master and each of the web nodes. 
-  * The environment resource contains the other resources.
+  * The hierarchy is syntactic sugar for a 'depends on' relationship.
+  * e.g. The 'tiny' environment above is _composed of_ a database group and a front-facing webnode. This means the environment is considered _ready_ when both the database group and the front-facing webnode are _ready_.
+* ```resource(attributes: ...) {}``` = Defining a resource
+* ```resource(attr: ...)``` = Referring to a resource
 * The DSL is designed to be run in parallel. It is translated to
   a hierarchy of dependencies, most of which are remote tasks
-* A hierachical relationship is simply syntactic sugar to imply dependency.
-  * e.g. To mark the production environment as ready, all the composite 
-    parts of the production environment such as the load balancer and 
-    the database master must be ready. Therefore the production 
-    environment is _dependent_ on all its sub-resources
-* Naturally, you can still have dependency across the tree, other than on 
-  your sub-resources
-  * e.g. The webnodes for a standard LAMP stack are dependent on the master 
-    db node being ready, even though they don't hierarchically 'own' the dbnode. 
-* Resources lifecycle
-  * All resources share a minimum of these life-cycle states: 
-    "Defined", "Creating", "Created", "Ready", "Stopping", "Stopped", "Terminated"
+* Naturally, you can still have dependency across siblings
+  * ```{ depends_on other_resource(attrs:) }```
+* Resources lifecycle - all resources share a minimum of these life-cycle states: 
+  * defined -> created -> starting -> started -> configuring -> configured -> ready. 
+  * stopping -> stopped -> terminated
+
+### It is still ruby ###
+
+```ruby
+environment(name: "biggie", provider: :aws) do
+  regions.each do | region |
+    group(name: "#{region}", region: region) do
+      group(name: "databases") { ... }
+      group(name: "webnodes") do
+        load_balancer(name: “webnodes”)
+        (1..10).each do | i | 
+          webnode(name: "webnode #{i}") { ... }
+        end
+        depends_on group(name: 'databases')
+      end
+    end
+  end
+end
+```
+
+You can launch just the us-west-1 region:
+
+```politburo biggie:us-west-1#ready```
+
+### You can define you own roles and types ###
+
+```ruby
+role(:elasticsearch_server) {
+  state(:configured) {
+    babushka_task(dep: 'politburo:elasticsearch-installed', args: { version: "0.20.5", port: 9200, cluster_name: environment({}).name }) { }
+  } 
+}
+
+type(:elasticsearch_node, based_on: :node) do
+  implies do
+    role(:elasticsearch_server)
+  end
+end
+
+type(:web_app_node, based_on: :node) do
+  attr_accessor :es_node
+  requires :es_node
+
+  implies do
+    role(:git_client)
+    # .. more roles here
+
+    depends_on es_node
+  end
+
+end
+
+environment(name: 'Brownbag', description: "Brownbag environment",
+  provider: :aws, 
+  provider_config: { aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'], aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'] } ) do
+
+  group(name: "Sydney", region: 'ap-southeast-2') do
+    elasticsearch_node(name: "ElasticSearch Node", user: 'ubuntu') { }
+    web_app_node(name: "Rails App Node", 
+      user: 'ubuntu', 
+      es_node: elasticsearch_node(name: "ElasticSearch Node") ) {}
+  end
+
+end
+```
+
+TODO
+-------------
+
+* Support for providers other than AWS and local servers- Rackspace, etc.
+* More recipes for Rails and other stacks
+* Plug-ins to automatically construct Newrelic or other monitoring for environments
+
+Contributors:
+-------------
+* Tal Rotbart (@rotbart)
+* Robert Postill (@robertpostill)
+* Thanks to Cameron Hine and Navin Peiris (@navinpeiris) for their contributions
+
+What's with the name?
+-------------
+Политбюро IPA: [pəlʲɪtbʲʉˈro]
+“Political Bureau of the Central Committee of the Communist Party of the Soviet Union“
+
+As the DSL utilises an army of Babushka deps, we thought it was appropriate.
 
