@@ -238,3 +238,9 @@ Contributors:
 * Robert Postill (@robertpostill)
 
 * Thanks to Cameron Hine and Navin Peiris (@navinpeiris) for their contributions
+
+License:
+--------------
+
+Licensed under the simplified BSD (2 clause) license. See LICENSE file.
+
