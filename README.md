@@ -51,15 +51,18 @@ Why?
 
 ### Environmments are code ###
 
-* Snowflake servers are _so_ 2006
-* In the cloud, environments code you
 * We like being able to describe our environments in code
-* We believe that code should be the lever that allows single developers to orchestrate entire environments.
+
 * Source of truth should be in our code.
+
+* We believe that code should be the lever that allows single developers to orchestrate entire environments.
+
 * The difference between a test environment and a production one is
   in the number of servers while the topology is the same -- 
   therefore there should only be one copy of the environment's description with
   parameters controlling the difference.
+
+* In the cloud, environments code you
 
 ### Test your environments ###
 
