@@ -26,11 +26,14 @@ This is an example that shows the basics of the Politburo DSL.
 
 ```ruby
 environment(name: "tiny") do
-    database(name: "db") {}
+
+  database(name: "db") {}
+
   webnode(name: "front facing") do
     depends_on database("db")
-        application(repo: "git://...")
+    application(repo: "git://...")
   end
+
 end
 ```
 
@@ -95,16 +98,19 @@ Politburo DSL Basics:
 Note this example:
 ```ruby
 environment(name: "tiny", provider: :aws) do
+
   group(name: "databases") do
-  database(name: "master") {}
-  database(name: "slave") do
-    depends_on database("master")
-end
+    database(name: "master") {}
+    database(name: "slave") do
+      depends_on database("master")
+    end
   end
+
   webnode(name: "front facing") do
     depends_on group("databases")
     application(repo: "git://...")
   end
+
 end
 ```
 
