@@ -70,42 +70,6 @@ Why?
 * Difference between dev, test, prod should be cardinality, not topology.
 * Dev might be local VMs, prod might be AWS? That shouldn't stop you.
 
-Why not (insert DevOps tool here)
--------------
-
-Why not Chef? Puppet? Ansible? Capistrano? CloudFormation? Vagrant? Pallet? 
-
-So many tools try to scratch the itch, but we found that we still had an itch.
-
-### How come? ###
-
-* We don't want centralised configuration servers
-  * Why not launch a 100-machine cluster from our laptop?
-  * Source of truth should be version controlled.
-
-* We don't like recipes that are brittle or suffer from bit-rot
-  * We want test-driven, self-describing idempotent, dependency based tasks.
-  * We don't like having to manage cookbooks
-  * Cookbook version hell is not acceptable.
-
-### Inter-machine dependencies ###
-
-* Classic situation: You may need your master node fully configured before your slave can start. Examples:
-  * NFS master node must be available before you start your NFS clients
-  * Hadoop HDFS namenode should be up before job servers can be started
-
-### Single threading is passe ###
-
-* Why not resolve dependencies in parallel???
-
-### Vendor lock-in sucks ###
-
-* That goes for Cloud providers.
-  * Politburo is written with Fog, should be easy to add support for Cloud providers
-  * Should be able to describe an environment that crosses Cloud provider boundaries
-* We want predictability, at the end of the tool's run we want to know
-  it is in a known state.
-
 Politburo DSL Basics:
 ---------------------
 
@@ -206,6 +170,49 @@ environment(name: 'example', description: "example environment",
 end
 ```
 
+Why not (insert DevOps tool here)
+-------------
+
+Why not Chef? Puppet? Ansible? Capistrano? CloudFormation? Vagrant? Pallet? 
+
+So many tools try to scratch the itch, but we found that we still had an itch.
+
+### How come? ###
+
+* We don't want centralised configuration servers
+  * Why not launch a 100-machine cluster from our laptop?
+  * Source of truth should be version controlled.
+
+* We don't like recipes that are brittle or suffer from bit-rot
+  * We want test-driven, self-describing idempotent, dependency based tasks.
+  * We don't like having to manage cookbooks
+  * Cookbook version hell is not acceptable.
+
+### Inter-machine dependencies ###
+
+* Classic situation: You may need your master node fully configured before your slave can start. Examples:
+  * NFS master node must be available before you start your NFS clients
+  * Hadoop HDFS namenode should be up before job servers can be started
+
+### Single threading is passe ###
+
+* Why not resolve dependencies in parallel???
+
+### Vendor lock-in sucks ###
+
+* That goes for Cloud providers.
+  * Politburo is written with Fog, should be easy to add support for Cloud providers
+  * Should be able to describe an environment that crosses Cloud provider boundaries
+* We want predictability, at the end of the tool's run we want to know
+  it is in a known state.
+
+What's with the name?
+-------------
+Политбюро IPA: [pəlʲɪtbʲʉˈro]
+"Political Bureau of the Central Committee of the Communist Party of the Soviet Union"
+
+As the DSL utilises an army of Babushka deps, we thought it was appropriate.
+
 TODO
 -------------
 
@@ -218,11 +225,3 @@ Contributors:
 * Tal Rotbart (@rotbart)
 * Robert Postill (@robertpostill)
 * Thanks to Cameron Hine and Navin Peiris (@navinpeiris) for their contributions
-
-What's with the name?
--------------
-Политбюро IPA: [pəlʲɪtbʲʉˈro]
-"Political Bureau of the Central Committee of the Communist Party of the Soviet Union"
-
-As the DSL utilises an army of Babushka deps, we thought it was appropriate.
-
