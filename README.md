@@ -108,7 +108,7 @@ end
   * defined -> created -> starting -> started -> configuring -> configured -> ready. 
   * stopping -> stopped -> terminated
 
-### It is still ruby ###
+### It is still Ruby ###
 
 ```ruby
 environment(name: "biggie", provider: :aws) do
@@ -131,7 +131,7 @@ You can launch just the us-west-1 region:
 
 ```politburo biggie:us-west-1#ready```
 
-### You can define you own roles and types ###
+### You can define your own roles and types ###
 
 ```ruby
 role(:elasticsearch_server) {
@@ -193,13 +193,17 @@ So many tools try to scratch the itch, but we found that we still had an itch.
 
 ### Inter-machine dependencies ###
 
-* Classic situation: You may need your master node fully configured before your slave can start. Examples:
-  * NFS master node must be available before you start your NFS clients
-  * Hadoop HDFS namenode should be up before job servers can be started
+* Classic situation: You may need your master node fully configured before your slave can start. 
+
+Examples:
+
+* NFS master node must be available before you start your NFS clients
+
+* Hadoop HDFS namenode should be up before job servers can be started
 
 ### Single threading is passe ###
 
-* Why not resolve dependencies in parallel???
+* Why not resolve dependencies in parallel? Politburo, as the organizing comittee, wields many Babushkas in parallel.
 
 ### Vendor lock-in sucks ###
 
