@@ -58,7 +58,7 @@ module Politburo
       root.logger.debug("About to release resources...")
       release
 
-      root.logger.info("Run completed successfully: #{resolved_targets.map(&:full_name).join(", ")} satisfied.") if exit_success
+      root.logger.info("Run completed successfully: #{resolved_targets.map(&:full_name).map(&:cyan).join(", ")} satisfied.") if exit_success
 
       exit_success
     end

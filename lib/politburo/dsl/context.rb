@@ -45,9 +45,13 @@ module Politburo
 			def method_missing(method, *args, &block)
 				begin
 					delegate_call_to_parent_context(self, method, *args, &block)
-				rescue => nmE
+				rescue => e
 					return @receiver.send(method, *args, &block) if @receiver.respond_to?(method)
-					raise NoMethodError.new("Could not locate method '#{method}' on context hierarchy, or receiver", method)
+					if e.is_a?(NoMethodError) 
+						raise NoMethodError.new("Could not locate method '#{method}' on context '#{full_name}''s hierarchy, or its receiver.", method)
+					else
+						raise e
+					end
 				end
 			end
 

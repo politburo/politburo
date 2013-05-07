@@ -21,6 +21,8 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
   let(:babushka_task) { root_definition.context.lookup(dep: 'cool-as:cool-dep').receiver }
   let(:babushka_task_with_args) { root_definition.context.lookup(dep: 'cool-as:cool-dep-with-args').receiver }
 
+  let(:update_babushka_task) { node.state(:configured).find_all_by_attributes(name: 'update babushka sources').first }
+
   let(:install_babushka_task) { node.state(:configured).find_all_by_attributes(name: 'install babushka').first }
 
   it { babushka_task.should be_a Politburo::Plugins::Babushka::BabushkaTask }
@@ -29,8 +31,12 @@ describe Politburo::Plugins::Babushka::BabushkaTask do
     install_babushka_task.should_not be_nil
   end
 
-  it "should depend on the installation task" do
-    babushka_task.should be_dependent_on install_babushka_task
+  it "should depend on the update task" do
+    babushka_task.should be_dependent_on update_babushka_task
+  end
+
+  it "'s update task should depend on the install task" do
+    update_babushka_task.should be_dependent_on install_babushka_task
   end
 
   it "should have a default name" do
