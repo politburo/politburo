@@ -71,7 +71,7 @@ Why?
 ### Dev ≈ Test ≈ Prod ###
 
 * Difference between dev, test, prod should be cardinality, not topology.
-* Dev might be local VMs, prod might be AWS? That shouldn't stop you.
+* Dev might be local VMs, prod might be AWS. That shouldn't stop you.
 
 Politburo DSL Basics:
 ---------------------
@@ -214,17 +214,23 @@ What's with the name?
 Политбюро IPA: [pəlʲɪtbʲʉˈro]
 "Political Bureau of the Central Committee of the Communist Party of the Soviet Union"
 
-As the DSL utilises an army of Babushka deps, we thought it was appropriate.
+As the DSL orchestrates an army of Babushka deps, we thought it was appropriate.
 
 TODO
 -------------
 
+(a.k.a Five-Year Plans for the National Economy of the Soviet Union)
+
 * Support for providers other than AWS and local servers- Rackspace, etc.
+
 * More recipes for Rails and other stacks
+
 * Plug-ins to automatically construct Newrelic or other monitoring for environments
 
 Contributors:
 -------------
 * Tal Rotbart (@rotbart)
+
 * Robert Postill (@robertpostill)
+
 * Thanks to Cameron Hine and Navin Peiris (@navinpeiris) for their contributions
