@@ -6,6 +6,8 @@ declarative code, and launch them with a single command.
 
 Launch in the cloud, or locally. It is still Ruby, with all that implies.
 
+Politburo is geared towards describing your environments in code you can commit as part of your project and even test as part of your CI build.
+
 Remote tasks are written in Babushka.
 
 Inspiration
