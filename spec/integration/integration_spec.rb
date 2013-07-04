@@ -67,7 +67,7 @@ describe "End to end test" do
 			let(:state_to_achieve) { "terminated" }
 
 			it "should terminate the cloud server correctly" do
-				test_host.cloud_server.state.should == "terminated"
+				test_host.cloud_server.state.should == "terminated" if test_host.cloud_server
 			end
 		end
 
