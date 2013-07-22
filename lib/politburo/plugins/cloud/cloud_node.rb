@@ -6,6 +6,8 @@ module Politburo
 
         attr_with_default(:host) { cloud_server.dns_name }
 
+        attr_accessor :flavor
+
         attr_accessor :default_security_group
 
         def cloud_server
